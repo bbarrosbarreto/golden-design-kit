@@ -1,17 +1,63 @@
 import { useState } from "react";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { type FeaturedDevelopment as Development } from "@/lib/developments.functions";
-import { featuredDevelopmentsQueryOptions } from "@/lib/developments.query";
 import placeholder1 from "@/assets/dev-placeholder-1.png";
 import placeholder2 from "@/assets/dev-placeholder-2.png";
 
-const placeholders = [placeholder1, placeholder2, placeholder1];
+type Development = {
+  id: string;
+  slug: string;
+  name: string;
+  region: string;
+  builder: string;
+  typology: string;
+  cover_image_url: string;
+  status: "ready" | "forecast";
+  delivery_forecast?: string;
+  price_from: number;
+};
 
-function formatPrice(value?: number | null) {
-  if (!value) return null;
+// Mock data — substituir por dados reais do Supabase depois
+const MOCK: Development[] = [
+  {
+    id: "1",
+    slug: "residencial-horizonte",
+    name: "Residencial Horizonte",
+    region: "Asa Sul, Brasília/DF",
+    builder: "Construtora Paulo Octavio",
+    typology: "2 e 3 quartos",
+    cover_image_url: placeholder1,
+    status: "forecast",
+    delivery_forecast: "12/2026",
+    price_from: 890000,
+  },
+  {
+    id: "2",
+    slug: "edificio-arquiteto",
+    name: "Edifício Arquiteto",
+    region: "Sudoeste, Brasília/DF",
+    builder: "Brasal Incorporações",
+    typology: "3 e 4 quartos",
+    cover_image_url: placeholder2,
+    status: "ready",
+    price_from: 1450000,
+  },
+  {
+    id: "3",
+    slug: "vertical-noroeste",
+    name: "Vertical Noroeste",
+    region: "Noroeste, Brasília/DF",
+    builder: "Via Empreendimentos",
+    typology: "2 quartos",
+    cover_image_url: placeholder1,
+    status: "forecast",
+    delivery_forecast: "06/2027",
+    price_from: 720000,
+  },
+];
+
+function formatPrice(value: number) {
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency: "BRL",
@@ -19,21 +65,11 @@ function formatPrice(value?: number | null) {
   }).format(value);
 }
 
-function formatForecast(value?: string | null) {
-  if (!value) return null;
-  if (/^\d{2}\/\d{4}$/.test(value)) return value;
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return value;
-  return `${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
-}
-
 export function FeaturedDevelopments() {
-  const { data: items } = useSuspenseQuery({ ...featuredDevelopmentsQueryOptions });
+  const items = MOCK;
   const [index, setIndex] = useState(0);
-
-  const hasItems = items.length > 0;
-  const total = hasItems ? items.length : 1;
-  const current = hasItems ? items[index] : null;
+  const total = items.length;
+  const current = items[index];
 
   const go = (dir: 1 | -1) => setIndex((i) => (i + dir + total) % total);
 
@@ -53,12 +89,12 @@ export function FeaturedDevelopments() {
         {/* Carrossel */}
         <div className="relative mt-12 overflow-hidden rounded-lg border border-border bg-background shadow-sm">
           {current ? (
-            <Slide dev={current} fallback={placeholders[index % placeholders.length]} />
+            <Slide dev={current} />
           ) : (
             <SlideSkeleton />
           )}
 
-          {hasItems && total > 1 && (
+          {total > 1 && (
             <>
               <button
                 type="button"
@@ -72,8 +108,16 @@ export function FeaturedDevelopments() {
                 type="button"
                 onClick={() => go(1)}
                 aria-label="Próximo"
-                className="absolute top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-background/90 text-foreground shadow-md backdrop-blur transition hover:bg-background"
+                className="absolute top-1/2 z-10 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-background/90 text-foreground shadow-md backdrop-blur transition hover:bg-background md:flex"
                 style={{ left: "calc(55% - 3.5rem)" }}
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => go(1)}
+                aria-label="Próximo"
+                className="absolute right-4 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-background/90 text-foreground shadow-md backdrop-blur transition hover:bg-background md:hidden"
               >
                 <ChevronRight className="h-5 w-5" />
               </button>
@@ -82,7 +126,7 @@ export function FeaturedDevelopments() {
         </div>
 
         {/* Dots */}
-        {hasItems && total > 1 && (
+        {total > 1 && (
           <div className="mt-8 flex items-center justify-center gap-2">
             {items.map((_, i) => (
               <button
@@ -97,37 +141,29 @@ export function FeaturedDevelopments() {
             ))}
           </div>
         )}
-
       </div>
     </section>
   );
 }
 
-function Slide({ dev, fallback }: { dev: Development; fallback: string }) {
-  const price = formatPrice(dev.price_from);
-  const forecast = formatForecast(dev.delivery_forecast);
-  const isReady = (dev.status ?? "").toLowerCase() === "ready";
-
+function Slide({ dev }: { dev: Development }) {
   return (
-    <div
-      key={dev.id}
-      className="grid animate-in fade-in duration-300 md:grid-cols-[55%_45%]"
-    >
+    <div className="grid animate-in fade-in duration-300 md:grid-cols-[55%_45%]">
       {/* Imagem */}
       <div className="relative h-[320px] overflow-hidden bg-muted md:h-[480px]">
         <img
-          src={dev.cover_image_url || fallback}
+          src={dev.cover_image_url}
           alt={dev.name}
           className="h-full w-full object-cover"
         />
         <div className="absolute left-4 top-4">
-          {isReady ? (
+          {dev.status === "ready" ? (
             <span className="rounded-md bg-badge-green px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-background">
               Pronta Entrega
             </span>
-          ) : forecast ? (
+          ) : dev.delivery_forecast ? (
             <span className="rounded-md bg-badge-blue px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-background">
-              Previsão {forecast}
+              Previsão {dev.delivery_forecast}
             </span>
           ) : null}
         </div>
@@ -135,24 +171,18 @@ function Slide({ dev, fallback }: { dev: Development; fallback: string }) {
 
       {/* Conteúdo */}
       <div className="flex flex-col justify-center gap-4 p-8 md:p-12">
-        {dev.builder && (
-          <p className="font-body text-sm uppercase tracking-wider text-muted-foreground">
-            {dev.builder}
-          </p>
-        )}
+        <p className="font-body text-sm uppercase tracking-wider text-muted-foreground">
+          {dev.builder}
+        </p>
         <h3 className="font-heading text-3xl text-foreground md:text-4xl">{dev.name}</h3>
-        {dev.region && (
-          <p className="flex items-center gap-2 font-body text-muted-foreground">
-            <MapPin className="h-4 w-4 text-primary" />
-            {dev.region}
-          </p>
-        )}
-        <p className="font-body text-muted-foreground">2 e 3 quartos</p>
-        {price && (
-          <p className="font-body text-xl font-medium text-primary">
-            A partir de {price}
-          </p>
-        )}
+        <p className="flex items-center gap-2 font-body text-muted-foreground">
+          <MapPin className="h-4 w-4 text-primary" />
+          {dev.region}
+        </p>
+        <p className="font-body text-muted-foreground">{dev.typology}</p>
+        <p className="font-body text-xl font-medium text-primary">
+          A partir de {formatPrice(dev.price_from)}
+        </p>
         <div className="mt-4">
           <Button asChild variant="primary" size="lg">
             <a href={`/empreendimentos/${dev.slug}`}>Ver Detalhes</a>
