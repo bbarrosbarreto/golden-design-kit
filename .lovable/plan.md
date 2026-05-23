@@ -1,35 +1,32 @@
-## Objetivo
+## Plano: Criar seção "Anúncios em Destaque" na Home
 
-Confirmar que o client do Supabase inicializa com as Build Secrets agora configuradas (`VITE_MY_SUPABASE_URL` e `VITE_MY_SUPABASE_ANON_KEY`) e que as tabelas do PRD respondem via RLS pública.
+### Objetivo
+Criar o componente `FeaturedProperties` com dados mockados e inseri-lo na página inicial, abaixo da seção "Por que Bruno Barreto" (Pillars).
 
-## Passos
+### Tarefas
 
-1. **Verificar boot do client no browser**
-   - Recarregar a preview em `/`.
-   - Conferir console: não pode mais aparecer o erro "Supabase env vars missing".
+#### 1. Criar `src/components/home/FeaturedProperties.tsx`
+- **Dados:** 4 imóveis hardcoded (sem Supabase) com os campos:
+  - id, slug, title, region, purpose (Venda/Aluguel), price, bedrooms, parking, area_sqm, status (Disponível/Reservado)
+- **Layout da seção:**
+  - Fundo `bg-background`
+  - Cabeçalho: título "Anúncios em Destaque" (`font-heading`) + subtítulo em `text-muted-foreground`
+  - Botão "Ver Todos" (`variant="outline-gold"`) alinhado à direita, link `/imoveis`
+  - Grid responsivo: `grid-cols-1 md:grid-cols-2`
+- **Card individual:**
+  - Imagem placeholder `bg-muted aspect-video`
+  - Badge finalidade: "VENDA" ou "ALUGUEL" em `bg-primary`
+  - Badge status: "RESERVADO" em `bg-secondary` quando aplicável
+  - Tipo e região em `text-muted-foreground text-sm`
+  - Título em `font-heading`
+  - Preço em `text-primary font-medium text-lg`
+  - Linha de ícones: `BedDouble` (quartos), `Car` (vagas), `Maximize` (área) — todos em `text-muted-foreground`
+  - Botão "Ver Imóvel" (`variant="outline-gold"`) link `/imoveis/:id`
+  - Hover: `shadow-gold` + transição suave
 
-2. **Criar server function de healthcheck** (`src/lib/health.functions.ts`)
-   - `checkSupabase` usando `createServerFn` + client autenticado público.
-   - Faz `select count` em 3 tabelas-chave: `developments`, `properties`, `site_settings`.
-   - Retorna `{ ok, tables: { developments, properties, site_settings }, error? }`.
+#### 2. Editar `src/routes/index.tsx`
+- Importar `FeaturedProperties` de `@/components/home/FeaturedProperties`
+- Renderizar `<FeaturedProperties />` após `<Pillars />` (abaixo dos Pilares na Home)
 
-3. **Invocar via `stack_modern--invoke-server-function`**
-   - Chamar `/api/health` (ou via RPC do serverFn) e validar resposta.
-   - Se falhar, ler `server-function-logs` pra diagnosticar (env vars no runtime, RLS, etc).
-
-4. **Teste client-side rápido**
-   - Pequeno query no browser (já existente em algum componente ou via console) pra garantir que a leitura pública das tabelas funciona pelo anon key.
-
-5. **Relatório**
-   - Confirmar para você o que respondeu OK e o que não respondeu, sem mexer em UI/funcionalidade.
-
-## Detalhes técnicos
-
-- Não altero o `client.ts` — ele já tem fallback `VITE_*` → `process.env.*`.
-- O serverFn lê `process.env.MY_SUPABASE_URL` / `MY_SUPABASE_ANON_KEY` no `.handler()` (nunca em escopo de módulo).
-- Nenhuma mudança em rotas, layout ou componentes existentes.
-
-## Fora de escopo
-
-- Criar páginas, CRUD admin, ou popular dados.
-- Mexer em RLS (você confirmou que já está pronta).
+### Resultado esperado
+Seção "Anúncios em Destaque" renderizando 4 cards de imóveis em grid 2 colunas, pronta para integração com Supabase futura.
