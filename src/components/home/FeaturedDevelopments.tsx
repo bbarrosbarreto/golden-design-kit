@@ -1,22 +1,12 @@
-import { useEffect, useState } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
+import {
+  getFeaturedDevelopments,
+  type FeaturedDevelopment as Development,
+} from "@/lib/developments.functions";
 import placeholder1 from "@/assets/dev-placeholder-1.png";
 import placeholder2 from "@/assets/dev-placeholder-2.png";
-
-type Development = {
-  id: string;
-  slug: string;
-  name: string;
-  region?: string | null;
-  builder?: string | null;
-  cover_image_url?: string | null;
-  status?: string | null; // 'ready' | 'forecast'
-  delivery_forecast?: string | null; // 'MM/AAAA' or date
-  price_from?: number | null;
-  created_at?: string | null;
-};
 
 const placeholders = [placeholder1, placeholder2, placeholder1];
 
@@ -46,32 +36,10 @@ function isNew(createdAt?: string | null) {
 }
 
 export function FeaturedDevelopments() {
-  const [items, setItems] = useState<Development[] | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let active = true;
-    (async () => {
-      const { data, error } = await supabase
-        .from("developments")
-        .select("*")
-        .eq("active", true)
-        .eq("featured", true)
-        .order("featured_order", { ascending: true })
-        .limit(3);
-      if (!active) return;
-      if (error) {
-        console.error("Failed to load developments", error);
-        setItems([]);
-      } else {
-        setItems((data ?? []) as Development[]);
-      }
-      setLoading(false);
-    })();
-    return () => {
-      active = false;
-    };
-  }, []);
+  const { data: items } = useSuspenseQuery({
+    queryKey: ["featured-developments"],
+    queryFn: () => getFeaturedDevelopments(),
+  });
 
   return (
     <section className="bg-background py-24 md:py-32">
@@ -93,17 +61,15 @@ export function FeaturedDevelopments() {
 
         {/* Grid */}
         <div className="mt-12 grid gap-8 md:grid-cols-3">
-          {loading || !items
+          {items.length === 0
             ? Array.from({ length: 3 }).map((_, i) => <CardSkeleton key={i} />)
-            : (items.length === 0 ? Array.from({ length: 3 }).map((_, i) => (
-                <CardSkeleton key={i} />
-              )) : items.map((d, i) => (
+            : items.map((d, i) => (
                 <DevelopmentCard
                   key={d.id}
                   dev={d}
                   fallbackImage={placeholders[i % placeholders.length]}
                 />
-              )))}
+              ))}
         </div>
       </div>
     </section>
@@ -163,7 +129,9 @@ function DevelopmentCard({
         )}
         <div className="mt-6 flex-1" />
         <Button asChild variant="outline-gold" size="sm" className="self-start">
-          <Link to="/empreendimentos">Ver Detalhes</Link>
+          <Link to="/empreendimentos/$slug" params={{ slug: dev.slug }}>
+            Ver Detalhes
+          </Link>
         </Button>
       </div>
     </article>
