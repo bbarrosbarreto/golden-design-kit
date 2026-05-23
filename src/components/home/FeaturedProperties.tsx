@@ -87,7 +87,7 @@ export function FeaturedProperties() {
   const go = (dir: 1 | -1) => setIndex((i) => (i + dir + total) % total);
 
   return (
-    <section className="bg-background py-24 md:py-32">
+    <section className="bg-background py-16">
       <div className="mx-auto max-w-7xl px-6">
         <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div className="flex flex-col gap-3">
