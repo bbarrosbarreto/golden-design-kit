@@ -41,7 +41,7 @@ const pillars = [
 
 export function Pillars() {
   return (
-    <section className="bg-surface py-24 md:py-32">
+    <section className="bg-surface py-16">
       <div className="mx-auto max-w-7xl px-6">
         {/* Header */}
         <div className="mx-auto max-w-2xl text-center">

@@ -13,9 +13,9 @@ function Index() {
   return (
     <Layout>
       <Hero />
+      <FeaturedDevelopments />
       <Pillars />
       <FeaturedProperties />
-      <FeaturedDevelopments />
     </Layout>
   );
 }
