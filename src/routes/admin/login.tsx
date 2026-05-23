@@ -16,7 +16,6 @@ function AdminLogin() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!supabaseConfigured) return;
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) navigate({ to: "/admin" });
     });
@@ -25,12 +24,6 @@ function AdminLogin() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!supabaseConfigured) {
-      setError(
-        "Supabase não configurado. Defina VITE_SUPABASE_URL e VITE_SUPABASE_PUBLISHABLE_KEY.",
-      );
-      return;
-    }
     setLoading(true);
     try {
       const { error: signInError } = await supabase.auth.signInWithPassword({
@@ -38,10 +31,21 @@ function AdminLogin() {
         password,
       });
       if (signInError) {
-        if (/invalid login credentials/i.test(signInError.message)) {
-          setError("Email ou senha incorretos.");
+        const msg = signInError.message || "";
+        if (/invalid login credentials/i.test(msg)) {
+          setError(
+            "Email ou senha incorretos. Verifique o usuário no painel do Supabase (Authentication → Users) e, se necessário, redefina a senha por lá.",
+          );
+        } else if (/database error querying schema/i.test(msg)) {
+          setError(
+            "Erro interno do seu projeto Supabase: 'Database error querying schema'. Isso não é um problema do app — geralmente é causado por trigger quebrado em auth.users, função SECURITY DEFINER com erro, ou hook de Auth mal configurado no seu Supabase.",
+          );
+        } else if (/email not confirmed/i.test(msg)) {
+          setError(
+            "Email não confirmado. No Supabase (Authentication → Users) marque o usuário como confirmado.",
+          );
         } else {
-          setError(signInError.message);
+          setError(msg);
         }
         return;
       }
