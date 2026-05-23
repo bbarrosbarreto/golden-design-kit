@@ -173,9 +173,13 @@ export function DevelopmentForm({ open, onOpenChange, initialData }: Props) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("regions")
-        .select("id,name")
-        .order("name");
-      if (error) throw error;
+        .select("id, name")
+        .eq("active", true)
+        .order("display_order");
+      if (error) {
+        console.error("[DevelopmentForm] regions query failed", error);
+        throw error;
+      }
       return data as { id: string; name: string }[];
     },
   });

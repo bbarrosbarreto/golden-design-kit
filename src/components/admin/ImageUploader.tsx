@@ -16,22 +16,28 @@ export function ImageUploader({ value, onChange, bucket = "developments" }: Prop
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
+
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!sessionData.session) {
+      toast.error("Sessão expirada, faça login novamente");
+      return;
+    }
+
     setUploading(true);
     try {
       const uploaded: string[] = [];
       for (const file of Array.from(files)) {
-        const ext = file.name.split(".").pop() ?? "jpg";
-        const path = `${crypto.randomUUID()}.${ext}`;
-        const { error } = await supabase.storage.from(bucket).upload(path, file, {
-          cacheControl: "3600",
-          upsert: false,
-        });
-        if (error) {
-          toast.error(`Falha ao enviar ${file.name}: ${error.message}`);
+        const path = `${crypto.randomUUID()}-${file.name}`;
+        const { data, error } = await supabase.storage
+          .from(bucket)
+          .upload(path, file, { cacheControl: "3600", upsert: true });
+        if (error || !data) {
+          console.error("[ImageUploader] upload failed", error);
+          toast.error(`Falha ao enviar ${file.name}: ${error?.message ?? "erro desconhecido"}`);
           continue;
         }
-        const { data } = supabase.storage.from(bucket).getPublicUrl(path);
-        uploaded.push(data.publicUrl);
+        const { data: pub } = supabase.storage.from(bucket).getPublicUrl(data.path);
+        uploaded.push(pub.publicUrl);
       }
       if (uploaded.length) {
         onChange([...value, ...uploaded]);
