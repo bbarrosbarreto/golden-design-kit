@@ -1,30 +1,50 @@
+# Plano
+
 ## Objetivo
-Corrigir `src/integrations/supabase/client.ts` para usar diretamente a URL e a anon key públicas do seu projeto Supabase externo, sem depender de variáveis de ambiente nem fallback para `localhost`, e então validar o fluxo em `/admin/login`.
+Corrigir o login do admin usando **seu Supabase externo**, sem migrar para Lovable Cloud e sem introduzir soluções incompatíveis com a stack atual.
 
-## Alterações
-1. Atualizar `src/integrations/supabase/client.ts`
-   - remover leitura de `import.meta.env` e `process.env`
-   - definir constantes fixas:
-     - `SUPABASE_URL = "https://acteyqbhonzqtnujstao.supabase.co"`
-     - `SUPABASE_ANON_KEY = "..."`
-   - inicializar `createClient()` diretamente com esses valores
-   - remover qualquer fallback para `http://localhost`
-   - manter o client seguro para browser e SSR sem inventar configuração ausente
+## O que já está confirmado
+- O app **consegue sim** funcionar com Supabase externo.
+- O browser já está chamando seu endpoint real de auth:
+  `POST https://acteyqbhonzqtnujstao.supabase.co/auth/v1/token?grant_type=password`
+- Portanto, o problema **não é mais** falta de configuração do client.
+- Os erros atuais vêm do próprio backend de auth do seu projeto Supabase:
+  - `invalid_credentials`
+  - `unexpected_failure: Database error querying schema`
 
-2. Ajustar o estado derivado de configuração
-   - garantir que `supabaseConfigured` continue compatível com a tela de login, agora sempre verdadeiro no frontend
-   - evitar warnings falsos de “Supabase não configurado”
+## O que vou corrigir na próxima etapa
+1. **Validar o fluxo atual do frontend sem mudar a stack**
+   - revisar apenas os arquivos de auth/admin já envolvidos
+   - manter o cliente apontando direto para o seu Supabase externo
+   - remover mensagens antigas que ainda falam em variáveis `VITE_*` se restarem no login
 
-3. Validar o login admin
-   - abrir `/admin/login`
-   - confirmar que a tentativa de login dispara request real para o domínio do seu Supabase externo
-   - verificar se o erro atual desaparece; se restar falha, identificar se passa a ser credencial real, RLS, ou configuração de Auth do projeto Supabase
+2. **Diagnosticar a causa real do erro de autenticação**
+   - separar erro de credencial inválida de erro interno do projeto Supabase
+   - confirmar se o problema ocorre no preview, no publicado, ou nos dois
+   - verificar se existe algo no guard/login que mascara a resposta real
 
-## Resultado esperado
-- o browser passa a usar seu Supabase externo diretamente
-- a mensagem “Supabase não configurado” desaparece
-- o login deixa de falhar por configuração ausente e passa a autenticar normalmente, ou exibir o erro real retornado pelo seu Supabase
+3. **Se o frontend estiver correto, parar de mexer no app e isolar o backend externo**
+   - quando a resposta for `invalid_credentials`, tratar como credencial/email/senha do usuário criado no Auth
+   - quando a resposta for `Database error querying schema`, tratar como falha no projeto Supabase externo (schema, trigger, função, policy, extensão, ou hook de auth), não do frontend
 
-## Arquivos envolvidos
-- `src/integrations/supabase/client.ts`
-- validação visual/comportamental em `/admin/login`
+4. **Ajustar a UX do `/admin/login` para depuração objetiva**
+   - exibir mensagens claras para cada cenário
+   - evitar mensagens genéricas ou enganosas de configuração ausente
+   - manter a tela alinhada à implementação real
+
+## Entrega esperada
+- app continua usando **somente seu Supabase externo**
+- tela de login deixa de mostrar diagnóstico errado
+- fica claro se o bloqueio restante está no frontend ou no Auth do seu projeto Supabase
+- se o erro vier do Supabase, eu te aponto exatamente o que revisar lá, sem inventar integração nova
+
+## Detalhe técnico
+Hoje o indício mais importante é este:
+- a request de login já chega no Supabase correto
+- resposta `400 invalid_credentials` = email/senha não batem com um usuário válido do Auth
+- resposta `500 Database error querying schema` = o Auth do projeto Supabase está quebrando ao consultar algo interno do banco
+
+Isso normalmente aponta para problema no projeto Supabase externo, não na conexão do app.
+
+## Limite de escopo
+Não vou migrar para Lovable Cloud, nem trocar arquitetura, nem adicionar backend paralelo. Vou trabalhar em cima da stack atual e do seu Supabase externo.
