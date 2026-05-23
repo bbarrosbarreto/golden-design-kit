@@ -1,36 +1,30 @@
 ## Objetivo
-Fazer o login do painel Admin funcionar com o seu Supabase externo, removendo a suposição de Lovable Cloud.
+Corrigir `src/integrations/supabase/client.ts` para usar diretamente a URL e a anon key públicas do seu projeto Supabase externo, sem depender de variáveis de ambiente nem fallback para `localhost`, e então validar o fluxo em `/admin/login`.
 
-## Plano
-1. Unificar a configuração do Supabase para aceitar os nomes de variáveis corretos do projeto e também os nomes padrão do template.
-   - `src/integrations/supabase/client.ts`
-   - `src/integrations/supabase/auth-middleware.ts`
-   - `src/integrations/supabase/client.server.ts`
-   - `src/lib/health.functions.ts`
+## Alterações
+1. Atualizar `src/integrations/supabase/client.ts`
+   - remover leitura de `import.meta.env` e `process.env`
+   - definir constantes fixas:
+     - `SUPABASE_URL = "https://acteyqbhonzqtnujstao.supabase.co"`
+     - `SUPABASE_ANON_KEY = "..."`
+   - inicializar `createClient()` diretamente com esses valores
+   - remover qualquer fallback para `http://localhost`
+   - manter o client seguro para browser e SSR sem inventar configuração ausente
 
-2. Ajustar o cliente do browser para não cair no fallback `http://localhost` quando as variáveis do seu Supabase não estiverem expostas corretamente no frontend.
-   - Priorizar leitura de `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY`
-   - Manter fallback para `VITE_MY_SUPABASE_URL` / `VITE_MY_SUPABASE_ANON_KEY`
-   - No servidor, suportar também `SUPABASE_URL` / `SUPABASE_PUBLISHABLE_KEY` / `SUPABASE_SERVICE_ROLE_KEY` com fallback para `MY_*`
+2. Ajustar o estado derivado de configuração
+   - garantir que `supabaseConfigured` continue compatível com a tela de login, agora sempre verdadeiro no frontend
+   - evitar warnings falsos de “Supabase não configurado”
 
-3. Melhorar a tela de login para mostrar erro real de configuração/rede quando não for credencial inválida.
-   - Se a autenticação retornar erro de credenciais, manter mensagem amigável
-   - Se faltar URL/chave ou houver falha de conexão, mostrar mensagem específica para não parecer “senha incorreta”
-
-4. Validar o fluxo do Admin sem SSR direto para auth.
-   - `/admin/login` autentica no client
-   - `/admin` continua protegido por `AdminGuard`
-   - logout continua redirecionando para `/admin/login`
-
-## Detalhes técnicos
-Hoje o código está lendo apenas `MY_SUPABASE_*` em vários pontos. Isso funciona só se essas variáveis existirem exatamente com esses nomes no lugar certo. No browser, o arquivo `src/integrations/supabase/client.ts` também faz fallback para `http://localhost`, o que mascara o problema e faz o login parecer erro de senha.
-
-Vou corrigir isso deixando a integração compatível com:
-- seu Supabase externo
-- variáveis `MY_*` já usadas no projeto
-- variáveis padrão `SUPABASE_*` / `VITE_SUPABASE_*`
+3. Validar o login admin
+   - abrir `/admin/login`
+   - confirmar que a tentativa de login dispara request real para o domínio do seu Supabase externo
+   - verificar se o erro atual desaparece; se restar falha, identificar se passa a ser credencial real, RLS, ou configuração de Auth do projeto Supabase
 
 ## Resultado esperado
-- login do admin passa a autenticar no seu projeto Supabase real
-- erro de configuração não aparece mais como “senha incorreta”
-- nenhuma dependência de Lovable Cloud é introduzida
+- o browser passa a usar seu Supabase externo diretamente
+- a mensagem “Supabase não configurado” desaparece
+- o login deixa de falhar por configuração ausente e passa a autenticar normalmente, ou exibir o erro real retornado pelo seu Supabase
+
+## Arquivos envolvidos
+- `src/integrations/supabase/client.ts`
+- validação visual/comportamental em `/admin/login`
