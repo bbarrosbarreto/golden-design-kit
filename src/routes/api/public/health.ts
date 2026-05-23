@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { checkSupabase } from "@/lib/health.functions";
 
-export const Route = createFileRoute("/api/health")({
+export const Route = createFileRoute("/api/public/health")({
   server: {
     handlers: {
       GET: async () => {

@@ -14,7 +14,7 @@ import { Route as ImoveisRouteImport } from './routes/imoveis'
 import { Route as EmpreendimentosRouteImport } from './routes/empreendimentos'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ApiHealthRouteImport } from './routes/api/health'
+import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
 
 const SobreRoute = SobreRouteImport.update({
   id: '/sobre',
@@ -41,9 +41,9 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiHealthRoute = ApiHealthRouteImport.update({
-  id: '/api/health',
-  path: '/api/health',
+const ApiPublicHealthRoute = ApiPublicHealthRouteImport.update({
+  id: '/api/public/health',
+  path: '/api/public/health',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -53,7 +53,7 @@ export interface FileRoutesByFullPath {
   '/empreendimentos': typeof EmpreendimentosRoute
   '/imoveis': typeof ImoveisRoute
   '/sobre': typeof SobreRoute
-  '/api/health': typeof ApiHealthRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -61,7 +61,7 @@ export interface FileRoutesByTo {
   '/empreendimentos': typeof EmpreendimentosRoute
   '/imoveis': typeof ImoveisRoute
   '/sobre': typeof SobreRoute
-  '/api/health': typeof ApiHealthRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -70,7 +70,7 @@ export interface FileRoutesById {
   '/empreendimentos': typeof EmpreendimentosRoute
   '/imoveis': typeof ImoveisRoute
   '/sobre': typeof SobreRoute
-  '/api/health': typeof ApiHealthRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -80,7 +80,7 @@ export interface FileRouteTypes {
     | '/empreendimentos'
     | '/imoveis'
     | '/sobre'
-    | '/api/health'
+    | '/api/public/health'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -88,7 +88,7 @@ export interface FileRouteTypes {
     | '/empreendimentos'
     | '/imoveis'
     | '/sobre'
-    | '/api/health'
+    | '/api/public/health'
   id:
     | '__root__'
     | '/'
@@ -96,7 +96,7 @@ export interface FileRouteTypes {
     | '/empreendimentos'
     | '/imoveis'
     | '/sobre'
-    | '/api/health'
+    | '/api/public/health'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -105,7 +105,7 @@ export interface RootRouteChildren {
   EmpreendimentosRoute: typeof EmpreendimentosRoute
   ImoveisRoute: typeof ImoveisRoute
   SobreRoute: typeof SobreRoute
-  ApiHealthRoute: typeof ApiHealthRoute
+  ApiPublicHealthRoute: typeof ApiPublicHealthRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -145,11 +145,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/health': {
-      id: '/api/health'
-      path: '/api/health'
-      fullPath: '/api/health'
-      preLoaderRoute: typeof ApiHealthRouteImport
+    '/api/public/health': {
+      id: '/api/public/health'
+      path: '/api/public/health'
+      fullPath: '/api/public/health'
+      preLoaderRoute: typeof ApiPublicHealthRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -161,8 +161,18 @@ const rootRouteChildren: RootRouteChildren = {
   EmpreendimentosRoute: EmpreendimentosRoute,
   ImoveisRoute: ImoveisRoute,
   SobreRoute: SobreRoute,
-  ApiHealthRoute: ApiHealthRoute,
+  ApiPublicHealthRoute: ApiPublicHealthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
