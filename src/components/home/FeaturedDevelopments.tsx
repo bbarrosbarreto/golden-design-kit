@@ -1,10 +1,8 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import {
-  getFeaturedDevelopments,
-  type FeaturedDevelopment as Development,
-} from "@/lib/developments.functions";
+import { type FeaturedDevelopment as Development } from "@/lib/developments.functions";
+import { featuredDevelopmentsQueryOptions } from "@/lib/developments.query";
 import placeholder1 from "@/assets/dev-placeholder-1.png";
 import placeholder2 from "@/assets/dev-placeholder-2.png";
 
@@ -37,8 +35,7 @@ function isNew(createdAt?: string | null) {
 
 export function FeaturedDevelopments() {
   const { data: items } = useSuspenseQuery({
-    queryKey: ["featured-developments"],
-    queryFn: () => getFeaturedDevelopments(),
+    ...featuredDevelopmentsQueryOptions,
   });
 
   return (
