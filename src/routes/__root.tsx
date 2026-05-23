@@ -72,14 +72,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "Bruno Barreto Imóveis | Corretor em Brasília/DF" },
+      { name: "description", content: "Curadoria de alto padrão em imóveis no Distrito Federal. Empreendimentos e anúncios com visão de arquiteto. CRECI-DF 34.060" },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "Bruno Barreto Imóveis | Corretor em Brasília/DF" },
+      { property: "og:description", content: "Curadoria de alto padrão em imóveis no Distrito Federal. Empreendimentos e anúncios com visão de arquiteto. CRECI-DF 34.060" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Bruno Barreto Imóveis | Corretor em Brasília/DF" },
+      { name: "twitter:description", content: "Curadoria de alto padrão em imóveis no Distrito Federal. Empreendimentos e anúncios com visão de arquiteto. CRECI-DF 34.060" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/hDMZqNlfVCTnpJfR1dLYHlq8TAh2/social-images/social-1779562685212-IMG_1318.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/hDMZqNlfVCTnpJfR1dLYHlq8TAh2/social-images/social-1779562685212-IMG_1318.webp" },
     ],
     links: [
       {
