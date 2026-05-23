@@ -1,39 +1,45 @@
-## Plano — Componentes Globais (Header, Footer, WhatsAppButton, Layout)
+# Conexão manual ao Supabase existente
 
-Criar 4 componentes em `src/components/layout/` e aplicá-los às rotas públicas. Apenas tokens do design system (cor `#25D366` é exceção justificada — cor oficial do WhatsApp).
+## 1. Coletar credenciais (você fornece via formulário seguro)
 
-### 1. `src/components/layout/Header.tsx`
-- Fixo no topo (`fixed top-0 inset-x-0 z-50`).
-- Logo "BB" à esquerda: `font-heading text-3xl text-foreground`, link para `/`.
-- Menu central (desktop ≥ md): Links TanStack para `/empreendimentos`, `/imoveis`, `/sobre`, `/contato` — `font-body text-sm` com `activeProps` em `text-primary`.
-- Botão WhatsApp à direita (desktop): `<Button variant="primary" asChild>` envolvendo `<a href="https://wa.me/5561999350888" target="_blank" rel="noopener">`.
-- Scroll behavior: `useState` + `useEffect` listener em `window.scroll`; quando `scrollY > 10` → `bg-background shadow-md`, senão `bg-transparent`. Transição via `transition-all duration-300`.
-- Mobile (< md): esconder menu/botão, mostrar ícone `Menu` (lucide) que abre `Sheet` do shadcn (`src/components/ui/sheet.tsx`) como drawer lateral contendo os mesmos links + botão WhatsApp.
+Vou pedir 4 secrets, todos encontrados no dashboard Supabase em **Project Settings → API**:
 
-### 2. `src/components/layout/Footer.tsx`
-- `bg-foreground text-background` com padding generoso.
-- Logo "BB" centralizada (`font-heading text-4xl`).
-- Linha de nav central: mesmos 4 links, separados por `|`, com hover `text-primary`.
-- Linha de ícones sociais centralizada: `Instagram` e `MessageCircle` (lucide) como `<a>` para Instagram e WhatsApp, alvo `_blank`.
-- "CRECI-DF 34060" em `text-muted-foreground text-sm` centralizado.
-- Copyright: `© 2025 Bruno Barreto Imóveis. Todos os direitos reservados.` em `text-background/70 text-xs`.
+- `SUPABASE_URL` — ex: `https://xxxxx.supabase.co`
+- `SUPABASE_PUBLISHABLE_KEY` — a chave `anon` / `publishable`
+- `SUPABASE_SERVICE_ROLE_KEY` — a chave `service_role` (secreta, só servidor)
+- `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY` — mesmas duas primeiras, mas prefixadas para o browser
 
-### 3. `src/components/layout/WhatsAppButton.tsx`
-- `fixed bottom-6 right-6 z-50`.
-- Círculo `h-14 w-14 rounded-full` com `style={{ backgroundColor: '#25D366' }}` (cor de marca WhatsApp — exceção justificada), ícone `MessageCircle` branco.
-- Link para `https://wa.me/5561999350888`, `target="_blank"`.
-- Tooltip "Fale comigo no WhatsApp" via componente `Tooltip` do shadcn.
-- Animação de entrada: classe `animate-in zoom-in` (tw-animate-css já importado) ou keyframe simples scale 0→1.
+## 2. Criar os 3 clients em `src/integrations/supabase/`
 
-### 4. `src/components/layout/Layout.tsx`
-- Wrapper: `<>{<Header />}<main className="pt-20 min-h-screen">{children}</main><WhatsAppButton /><Footer /></>`.
-- `pt-20` compensa altura do header fixo (~80px).
+- **`client.ts`** — client do browser usando publishable key + persistência de sessão (auth/login no front).
+- **`auth-middleware.ts`** — middleware `requireSupabaseAuth` para `createServerFn`, valida o bearer token do usuário e injeta `supabase` + `userId` no contexto.
+- **`client.server.ts`** — client admin usando service role key, só para código server-only (bypassa RLS).
+- **`auth-attacher.ts`** — middleware que anexa automaticamente o token de auth nas chamadas de server functions.
 
-### 5. Aplicar Layout às rotas públicas
-- Hoje só existe `src/routes/index.tsx`. Envolver seu componente com `<Layout>…</Layout>`.
-- Não criar `/empreendimentos`, `/imoveis`, `/sobre`, `/contato` agora (escopo: apenas globais). Os links do menu apontarão para essas rotas que serão criadas em etapas futuras — TanStack Router fará typecheck quando elas existirem. Para evitar erro de build agora, usar `<a href="/empreendimentos">` etc. nos links até as rotas existirem **OU** criar route stubs vazios. Recomendação: **criar 4 route files mínimos** (`empreendimentos.tsx`, `imoveis.tsx`, `sobre.tsx`, `contato.tsx`) cada um exportando `createFileRoute` com um `<Layout>` e um `<h1>` placeholder, para permitir `<Link to="/...">` type-safe e satisfazer "header/footer aparecem em todas elas".
+## 3. Registrar o auth attacher
 
-### Notas técnicas
-- Importações de `Link`/`useNavigate` de `@tanstack/react-router`.
-- Logo é texto "BB" em Playfair (a imagem enviada serve apenas como referência de identidade visual: azul-marinho profundo + dourado — já alinhado com `--foreground` + `--primary`).
-- Tooltip exige `<TooltipProvider>` — adicionar no `Layout` ou no próprio botão.
+Editar `src/start.ts` para incluir `attachSupabaseAuth` no `functionMiddleware` global do `createStart`.
+
+## 4. Validar conexão
+
+Criar uma server function de teste (`pingSupabase`) que faz um `SELECT 1` simples, chamar e confirmar que retorna OK.
+
+## O que NÃO está incluso neste passo
+
+- Criação de tabelas (`profiles`, `developments`, `properties`, etc.) — você roda os SQLs/migrations direto no dashboard Supabase
+- Configuração de RLS policies — você faz no dashboard
+- Setup de Auth providers (Google, etc.) — você habilita no dashboard
+- Página de login `/admin` — passo separado depois que a conexão estiver de pé
+
+## Limitações importantes (modo manual)
+
+- As tools de schema/migrations/security do Lovable **não funcionam** com Supabase externo — só vejo o que você me contar sobre as tabelas
+- Vou precisar que você cole o schema (ou rode `supabase gen types`) para eu gerar types TypeScript corretos
+- Qualquer alteração de schema é responsabilidade sua no dashboard
+
+## Detalhes técnicos
+
+- Stack: TanStack Start v1 + Vite 7, rodando em Cloudflare Workers (edge)
+- Padrão: `createServerFn` para lógica interna; server routes `/api/public/*` para webhooks
+- Variáveis `VITE_*` ficam no bundle do browser; `SUPABASE_SERVICE_ROLE_KEY` é **server-only**, nunca importada em componentes
+- Após confirmar o plano, eu disparo o formulário de secrets — você cola os valores e eu sigo com os arquivos
