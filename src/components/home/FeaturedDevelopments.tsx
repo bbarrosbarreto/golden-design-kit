@@ -51,24 +51,20 @@ export function FeaturedDevelopments() {
         </div>
 
         {/* Carrossel */}
-        <div className="mt-12 overflow-hidden rounded-lg border border-border bg-background shadow-sm">
+        <div className="relative mt-12 overflow-hidden rounded-lg border border-border bg-background shadow-sm">
           {current ? (
             <Slide dev={current} fallback={placeholders[index % placeholders.length]} />
           ) : (
             <SlideSkeleton />
           )}
-        </div>
 
-        {/* Controles */}
-        {hasItems && total > 1 && (
-          <>
-            {/* Setas — posicionadas via wrapper relativo */}
-            <div className="pointer-events-none relative">
+          {hasItems && total > 1 && (
+            <>
               <button
                 type="button"
                 onClick={() => go(-1)}
                 aria-label="Anterior"
-                className="pointer-events-auto absolute -top-[260px] left-4 flex h-11 w-11 items-center justify-center rounded-full bg-background/90 text-foreground shadow-md transition hover:bg-background md:left-6"
+                className="absolute left-4 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-background/90 text-foreground shadow-md backdrop-blur transition hover:bg-background md:left-6"
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
@@ -76,27 +72,32 @@ export function FeaturedDevelopments() {
                 type="button"
                 onClick={() => go(1)}
                 aria-label="Próximo"
-                className="pointer-events-auto absolute -top-[260px] left-[calc(55%-3.5rem)] flex h-11 w-11 items-center justify-center rounded-full bg-background/90 text-foreground shadow-md transition hover:bg-background"
+                className="absolute top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-background/90 text-foreground shadow-md backdrop-blur transition hover:bg-background"
+                style={{ left: "calc(55% - 3.5rem)" }}
               >
                 <ChevronRight className="h-5 w-5" />
               </button>
-            </div>
+            </>
+          )}
+        </div>
 
-            <div className="mt-8 flex items-center justify-center gap-2">
-              {items.map((_, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => setIndex(i)}
-                  aria-label={`Ir para slide ${i + 1}`}
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    i === index ? "w-8 bg-primary" : "w-2 bg-border hover:bg-muted-foreground/50"
-                  }`}
-                />
-              ))}
-            </div>
-          </>
+        {/* Dots */}
+        {hasItems && total > 1 && (
+          <div className="mt-8 flex items-center justify-center gap-2">
+            {items.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setIndex(i)}
+                aria-label={`Ir para slide ${i + 1}`}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  i === index ? "w-8 bg-primary" : "w-2 bg-border hover:bg-muted-foreground/50"
+                }`}
+              />
+            ))}
+          </div>
         )}
+
       </div>
     </section>
   );
