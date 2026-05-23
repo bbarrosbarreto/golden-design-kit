@@ -1,32 +1,28 @@
-## Plano: Criar seção "Anúncios em Destaque" na Home
+## Refazer Pillars: linha única no desktop, carrossel no mobile
 
-### Objetivo
-Criar o componente `FeaturedProperties` com dados mockados e inseri-lo na página inicial, abaixo da seção "Por que Bruno Barreto" (Pillars).
+Reescrever apenas `src/components/home/Pillars.tsx` mantendo os 6 pilares e o header da seção.
 
-### Tarefas
+### Desktop (md+)
+- Os 6 cards em **uma única linha horizontal** usando `hidden md:grid grid-cols-6 gap-3`
+- Cards compactos: padding reduzido (`p-4`), apenas **ícone + título**, sem descrição
+- Ícone pequeno (`size={22}`) em `text-primary`
+- Título em `font-heading text-sm` (centralizado, 2 linhas máx com `leading-tight`)
+- Borda `border-border`, hover → `hover:border-primary hover:shadow-gold`
+- `overflow-hidden` no container para evitar quebra
 
-#### 1. Criar `src/components/home/FeaturedProperties.tsx`
-- **Dados:** 4 imóveis hardcoded (sem Supabase) com os campos:
-  - id, slug, title, region, purpose (Venda/Aluguel), price, bedrooms, parking, area_sqm, status (Disponível/Reservado)
-- **Layout da seção:**
-  - Fundo `bg-background`
-  - Cabeçalho: título "Anúncios em Destaque" (`font-heading`) + subtítulo em `text-muted-foreground`
-  - Botão "Ver Todos" (`variant="outline-gold"`) alinhado à direita, link `/imoveis`
-  - Grid responsivo: `grid-cols-1 md:grid-cols-2`
-- **Card individual:**
-  - Imagem placeholder `bg-muted aspect-video`
-  - Badge finalidade: "VENDA" ou "ALUGUEL" em `bg-primary`
-  - Badge status: "RESERVADO" em `bg-secondary` quando aplicável
-  - Tipo e região em `text-muted-foreground text-sm`
-  - Título em `font-heading`
-  - Preço em `text-primary font-medium text-lg`
-  - Linha de ícones: `BedDouble` (quartos), `Car` (vagas), `Maximize` (área) — todos em `text-muted-foreground`
-  - Botão "Ver Imóvel" (`variant="outline-gold"`) link `/imoveis/:id`
-  - Hover: `shadow-gold` + transição suave
+### Mobile (<md)
+- Carrossel horizontal com **1 card por vez** (`md:hidden`)
+- Estado `useState` para índice + funções prev/next (mesmo padrão de `FeaturedProperties`)
+- Setas `ChevronLeft`/`ChevronRight` (lucide) sobrepostas com `backdrop-blur`
+- Dots indicadores abaixo (6 dots, ativo em `w-8 bg-primary`)
+- Transição `transform 300ms`
+- No mobile o card pode manter a descrição (mais espaço vertical disponível)
 
-#### 2. Editar `src/routes/index.tsx`
-- Importar `FeaturedProperties` de `@/components/home/FeaturedProperties`
-- Renderizar `<FeaturedProperties />` após `<Pillars />` (abaixo dos Pilares na Home)
+### Mantido
+- Array `pillars` inalterado (ícones, títulos, descrições)
+- `bg-surface` na seção, `py-16`
+- Header "Por que Bruno Barreto" + subtítulo
+- Ícones lucide em `text-primary`, hover `shadow-gold` + borda `primary`
 
-### Resultado esperado
-Seção "Anúncios em Destaque" renderizando 4 cards de imóveis em grid 2 colunas, pronta para integração com Supabase futura.
+### Não alterar
+- Nenhum outro arquivo. Ordem da Home permanece igual.
