@@ -126,9 +126,9 @@ function DevelopmentCard({
         )}
         <div className="mt-6 flex-1" />
         <Button asChild variant="outline-gold" size="sm" className="self-start">
-          <Link to="/empreendimentos/$slug" params={{ slug: dev.slug }}>
+          <a href={`/empreendimentos/${dev.slug}`}>
             Ver Detalhes
-          </Link>
+          </a>
         </Button>
       </div>
     </article>
