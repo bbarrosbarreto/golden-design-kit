@@ -1,82 +1,91 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import placeholder1 from "@/assets/dev-placeholder-1.png";
-import placeholder2 from "@/assets/dev-placeholder-2.png";
+import { supabase } from "@/integrations/supabase/client";
 
-type Development = {
+type DevRow = {
+  id: string;
+  slug: string;
+  title: string;
+  builder: string | null;
+  typology: string[] | null;
+  images: string[] | null;
+  status: "pronta_entrega" | "previsao" | null;
+  delivery_date: string | null;
+  price_from: number | null;
+  regions: { name: string } | null;
+};
+
+type Slide = {
   id: string;
   slug: string;
   name: string;
   region: string;
   builder: string;
   typology: string;
-  cover_image_url: string;
-  status: "ready" | "forecast";
+  cover_image_url: string | null;
+  status: "ready" | "forecast" | null;
   delivery_forecast?: string;
-  price_from: number;
+  price_from: number | null;
 };
-
-// Mock data — substituir por dados reais do Supabase depois
-const MOCK: Development[] = [
-  {
-    id: "1",
-    slug: "residencial-horizonte",
-    name: "Residencial Horizonte",
-    region: "Asa Sul, Brasília/DF",
-    builder: "Construtora Paulo Octavio",
-    typology: "2 e 3 quartos",
-    cover_image_url: placeholder1,
-    status: "forecast",
-    delivery_forecast: "12/2026",
-    price_from: 890000,
-  },
-  {
-    id: "2",
-    slug: "edificio-arquiteto",
-    name: "Edifício Arquiteto",
-    region: "Sudoeste, Brasília/DF",
-    builder: "Brasal Incorporações",
-    typology: "3 e 4 quartos",
-    cover_image_url: placeholder2,
-    status: "ready",
-    price_from: 1450000,
-  },
-  {
-    id: "3",
-    slug: "vertical-noroeste",
-    name: "Vertical Noroeste",
-    region: "Noroeste, Brasília/DF",
-    builder: "Via Empreendimentos",
-    typology: "2 quartos",
-    cover_image_url: placeholder1,
-    status: "forecast",
-    delivery_forecast: "06/2027",
-    price_from: 720000,
-  },
-];
 
 function formatPrice(value: number) {
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency: "BRL",
-    maximumFractionDigits: 2,
+    maximumFractionDigits: 0,
   }).format(value);
 }
 
+function formatDelivery(date: string | null) {
+  if (!date) return undefined;
+  const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return undefined;
+  return d.toLocaleDateString("pt-BR", { month: "2-digit", year: "numeric" });
+}
+
+function mapRow(d: DevRow): Slide {
+  return {
+    id: d.id,
+    slug: d.slug,
+    name: d.title,
+    region: d.regions?.name ?? "",
+    builder: d.builder ?? "",
+    typology: d.typology?.join(" • ") ?? "",
+    cover_image_url: d.images?.[0] ?? null,
+    status: d.status === "pronta_entrega" ? "ready" : d.status === "previsao" ? "forecast" : null,
+    delivery_forecast: formatDelivery(d.delivery_date),
+    price_from: d.price_from,
+  };
+}
+
 export function FeaturedDevelopments() {
-  const items = MOCK;
+  const { data, isLoading } = useQuery({
+    queryKey: ["home", "featured-developments"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("developments")
+        .select("*, regions(name)")
+        .eq("active", true)
+        .eq("featured", true)
+        .order("featured_order");
+      if (error) throw error;
+      return (data as DevRow[]).map(mapRow);
+    },
+  });
+
+  const items = data ?? [];
   const [index, setIndex] = useState(0);
   const total = items.length;
-  const current = items[index];
+  const current = items[index % Math.max(total, 1)];
 
   const go = (dir: 1 | -1) => setIndex((i) => (i + dir + total) % total);
 
   return (
     <section className="bg-surface py-16">
       <div className="mx-auto max-w-7xl px-6">
-        {/* Header */}
         <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <h2 className="font-heading text-3xl text-foreground md:text-4xl">
             Empreendimentos em Destaque
@@ -86,12 +95,15 @@ export function FeaturedDevelopments() {
           </Button>
         </div>
 
-        {/* Carrossel */}
         <div className="relative mt-12 overflow-hidden rounded-lg border border-border bg-background shadow-sm">
-          {current ? (
-            <Slide dev={current} />
-          ) : (
+          {isLoading ? (
             <SlideSkeleton />
+          ) : total === 0 ? (
+            <div className="flex h-[320px] items-center justify-center p-8 text-center font-body text-muted-foreground md:h-[480px]">
+              Nenhum empreendimento disponível no momento.
+            </div>
+          ) : (
+            <Slide dev={current} />
           )}
 
           {total > 1 && (
@@ -125,7 +137,6 @@ export function FeaturedDevelopments() {
           )}
         </div>
 
-        {/* Dots */}
         {total > 1 && (
           <div className="mt-8 flex items-center justify-center gap-2">
             {items.map((_, i) => (
@@ -146,16 +157,15 @@ export function FeaturedDevelopments() {
   );
 }
 
-function Slide({ dev }: { dev: Development }) {
+function Slide({ dev }: { dev: Slide }) {
   return (
     <div className="grid animate-in fade-in duration-300 md:grid-cols-[55%_45%]">
-      {/* Imagem */}
       <div className="relative h-[320px] overflow-hidden bg-muted md:h-[480px]">
-        <img
-          src={dev.cover_image_url}
-          alt={dev.name}
-          className="h-full w-full object-cover"
-        />
+        {dev.cover_image_url ? (
+          <img src={dev.cover_image_url} alt={dev.name} className="h-full w-full object-cover" />
+        ) : (
+          <div className="h-full w-full bg-surface" />
+        )}
         <div className="absolute left-4 top-4">
           {dev.status === "ready" ? (
             <span className="rounded-md bg-badge-green px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-background">
@@ -169,20 +179,25 @@ function Slide({ dev }: { dev: Development }) {
         </div>
       </div>
 
-      {/* Conteúdo */}
       <div className="flex flex-col justify-center gap-4 p-8 md:p-12">
-        <p className="font-body text-sm uppercase tracking-wider text-muted-foreground">
-          {dev.builder}
-        </p>
+        {dev.builder && (
+          <p className="font-body text-sm uppercase tracking-wider text-muted-foreground">
+            {dev.builder}
+          </p>
+        )}
         <h3 className="font-heading text-3xl text-foreground md:text-4xl">{dev.name}</h3>
-        <p className="flex items-center gap-2 font-body text-muted-foreground">
-          <MapPin className="h-4 w-4 text-primary" />
-          {dev.region}
-        </p>
-        <p className="font-body text-muted-foreground">{dev.typology}</p>
-        <p className="font-body text-xl font-medium text-primary">
-          A partir de {formatPrice(dev.price_from)}
-        </p>
+        {dev.region && (
+          <p className="flex items-center gap-2 font-body text-muted-foreground">
+            <MapPin className="h-4 w-4 text-primary" />
+            {dev.region}
+          </p>
+        )}
+        {dev.typology && <p className="font-body text-muted-foreground">{dev.typology}</p>}
+        {dev.price_from != null && (
+          <p className="font-body text-xl font-medium text-primary">
+            A partir de {formatPrice(dev.price_from)}
+          </p>
+        )}
         <div className="mt-4">
           <Button asChild variant="primary" size="lg">
             <a href={`/empreendimentos/${dev.slug}`}>Ver Detalhes</a>
