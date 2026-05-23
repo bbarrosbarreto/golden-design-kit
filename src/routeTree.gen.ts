@@ -16,6 +16,7 @@ import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
+import { Route as AdminEmpreendimentosRouteImport } from './routes/admin/empreendimentos'
 import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
 
 const SobreRoute = SobreRouteImport.update({
@@ -53,6 +54,11 @@ const AdminLoginRoute = AdminLoginRouteImport.update({
   path: '/admin/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminEmpreendimentosRoute = AdminEmpreendimentosRouteImport.update({
+  id: '/admin/empreendimentos',
+  path: '/admin/empreendimentos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHealthRoute = ApiPublicHealthRouteImport.update({
   id: '/api/public/health',
   path: '/api/public/health',
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/empreendimentos': typeof EmpreendimentosRoute
   '/imoveis': typeof ImoveisRoute
   '/sobre': typeof SobreRoute
+  '/admin/empreendimentos': typeof AdminEmpreendimentosRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/': typeof AdminIndexRoute
   '/api/public/health': typeof ApiPublicHealthRoute
@@ -75,6 +82,7 @@ export interface FileRoutesByTo {
   '/empreendimentos': typeof EmpreendimentosRoute
   '/imoveis': typeof ImoveisRoute
   '/sobre': typeof SobreRoute
+  '/admin/empreendimentos': typeof AdminEmpreendimentosRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin': typeof AdminIndexRoute
   '/api/public/health': typeof ApiPublicHealthRoute
@@ -86,6 +94,7 @@ export interface FileRoutesById {
   '/empreendimentos': typeof EmpreendimentosRoute
   '/imoveis': typeof ImoveisRoute
   '/sobre': typeof SobreRoute
+  '/admin/empreendimentos': typeof AdminEmpreendimentosRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/': typeof AdminIndexRoute
   '/api/public/health': typeof ApiPublicHealthRoute
@@ -98,6 +107,7 @@ export interface FileRouteTypes {
     | '/empreendimentos'
     | '/imoveis'
     | '/sobre'
+    | '/admin/empreendimentos'
     | '/admin/login'
     | '/admin/'
     | '/api/public/health'
@@ -108,6 +118,7 @@ export interface FileRouteTypes {
     | '/empreendimentos'
     | '/imoveis'
     | '/sobre'
+    | '/admin/empreendimentos'
     | '/admin/login'
     | '/admin'
     | '/api/public/health'
@@ -118,6 +129,7 @@ export interface FileRouteTypes {
     | '/empreendimentos'
     | '/imoveis'
     | '/sobre'
+    | '/admin/empreendimentos'
     | '/admin/login'
     | '/admin/'
     | '/api/public/health'
@@ -129,6 +141,7 @@ export interface RootRouteChildren {
   EmpreendimentosRoute: typeof EmpreendimentosRoute
   ImoveisRoute: typeof ImoveisRoute
   SobreRoute: typeof SobreRoute
+  AdminEmpreendimentosRoute: typeof AdminEmpreendimentosRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminIndexRoute: typeof AdminIndexRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
@@ -185,6 +198,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/empreendimentos': {
+      id: '/admin/empreendimentos'
+      path: '/admin/empreendimentos'
+      fullPath: '/admin/empreendimentos'
+      preLoaderRoute: typeof AdminEmpreendimentosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/health': {
       id: '/api/public/health'
       path: '/api/public/health'
@@ -201,6 +221,7 @@ const rootRouteChildren: RootRouteChildren = {
   EmpreendimentosRoute: EmpreendimentosRoute,
   ImoveisRoute: ImoveisRoute,
   SobreRoute: SobreRoute,
+  AdminEmpreendimentosRoute: AdminEmpreendimentosRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminIndexRoute: AdminIndexRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,
