@@ -1,16 +1,36 @@
-Criar componente `Partners.tsx` e inserir na Home antes do Footer.
+## Objetivo
+Fazer o login do painel Admin funcionar com o seu Supabase externo, removendo a suposição de Lovable Cloud.
 
-### 1. Criar `src/components/home/Partners.tsx`
-- Seção com fundo `bg-surface` e padding reduzido `py-8` (seção compacta, não principal)
-- Título centralizado: "Nossos Parceiros" em `font-heading text-xl` (título de suporte, não principal)
-- Subtítulo: "Construtoras e parceiros selecionados" em `text-muted-foreground text-sm`
-- Desktop: `flex flex-row gap-6`, todos os 5 logos em **uma única linha sem quebra**
-- Mobile: `overflow-x-auto` com scroll horizontal suave, logos permanecem em linha (não quebra em 2 linhas)
-- 5 cards placeholder com `bg-muted rounded-lg h-20 w-40`, texto "Parceiro 1" a "Parceiro 5"
-- Cada card: `grayscale` por padrão, `hover:grayscale-0`, transição `transition-all duration-300`
-- Conteúdo centralizado com `flex items-center justify-center`
-- Dados hardcoded — zero chamada ao Supabase
+## Plano
+1. Unificar a configuração do Supabase para aceitar os nomes de variáveis corretos do projeto e também os nomes padrão do template.
+   - `src/integrations/supabase/client.ts`
+   - `src/integrations/supabase/auth-middleware.ts`
+   - `src/integrations/supabase/client.server.ts`
+   - `src/lib/health.functions.ts`
 
-### 2. Inserir na Home (`src/routes/index.tsx`)
-- Importar `Partners` do novo componente
-- Adicionar `<Partners />` entre `<FeaturedProperties />` e `</Layout>` (antes do Footer)
+2. Ajustar o cliente do browser para não cair no fallback `http://localhost` quando as variáveis do seu Supabase não estiverem expostas corretamente no frontend.
+   - Priorizar leitura de `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY`
+   - Manter fallback para `VITE_MY_SUPABASE_URL` / `VITE_MY_SUPABASE_ANON_KEY`
+   - No servidor, suportar também `SUPABASE_URL` / `SUPABASE_PUBLISHABLE_KEY` / `SUPABASE_SERVICE_ROLE_KEY` com fallback para `MY_*`
+
+3. Melhorar a tela de login para mostrar erro real de configuração/rede quando não for credencial inválida.
+   - Se a autenticação retornar erro de credenciais, manter mensagem amigável
+   - Se faltar URL/chave ou houver falha de conexão, mostrar mensagem específica para não parecer “senha incorreta”
+
+4. Validar o fluxo do Admin sem SSR direto para auth.
+   - `/admin/login` autentica no client
+   - `/admin` continua protegido por `AdminGuard`
+   - logout continua redirecionando para `/admin/login`
+
+## Detalhes técnicos
+Hoje o código está lendo apenas `MY_SUPABASE_*` em vários pontos. Isso funciona só se essas variáveis existirem exatamente com esses nomes no lugar certo. No browser, o arquivo `src/integrations/supabase/client.ts` também faz fallback para `http://localhost`, o que mascara o problema e faz o login parecer erro de senha.
+
+Vou corrigir isso deixando a integração compatível com:
+- seu Supabase externo
+- variáveis `MY_*` já usadas no projeto
+- variáveis padrão `SUPABASE_*` / `VITE_SUPABASE_*`
+
+## Resultado esperado
+- login do admin passa a autenticar no seu projeto Supabase real
+- erro de configuração não aparece mais como “senha incorreta”
+- nenhuma dependência de Lovable Cloud é introduzida

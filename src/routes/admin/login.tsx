@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, supabaseConfigured } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -16,6 +16,7 @@ function AdminLogin() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (!supabaseConfigured) return;
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) navigate({ to: "/admin" });
     });
@@ -24,17 +25,36 @@ function AdminLogin() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    setLoading(false);
-    if (signInError) {
-      setError("Email ou senha incorretos.");
+    if (!supabaseConfigured) {
+      setError(
+        "Supabase não configurado. Defina VITE_SUPABASE_URL e VITE_SUPABASE_PUBLISHABLE_KEY.",
+      );
       return;
     }
-    navigate({ to: "/admin" });
+    setLoading(true);
+    try {
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (signInError) {
+        if (/invalid login credentials/i.test(signInError.message)) {
+          setError("Email ou senha incorretos.");
+        } else {
+          setError(signInError.message);
+        }
+        return;
+      }
+      navigate({ to: "/admin" });
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? `Falha de conexão: ${err.message}`
+          : "Falha de conexão com o Supabase.",
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
