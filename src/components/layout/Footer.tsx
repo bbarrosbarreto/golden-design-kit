@@ -51,7 +51,7 @@ export function Footer() {
           </a>
         </div>
 
-        <p className="font-body text-sm text-muted-foreground">CRECI-DF 34060</p>
+        <p className="font-body text-sm text-muted-foreground">CRECI-DF 34.060</p>
 
         <p className="font-body text-xs text-background/60">
           © 2025 Bruno Barreto Imóveis. Todos os direitos reservados.

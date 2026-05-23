@@ -9,7 +9,7 @@ function Index() {
   return (
     <Layout>
       <div className="mx-auto max-w-7xl px-6 py-16">
-        <h1 className="font-heading text-4xl text-foreground">Bruno Barreto Imóveis</h1>
+        <h1 className="font-heading text-4xl text-foreground">Bruno Barreto — Corretor de Imóveis</h1>
         <p className="mt-4 font-body text-muted-foreground">
           Onde a arquitetura encontra oportunidade.
         </p>
