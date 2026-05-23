@@ -14,6 +14,7 @@ import { Route as ImoveisRouteImport } from './routes/imoveis'
 import { Route as EmpreendimentosRouteImport } from './routes/empreendimentos'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiHealthRouteImport } from './routes/api/health'
 
 const SobreRoute = SobreRouteImport.update({
   id: '/sobre',
@@ -40,6 +41,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiHealthRoute = ApiHealthRouteImport.update({
+  id: '/api/health',
+  path: '/api/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -47,6 +53,7 @@ export interface FileRoutesByFullPath {
   '/empreendimentos': typeof EmpreendimentosRoute
   '/imoveis': typeof ImoveisRoute
   '/sobre': typeof SobreRoute
+  '/api/health': typeof ApiHealthRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByTo {
   '/empreendimentos': typeof EmpreendimentosRoute
   '/imoveis': typeof ImoveisRoute
   '/sobre': typeof SobreRoute
+  '/api/health': typeof ApiHealthRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,13 +70,33 @@ export interface FileRoutesById {
   '/empreendimentos': typeof EmpreendimentosRoute
   '/imoveis': typeof ImoveisRoute
   '/sobre': typeof SobreRoute
+  '/api/health': typeof ApiHealthRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/contato' | '/empreendimentos' | '/imoveis' | '/sobre'
+  fullPaths:
+    | '/'
+    | '/contato'
+    | '/empreendimentos'
+    | '/imoveis'
+    | '/sobre'
+    | '/api/health'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/contato' | '/empreendimentos' | '/imoveis' | '/sobre'
-  id: '__root__' | '/' | '/contato' | '/empreendimentos' | '/imoveis' | '/sobre'
+  to:
+    | '/'
+    | '/contato'
+    | '/empreendimentos'
+    | '/imoveis'
+    | '/sobre'
+    | '/api/health'
+  id:
+    | '__root__'
+    | '/'
+    | '/contato'
+    | '/empreendimentos'
+    | '/imoveis'
+    | '/sobre'
+    | '/api/health'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -77,6 +105,7 @@ export interface RootRouteChildren {
   EmpreendimentosRoute: typeof EmpreendimentosRoute
   ImoveisRoute: typeof ImoveisRoute
   SobreRoute: typeof SobreRoute
+  ApiHealthRoute: typeof ApiHealthRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -116,6 +145,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/health': {
+      id: '/api/health'
+      path: '/api/health'
+      fullPath: '/api/health'
+      preLoaderRoute: typeof ApiHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -125,7 +161,18 @@ const rootRouteChildren: RootRouteChildren = {
   EmpreendimentosRoute: EmpreendimentosRoute,
   ImoveisRoute: ImoveisRoute,
   SobreRoute: SobreRoute,
+  ApiHealthRoute: ApiHealthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
