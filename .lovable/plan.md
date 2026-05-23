@@ -1,50 +1,77 @@
-# Plano
-
 ## Objetivo
-Corrigir o login do admin usando **seu Supabase externo**, sem migrar para Lovable Cloud e sem introduzir soluções incompatíveis com a stack atual.
 
-## O que já está confirmado
-- O app **consegue sim** funcionar com Supabase externo.
-- O browser já está chamando seu endpoint real de auth:
-  `POST https://acteyqbhonzqtnujstao.supabase.co/auth/v1/token?grant_type=password`
-- Portanto, o problema **não é mais** falta de configuração do client.
-- Os erros atuais vêm do próprio backend de auth do seu projeto Supabase:
-  - `invalid_credentials`
-  - `unexpected_failure: Database error querying schema`
+Criar `/admin/empreendimentos` com CRUD completo conectado ao Supabase externo, mantendo o layout admin existente (sidebar + header) e o design system.
 
-## O que vou corrigir na próxima etapa
-1. **Validar o fluxo atual do frontend sem mudar a stack**
-   - revisar apenas os arquivos de auth/admin já envolvidos
-   - manter o cliente apontando direto para o seu Supabase externo
-   - remover mensagens antigas que ainda falam em variáveis `VITE_*` se restarem no login
+## Arquivos novos
 
-2. **Diagnosticar a causa real do erro de autenticação**
-   - separar erro de credencial inválida de erro interno do projeto Supabase
-   - confirmar se o problema ocorre no preview, no publicado, ou nos dois
-   - verificar se existe algo no guard/login que mascara a resposta real
+```
+src/components/admin/AdminLayout.tsx        // extrai sidebar + main do /admin/index.tsx
+src/routes/admin/empreendimentos.tsx        // listagem + modal de form
+src/components/admin/DevelopmentForm.tsx    // formulário dentro de Dialog
+src/components/admin/ImageUploader.tsx      // upload múltiplo p/ Storage
+src/lib/slug.ts                             // slugify util
+```
 
-3. **Se o frontend estiver correto, parar de mexer no app e isolar o backend externo**
-   - quando a resposta for `invalid_credentials`, tratar como credencial/email/senha do usuário criado no Auth
-   - quando a resposta for `Database error querying schema`, tratar como falha no projeto Supabase externo (schema, trigger, função, policy, extensão, ou hook de auth), não do frontend
+## Arquivos editados
 
-4. **Ajustar a UX do `/admin/login` para depuração objetiva**
-   - exibir mensagens claras para cada cenário
-   - evitar mensagens genéricas ou enganosas de configuração ausente
-   - manter a tela alinhada à implementação real
+- `src/routes/admin/index.tsx` — passa a usar `<AdminLayout>` compartilhado e corrige link "Empreendimentos" para `/admin/empreendimentos`.
 
-## Entrega esperada
-- app continua usando **somente seu Supabase externo**
-- tela de login deixa de mostrar diagnóstico errado
-- fica claro se o bloqueio restante está no frontend ou no Auth do seu projeto Supabase
-- se o erro vier do Supabase, eu te aponto exatamente o que revisar lá, sem inventar integração nova
+## Stack / padrões
 
-## Detalhe técnico
-Hoje o indício mais importante é este:
-- a request de login já chega no Supabase correto
-- resposta `400 invalid_credentials` = email/senha não batem com um usuário válido do Auth
-- resposta `500 Database error querying schema` = o Auth do projeto Supabase está quebrando ao consultar algo interno do banco
+- React Query (`@tanstack/react-query`) para fetch, cache e invalidação.
+- Cliente: `supabase` (browser) de `@/integrations/supabase/client` — sem server functions, pois admin é client-side por trás do `AdminGuard` e a auth do usuário cobre RLS.
+- Tokens do design system: `bg-primary`, `text-foreground`, `font-heading` (Playfair), `font-body` (Inter). Botões com variantes existentes (`primary`, `outline-gold`, `ghost`, `destructive`).
+- Toasts via `sonner`.
+- Validação com `zod` + `react-hook-form` (já presentes no shadcn/form).
 
-Isso normalmente aponta para problema no projeto Supabase externo, não na conexão do app.
+## Listagem (`/admin/empreendimentos`)
 
-## Limite de escopo
-Não vou migrar para Lovable Cloud, nem trocar arquitetura, nem adicionar backend paralelo. Vou trabalhar em cima da stack atual e do seu Supabase externo.
+- Header da página: título "Empreendimentos" + botão `Novo Empreendimento` (abre modal vazio).
+- Input de busca por título (filtro client-side via `useMemo` sobre dados do React Query; suficiente para volumes típicos).
+- `<Table>` com colunas: Imagem (primeira de `images[]`, thumb 56x56 rounded), Título, Região (join via `regions(name)`), Status (badge: `pronta_entrega` → `bg-badge-green`; `previsao` + `delivery_date` → `bg-badge-blue`), Destaque (estrela `bg-primary` se `featured`), Ações (Editar / Excluir).
+- Excluir: `AlertDialog` de confirmação → `delete().eq('id', id)` → invalida query.
+- Query key: `['admin','developments']`, `select('*, regions(id,name)')`.
+
+## Formulário (Dialog)
+
+Componente único `DevelopmentForm` aceita `initialData?` (edit) ou vazio (create). Campos:
+
+- `title` (Input, obrigatório).
+- `slug` (Input). Auto-preenchido do title em tempo real **até** o usuário tocar o campo (flag `slugDirty`). Util `slugify` (lowercase, remove acentos via `normalize('NFD')`, troca não-alfanum por `-`, colapsa hífens).
+- `description` (Textarea).
+- `region_id` (Select) — opções vindas de `supabase.from('regions').select('id,name').order('name')` cacheado em `['regions']`.
+- `builder` (Input).
+- `status` (Select: "Pronta entrega" / "Previsão").
+- `delivery_date` (Input type="date") — renderizado condicionalmente quando `status === 'previsao'`.
+- `typology` (input de tags simples: digitar + Enter adiciona chip; backspace remove último; armazenado como `string[]`).
+- `price_from` (Input number).
+- `area_from`, `area_to` (Inputs number, lado a lado).
+- `images` (ImageUploader) — ver abaixo.
+- `video_url` (Input).
+- `virtual_tour_url` (Input).
+- `featured` (Switch). Quando ligado, mostra `featured_order` (Input number).
+- `active` (Switch, default true).
+
+Submit:
+- Create: `supabase.from('developments').insert({...}).select().single()`.
+- Update: `.update({...}).eq('id', initialData.id)`.
+- On success: `toast.success`, fecha dialog, `queryClient.invalidateQueries(['admin','developments'])`.
+- On error: `toast.error(error.message)`.
+
+## ImageUploader
+
+- Input `<input type="file" multiple accept="image/*">`.
+- Para cada arquivo: `supabase.storage.from('developments').upload(`${crypto.randomUUID()}-${file.name}`, file)`, então `getPublicUrl` → adiciona URL ao array `images`.
+- Mostra grid de thumbs com botão "remover" (apenas tira do array; não deleta do storage para evitar quebrar versões anteriores).
+- Pressupõe bucket `developments` público já criado. Se não existir, instrução pós-implementação para criar via SQL (não incluso no plano de código).
+
+## AdminLayout compartilhado
+
+`AdminLayout` recebe `children` e renderiza sidebar (com `NAV` atualizado: Dashboard, Empreendimentos, Imóveis, Leads) + `<main>`. Reaproveitado por `/admin` e `/admin/empreendimentos`. Item ativo destacado com `bg-surface text-primary` usando `useRouterState`.
+
+## Fora de escopo
+
+- Páginas `/admin/imoveis`, `/admin/leads`, `/admin/depoimentos`, etc.
+- Criação do bucket `developments` (assumido existente).
+- Edição de regiões (CRUD próprio).
+- Paginação server-side (não necessária no volume atual).
