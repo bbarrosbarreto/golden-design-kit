@@ -1,45 +1,35 @@
-# Conexão manual ao Supabase existente
+## Objetivo
 
-## 1. Coletar credenciais (você fornece via formulário seguro)
+Confirmar que o client do Supabase inicializa com as Build Secrets agora configuradas (`VITE_MY_SUPABASE_URL` e `VITE_MY_SUPABASE_ANON_KEY`) e que as tabelas do PRD respondem via RLS pública.
 
-Vou pedir 4 secrets, todos encontrados no dashboard Supabase em **Project Settings → API**:
+## Passos
 
-- `SUPABASE_URL` — ex: `https://xxxxx.supabase.co`
-- `SUPABASE_PUBLISHABLE_KEY` — a chave `anon` / `publishable`
-- `SUPABASE_SERVICE_ROLE_KEY` — a chave `service_role` (secreta, só servidor)
-- `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY` — mesmas duas primeiras, mas prefixadas para o browser
+1. **Verificar boot do client no browser**
+   - Recarregar a preview em `/`.
+   - Conferir console: não pode mais aparecer o erro "Supabase env vars missing".
 
-## 2. Criar os 3 clients em `src/integrations/supabase/`
+2. **Criar server function de healthcheck** (`src/lib/health.functions.ts`)
+   - `checkSupabase` usando `createServerFn` + client autenticado público.
+   - Faz `select count` em 3 tabelas-chave: `developments`, `properties`, `site_settings`.
+   - Retorna `{ ok, tables: { developments, properties, site_settings }, error? }`.
 
-- **`client.ts`** — client do browser usando publishable key + persistência de sessão (auth/login no front).
-- **`auth-middleware.ts`** — middleware `requireSupabaseAuth` para `createServerFn`, valida o bearer token do usuário e injeta `supabase` + `userId` no contexto.
-- **`client.server.ts`** — client admin usando service role key, só para código server-only (bypassa RLS).
-- **`auth-attacher.ts`** — middleware que anexa automaticamente o token de auth nas chamadas de server functions.
+3. **Invocar via `stack_modern--invoke-server-function`**
+   - Chamar `/api/health` (ou via RPC do serverFn) e validar resposta.
+   - Se falhar, ler `server-function-logs` pra diagnosticar (env vars no runtime, RLS, etc).
 
-## 3. Registrar o auth attacher
+4. **Teste client-side rápido**
+   - Pequeno query no browser (já existente em algum componente ou via console) pra garantir que a leitura pública das tabelas funciona pelo anon key.
 
-Editar `src/start.ts` para incluir `attachSupabaseAuth` no `functionMiddleware` global do `createStart`.
-
-## 4. Validar conexão
-
-Criar uma server function de teste (`pingSupabase`) que faz um `SELECT 1` simples, chamar e confirmar que retorna OK.
-
-## O que NÃO está incluso neste passo
-
-- Criação de tabelas (`profiles`, `developments`, `properties`, etc.) — você roda os SQLs/migrations direto no dashboard Supabase
-- Configuração de RLS policies — você faz no dashboard
-- Setup de Auth providers (Google, etc.) — você habilita no dashboard
-- Página de login `/admin` — passo separado depois que a conexão estiver de pé
-
-## Limitações importantes (modo manual)
-
-- As tools de schema/migrations/security do Lovable **não funcionam** com Supabase externo — só vejo o que você me contar sobre as tabelas
-- Vou precisar que você cole o schema (ou rode `supabase gen types`) para eu gerar types TypeScript corretos
-- Qualquer alteração de schema é responsabilidade sua no dashboard
+5. **Relatório**
+   - Confirmar para você o que respondeu OK e o que não respondeu, sem mexer em UI/funcionalidade.
 
 ## Detalhes técnicos
 
-- Stack: TanStack Start v1 + Vite 7, rodando em Cloudflare Workers (edge)
-- Padrão: `createServerFn` para lógica interna; server routes `/api/public/*` para webhooks
-- Variáveis `VITE_*` ficam no bundle do browser; `SUPABASE_SERVICE_ROLE_KEY` é **server-only**, nunca importada em componentes
-- Após confirmar o plano, eu disparo o formulário de secrets — você cola os valores e eu sigo com os arquivos
+- Não altero o `client.ts` — ele já tem fallback `VITE_*` → `process.env.*`.
+- O serverFn lê `process.env.MY_SUPABASE_URL` / `MY_SUPABASE_ANON_KEY` no `.handler()` (nunca em escopo de módulo).
+- Nenhuma mudança em rotas, layout ou componentes existentes.
+
+## Fora de escopo
+
+- Criar páginas, CRUD admin, ou popular dados.
+- Mexer em RLS (você confirmou que já está pronta).
