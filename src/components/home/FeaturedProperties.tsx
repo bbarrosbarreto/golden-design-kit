@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { BedDouble, Car, Maximize } from "lucide-react";
+import { BedDouble, Car, Maximize, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type Purpose = "sale" | "rent";
@@ -79,6 +80,12 @@ function formatPrice(value: number, purpose: Purpose) {
 }
 
 export function FeaturedProperties() {
+  const items = MOCK;
+  const total = items.length;
+  const [index, setIndex] = useState(0);
+
+  const go = (dir: 1 | -1) => setIndex((i) => (i + dir + total) % total);
+
   return (
     <section className="bg-background py-24 md:py-32">
       <div className="mx-auto max-w-7xl px-6">
@@ -96,11 +103,60 @@ export function FeaturedProperties() {
           </Button>
         </div>
 
-        <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2">
-          {MOCK.map((p) => (
-            <PropertyCard key={p.id} property={p} />
-          ))}
+        <div className="relative mt-12">
+          <div className="overflow-hidden">
+            <div
+              className="flex transition-transform duration-300 ease-in-out"
+              style={{ transform: `translateX(-${index * 100}%)` }}
+            >
+              {items.map((p) => (
+                <div
+                  key={p.id}
+                  className="w-full shrink-0 px-2 md:w-1/2"
+                >
+                  <PropertyCard property={p} />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {total > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={() => go(-1)}
+                aria-label="Anterior"
+                className="absolute -left-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-background/90 text-foreground shadow-md backdrop-blur transition hover:bg-background md:-left-5"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => go(1)}
+                aria-label="Próximo"
+                className="absolute -right-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-background/90 text-foreground shadow-md backdrop-blur transition hover:bg-background md:-right-5"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </>
+          )}
         </div>
+
+        {total > 1 && (
+          <div className="mt-8 flex items-center justify-center gap-2">
+            {items.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setIndex(i)}
+                aria-label={`Ir para slide ${i + 1}`}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  i === index ? "w-8 bg-primary" : "w-2 bg-border hover:bg-muted-foreground/50"
+                }`}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
@@ -108,7 +164,7 @@ export function FeaturedProperties() {
 
 function PropertyCard({ property: p }: { property: Property }) {
   return (
-    <article className="group flex flex-col overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-all duration-300 hover:shadow-gold">
+    <article className="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-all duration-300 hover:shadow-gold">
       <div className="relative aspect-video w-full bg-muted">
         <div className="absolute left-4 top-4 flex gap-2">
           <span className="rounded-md bg-primary px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-primary-foreground">
@@ -146,7 +202,7 @@ function PropertyCard({ property: p }: { property: Property }) {
           </span>
         </div>
 
-        <div className="mt-2">
+        <div className="mt-auto pt-2">
           <Button asChild variant="outline-gold" size="lg">
             <a href={`/imoveis/${p.id}`}>Ver Imóvel</a>
           </Button>
