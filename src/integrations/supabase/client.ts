@@ -1,42 +1,19 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-const env = import.meta.env as Record<string, string | undefined>;
+const SUPABASE_URL = "https://acteyqbhonzqtnujstao.supabase.co";
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjdGV5cWJob256cXRudWpzdGFvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0OTc0OTcsImV4cCI6MjA5NTA3MzQ5N30.yemximEbICOCDRob40pZ9Q2vkQTXhUDHxszrJdJS-eE";
 
-const url =
-  env.VITE_SUPABASE_URL ??
-  env.VITE_MY_SUPABASE_URL ??
-  (typeof process !== "undefined"
-    ? process.env.SUPABASE_URL ?? process.env.MY_SUPABASE_URL
-    : undefined) ??
-  "";
-
-const anonKey =
-  env.VITE_SUPABASE_PUBLISHABLE_KEY ??
-  env.VITE_SUPABASE_ANON_KEY ??
-  env.VITE_MY_SUPABASE_ANON_KEY ??
-  (typeof process !== "undefined"
-    ? process.env.SUPABASE_PUBLISHABLE_KEY ??
-      process.env.SUPABASE_ANON_KEY ??
-      process.env.MY_SUPABASE_ANON_KEY
-    : undefined) ??
-  "";
-
-export const supabaseConfigured = Boolean(url && anonKey);
-
-if (!supabaseConfigured) {
-  console.warn(
-    "[supabase/client] Variáveis de ambiente do Supabase ausentes. Defina VITE_SUPABASE_URL e VITE_SUPABASE_PUBLISHABLE_KEY (ou VITE_MY_SUPABASE_URL / VITE_MY_SUPABASE_ANON_KEY).",
-  );
-}
+export const supabaseConfigured = true;
 
 export const supabase: SupabaseClient = createClient(
-  url || "http://localhost",
-  anonKey || "anon",
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY,
   {
     auth: {
-      persistSession: typeof window !== "undefined" && supabaseConfigured,
-      autoRefreshToken: typeof window !== "undefined" && supabaseConfigured,
-      detectSessionInUrl: typeof window !== "undefined" && supabaseConfigured,
+      persistSession: typeof window !== "undefined",
+      autoRefreshToken: typeof window !== "undefined",
+      detectSessionInUrl: typeof window !== "undefined",
       storage: typeof window !== "undefined" ? window.localStorage : undefined,
     },
   },
