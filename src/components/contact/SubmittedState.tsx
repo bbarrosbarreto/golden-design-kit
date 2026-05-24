@@ -2,15 +2,24 @@ import { Check } from "lucide-react";
 
 const GOLD = "#C9A84C";
 
-export function SubmittedState({ onReset }: { onReset: () => void }) {
+export function SubmittedState({
+  onReset,
+  variant = "dark",
+}: {
+  onReset: () => void;
+  variant?: "dark" | "light";
+}) {
+  const isDark = variant === "dark";
   return (
     <div
       className="flex flex-col items-center justify-center gap-4 text-center"
       style={{
-        border: "1px solid rgba(255,255,255,0.15)",
+        border: isDark
+          ? "1px solid rgba(255,255,255,0.15)"
+          : "1px solid rgba(0,0,0,0.08)",
         borderRadius: 4,
         padding: "40px 24px",
-        backgroundColor: "rgba(255,255,255,0.04)",
+        backgroundColor: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)",
       }}
     >
       <div
@@ -28,7 +37,7 @@ export function SubmittedState({ onReset }: { onReset: () => void }) {
         style={{
           fontFamily: "'Playfair Display', serif",
           fontSize: 26,
-          color: "#fff",
+          color: isDark ? "#fff" : "#1a1a1a",
           margin: 0,
           lineHeight: 1.2,
         }}
@@ -39,7 +48,7 @@ export function SubmittedState({ onReset }: { onReset: () => void }) {
         style={{
           fontFamily: "Inter, sans-serif",
           fontSize: 15,
-          color: "rgba(255,255,255,0.7)",
+          color: isDark ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.65)",
           lineHeight: 1.6,
           maxWidth: 420,
           margin: 0,
