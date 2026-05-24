@@ -97,7 +97,7 @@ function DevelopmentDetailPage() {
 }
 
 function DevelopmentDetail({ dev }: { dev: DevDetail }) {
-  const images = imageUrls(dev.images);
+  const images = orderedImages(dev.images);
   const [activeImg, setActiveImg] = useState(0);
   const delivery = formatDelivery(dev.delivery_date);
   const youtubeId = dev.video_url ? getYouTubeId(dev.video_url) : null;
