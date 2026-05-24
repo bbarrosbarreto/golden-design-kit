@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { MapPin } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
+import { imageUrls } from "@/lib/development-images";
 
 export const Route = createFileRoute("/empreendimentos/")({
   component: EmpreendimentosPage,
