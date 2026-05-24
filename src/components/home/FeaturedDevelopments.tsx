@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { imageUrls } from "@/lib/development-images";
 
 type DevRow = {
   id: string;
@@ -11,7 +12,7 @@ type DevRow = {
   title: string;
   builder: string | null;
   typology: string[] | null;
-  images: string[] | null;
+  images: unknown;
   status: "pronta_entrega" | "previsao" | null;
   delivery_date: string | null;
   price_from: number | null;
