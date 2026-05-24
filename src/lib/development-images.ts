@@ -2,8 +2,7 @@ export type DevImage = { url: string; category: string };
 
 export const IMAGE_CATEGORIES: { value: string; label: string }[] = [
   { value: "fachada", label: "Fachada" },
-  { value: "area_comum", label: "Área Comum" },
-  { value: "lazer", label: "Lazer" },
+  { value: "area_comum", label: "Lazer e Áreas Comuns" },
   { value: "planta", label: "Planta" },
   { value: "apartamento", label: "Apartamento" },
   { value: "outros", label: "Outros" },
