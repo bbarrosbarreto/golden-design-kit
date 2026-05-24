@@ -14,6 +14,7 @@ import { Route as ImoveisRouteImport } from './routes/imoveis'
 import { Route as EmpreendimentosRouteImport } from './routes/empreendimentos'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as EmpreendimentosIndexRouteImport } from './routes/empreendimentos.index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as EmpreendimentosSlugRouteImport } from './routes/empreendimentos.$slug'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
@@ -44,6 +45,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const EmpreendimentosIndexRoute = EmpreendimentosIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => EmpreendimentosRoute,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/admin/',
@@ -81,18 +87,19 @@ export interface FileRoutesByFullPath {
   '/admin/login': typeof AdminLoginRoute
   '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
   '/admin/': typeof AdminIndexRoute
+  '/empreendimentos/': typeof EmpreendimentosIndexRoute
   '/api/public/health': typeof ApiPublicHealthRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/contato': typeof ContatoRoute
-  '/empreendimentos': typeof EmpreendimentosRouteWithChildren
   '/imoveis': typeof ImoveisRoute
   '/sobre': typeof SobreRoute
   '/admin/empreendimentos': typeof AdminEmpreendimentosRoute
   '/admin/login': typeof AdminLoginRoute
   '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
   '/admin': typeof AdminIndexRoute
+  '/empreendimentos': typeof EmpreendimentosIndexRoute
   '/api/public/health': typeof ApiPublicHealthRoute
 }
 export interface FileRoutesById {
@@ -106,6 +113,7 @@ export interface FileRoutesById {
   '/admin/login': typeof AdminLoginRoute
   '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
   '/admin/': typeof AdminIndexRoute
+  '/empreendimentos/': typeof EmpreendimentosIndexRoute
   '/api/public/health': typeof ApiPublicHealthRoute
 }
 export interface FileRouteTypes {
@@ -120,18 +128,19 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/empreendimentos/$slug'
     | '/admin/'
+    | '/empreendimentos/'
     | '/api/public/health'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/contato'
-    | '/empreendimentos'
     | '/imoveis'
     | '/sobre'
     | '/admin/empreendimentos'
     | '/admin/login'
     | '/empreendimentos/$slug'
     | '/admin'
+    | '/empreendimentos'
     | '/api/public/health'
   id:
     | '__root__'
@@ -144,6 +153,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/empreendimentos/$slug'
     | '/admin/'
+    | '/empreendimentos/'
     | '/api/public/health'
   fileRoutesById: FileRoutesById
 }
@@ -196,6 +206,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/empreendimentos/': {
+      id: '/empreendimentos/'
+      path: '/'
+      fullPath: '/empreendimentos/'
+      preLoaderRoute: typeof EmpreendimentosIndexRouteImport
+      parentRoute: typeof EmpreendimentosRoute
+    }
     '/admin/': {
       id: '/admin/'
       path: '/admin'
@@ -236,10 +253,12 @@ declare module '@tanstack/react-router' {
 
 interface EmpreendimentosRouteChildren {
   EmpreendimentosSlugRoute: typeof EmpreendimentosSlugRoute
+  EmpreendimentosIndexRoute: typeof EmpreendimentosIndexRoute
 }
 
 const EmpreendimentosRouteChildren: EmpreendimentosRouteChildren = {
   EmpreendimentosSlugRoute: EmpreendimentosSlugRoute,
+  EmpreendimentosIndexRoute: EmpreendimentosIndexRoute,
 }
 
 const EmpreendimentosRouteWithChildren = EmpreendimentosRoute._addFileChildren(
