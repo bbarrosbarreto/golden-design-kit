@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { imageUrls } from "@/lib/development-images";
+import { orderedImages } from "@/lib/development-images";
 
 export const Route = createFileRoute("/empreendimentos/$slug")({
   component: DevelopmentDetailPage,
