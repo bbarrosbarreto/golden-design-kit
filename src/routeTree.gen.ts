@@ -51,9 +51,9 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const EmpreendimentosSlugRoute = EmpreendimentosSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => EmpreendimentosRoute,
+  id: '/empreendimentos/$slug',
+  path: '/empreendimentos/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
   id: '/admin/login',
@@ -154,6 +154,7 @@ export interface RootRouteChildren {
   SobreRoute: typeof SobreRoute
   AdminEmpreendimentosRoute: typeof AdminEmpreendimentosRoute
   AdminLoginRoute: typeof AdminLoginRoute
+  EmpreendimentosSlugRoute: typeof EmpreendimentosSlugRoute
   AdminIndexRoute: typeof AdminIndexRoute
   EmpreendimentosIndexRoute: typeof EmpreendimentosIndexRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
@@ -205,10 +206,10 @@ declare module '@tanstack/react-router' {
     }
     '/empreendimentos/$slug': {
       id: '/empreendimentos/$slug'
-      path: '/$slug'
+      path: '/empreendimentos/$slug'
       fullPath: '/empreendimentos/$slug'
       preLoaderRoute: typeof EmpreendimentosSlugRouteImport
-      parentRoute: typeof EmpreendimentosRoute
+      parentRoute: typeof rootRouteImport
     }
     '/admin/login': {
       id: '/admin/login'
@@ -241,6 +242,7 @@ const rootRouteChildren: RootRouteChildren = {
   SobreRoute: SobreRoute,
   AdminEmpreendimentosRoute: AdminEmpreendimentosRoute,
   AdminLoginRoute: AdminLoginRoute,
+  EmpreendimentosSlugRoute: EmpreendimentosSlugRoute,
   AdminIndexRoute: AdminIndexRoute,
   EmpreendimentosIndexRoute: EmpreendimentosIndexRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,
@@ -248,13 +250,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
