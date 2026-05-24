@@ -1,16 +1,16 @@
 import { createFileRoute, redirect, useParams } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { MapPin, ExternalLink } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { toast } from "sonner";
 import { Layout } from "@/components/layout/Layout";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { orderedImages } from "@/lib/development-images";
+import {
+  normalizeImages,
+  pickCoverImage,
+  type DevImage,
+} from "@/lib/development-images";
 
 export const Route = createFileRoute("/empreendimentos/$slug")({
   component: DevelopmentDetailPage,
@@ -26,6 +26,7 @@ type DevDetail = {
   delivery_date: string | null;
   typology: string[] | null;
   price_from: number | null;
+  price_to: number | null;
   area_from: number | null;
   area_to: number | null;
   images: unknown;
@@ -33,6 +34,21 @@ type DevDetail = {
   virtual_tour_url: string | null;
   regions: { name: string } | null;
 };
+
+const GOLD = "#C9A84C";
+const DARK = "#1a1a1a";
+const BG = "#FAFAF8";
+const WHATS = "#25D366";
+
+const WHATSAPP_NUMBER = "5561999350888";
+
+const CATEGORY_SECTIONS: { key: string; match: string[]; label: string }[] = [
+  { key: "fachada", match: ["fachada"], label: "O Empreendimento" },
+  { key: "area_comum", match: ["area_comum", "lazer"], label: "Lazer e Áreas Comuns" },
+  { key: "apartamento", match: ["apartamento"], label: "Apartamento" },
+  { key: "planta", match: ["planta"], label: "Plantas" },
+  { key: "outros", match: ["outros"], label: "Galeria" },
+];
 
 function formatPrice(value: number) {
   return new Intl.NumberFormat("pt-BR", {
@@ -58,8 +74,7 @@ function getYouTubeId(url: string): string | null {
 
 interface ContactForm {
   name: string;
-  phone: string;
-  email: string;
+  whatsapp: string;
   message: string;
 }
 
@@ -96,119 +111,288 @@ function DevelopmentDetailPage() {
   return <DevelopmentDetail dev={data} />;
 }
 
+function useInViewFade<T extends HTMLElement>() {
+  const ref = useRef<T | null>(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            setVisible(true);
+            io.disconnect();
+          }
+        }
+      },
+      { threshold: 0.12 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return {
+    ref,
+    style: {
+      opacity: visible ? 1 : 0,
+      transform: visible ? "translateY(0)" : "translateY(12px)",
+      transition: "opacity 600ms ease, transform 600ms ease",
+    } as React.CSSProperties,
+  };
+}
+
 function DevelopmentDetail({ dev }: { dev: DevDetail }) {
-  const images = orderedImages(dev.images);
-  const [activeImg, setActiveImg] = useState(0);
+  const allImages = normalizeImages(dev.images);
+  const cover = pickCoverImage(allImages);
   const delivery = formatDelivery(dev.delivery_date);
   const youtubeId = dev.video_url ? getYouTubeId(dev.video_url) : null;
 
   const whatsappText = encodeURIComponent(
     `Olá! Tenho interesse no empreendimento ${dev.title}`,
   );
-  const whatsappUrl = `https://wa.me/5561999350888?text=${whatsappText}`;
+  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappText}`;
+
+  const [lightbox, setLightbox] = useState<{ list: DevImage[]; index: number } | null>(null);
+
+  useEffect(() => {
+    if (!lightbox) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setLightbox(null);
+      if (e.key === "ArrowRight")
+        setLightbox((s) => (s ? { ...s, index: (s.index + 1) % s.list.length } : s));
+      if (e.key === "ArrowLeft")
+        setLightbox((s) =>
+          s ? { ...s, index: (s.index - 1 + s.list.length) % s.list.length } : s,
+        );
+    };
+    window.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [lightbox]);
+
+  const priceLabel = (() => {
+    if (dev.price_from != null && dev.price_to != null && dev.price_to !== dev.price_from)
+      return `de ${formatPrice(dev.price_from)} até ${formatPrice(dev.price_to)}`;
+    if (dev.price_from != null) return formatPrice(dev.price_from);
+    return null;
+  })();
+
+  const areaLabel = (() => {
+    if (dev.area_from != null && dev.area_to != null && dev.area_to !== dev.area_from)
+      return `${dev.area_from}m² – ${dev.area_to}m²`;
+    if (dev.area_from != null) return `${dev.area_from}m²`;
+    return null;
+  })();
+
+  const fichaItems: { label: string; value: string }[] = [];
+  if (dev.regions?.name)
+    fichaItems.push({ label: "Localização", value: `${dev.regions.name} – Brasília/DF` });
+  if (priceLabel) fichaItems.push({ label: "Valor da Unidade", value: priceLabel });
+  if (areaLabel) fichaItems.push({ label: "Área", value: areaLabel });
+  if (dev.typology && dev.typology.length > 0)
+    fichaItems.push({
+      label: "Tipologia",
+      value: `${dev.typology.join(" e ")} quartos`,
+    });
+  if (dev.status === "pronta_entrega")
+    fichaItems.push({ label: "Entrega", value: "Pronta Entrega" });
+  else if (delivery) fichaItems.push({ label: "Entrega", value: delivery });
+  if (dev.builder) fichaItems.push({ label: "Construtora", value: dev.builder });
+
+  const fade1 = useInViewFade<HTMLDivElement>();
+  const fade2 = useInViewFade<HTMLDivElement>();
+  const fade3 = useInViewFade<HTMLDivElement>();
+  
+
+  const statusLabel =
+    dev.status === "pronta_entrega"
+      ? "Pronta Entrega"
+      : dev.status === "previsao" && delivery
+        ? `Previsão ${delivery}`
+        : null;
 
   return (
     <Layout>
-      <article className="mx-auto max-w-6xl px-6 py-12 lg:py-16">
-        {/* 1. Galeria */}
-        <section>
-          <div className="relative aspect-[16/10] w-full overflow-hidden rounded-lg bg-surface">
-            {images.length > 0 ? (
-              <img
-                src={images[activeImg].url}
-                alt={dev.title}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="h-full w-full bg-surface" />
-            )}
-          </div>
-          {images.length > 1 && (
-            <div className="mt-3 grid grid-cols-4 gap-3 sm:grid-cols-6">
-              {images.map((img, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => setActiveImg(i)}
-                  className={`relative aspect-[4/3] overflow-hidden rounded-md border transition ${
-                    i === activeImg
-                      ? "border-primary"
-                      : "border-border opacity-70 hover:opacity-100"
-                  }`}
-                >
-                  <img src={img.url} alt="" className="h-full w-full object-cover" />
-                </button>
-              ))}
-            </div>
+      {/* 1. HERO */}
+      <section
+        className="relative w-full"
+        style={{ height: "70vh", backgroundColor: DARK }}
+      >
+        {cover && (
+          <img
+            src={cover.url}
+            alt={dev.title}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        )}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(to top, rgba(0,0,0,0.70) 0%, transparent 60%)",
+          }}
+        />
+        <div
+          className="absolute inset-x-0 bottom-0 flex flex-col gap-4"
+          style={{ padding: "40px 5%" }}
+        >
+          {statusLabel && (
+            <span
+              className="inline-block self-start"
+              style={{
+                border: `1px solid ${GOLD}`,
+                color: "#fff",
+                fontSize: 11,
+                letterSpacing: 2,
+                textTransform: "uppercase",
+                padding: "6px 14px",
+                fontFamily: "Inter, sans-serif",
+              }}
+            >
+              {statusLabel}
+            </span>
           )}
-        </section>
-
-        {/* 2. Cabeçalho */}
-        <header className="mt-10">
-          {dev.status === "pronta_entrega" ? (
-            <span className="inline-block rounded-md bg-badge-green px-3 py-1 text-xs font-semibold uppercase tracking-wider text-background">
-              Pronta Entrega
-            </span>
-          ) : dev.status === "previsao" && delivery ? (
-            <span className="inline-block rounded-md bg-badge-blue px-3 py-1 text-xs font-semibold uppercase tracking-wider text-background">
-              Previsão {delivery}
-            </span>
-          ) : null}
-
-          <h1 className="mt-4 font-heading text-4xl text-foreground md:text-5xl">
+          <h1
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              fontSize: "clamp(32px, 5vw, 48px)",
+              fontWeight: 700,
+              color: "#fff",
+              lineHeight: 1.1,
+              margin: 0,
+            }}
+          >
             {dev.title}
           </h1>
-
-          {dev.builder && (
-            <p className="mt-3 font-body text-xs uppercase tracking-widest text-muted-foreground">
-              {dev.builder}
+          {dev.regions?.name && (
+            <p
+              style={{
+                fontFamily: "Inter, sans-serif",
+                fontSize: 14,
+                color: "rgba(255,255,255,0.7)",
+                margin: 0,
+              }}
+            >
+              {dev.regions.name} • Brasília/DF
             </p>
           )}
+        </div>
+      </section>
 
-          <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 font-body text-sm text-muted-foreground">
-            {dev.regions?.name && (
-              <span className="flex items-center gap-1.5">
-                <MapPin className="h-4 w-4 text-primary" />
-                {dev.regions.name}
-              </span>
-            )}
-            {dev.typology && dev.typology.length > 0 && (
-              <span>{dev.typology.join(" e ")} quartos</span>
-            )}
-            {(dev.area_from || dev.area_to) && (
-              <span>
-                {dev.area_from ?? "?"}
-                {dev.area_to && dev.area_to !== dev.area_from
-                  ? ` a ${dev.area_to}`
-                  : ""}{" "}
-                m²
-              </span>
-            )}
-          </div>
+      {/* 2. FICHA RESUMO */}
+      <section style={{ backgroundColor: "#fff", padding: "40px 5%" }}>
+        <div className="mx-auto max-w-3xl">
+          <dl className="divide-y" style={{ borderColor: "rgba(0,0,0,0.08)" }}>
+            {fichaItems.map((it) => (
+              <div
+                key={it.label}
+                className="flex flex-col gap-1 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6"
+              >
+                <dt
+                  style={{
+                    fontFamily: "Inter, sans-serif",
+                    fontSize: 12,
+                    letterSpacing: 1.5,
+                    textTransform: "uppercase",
+                    color: "#888",
+                  }}
+                >
+                  {it.label}
+                </dt>
+                <dd
+                  style={{
+                    fontFamily: "Inter, sans-serif",
+                    fontSize: 16,
+                    fontWeight: 600,
+                    color: DARK,
+                    margin: 0,
+                  }}
+                >
+                  {it.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-8 inline-flex w-full items-center justify-center rounded-sm sm:w-auto"
+            style={{
+              backgroundColor: WHATS,
+              color: "#fff",
+              padding: "14px 28px",
+              fontFamily: "Inter, sans-serif",
+              fontWeight: 600,
+              fontSize: 15,
+            }}
+          >
+            💬 Falar com o corretor
+          </a>
+        </div>
+      </section>
 
-          {dev.price_from != null && (
-            <p className="mt-6 font-body text-lg text-primary">
-              A partir de{" "}
-              <span className="font-medium">{formatPrice(dev.price_from)}</span>
-            </p>
-          )}
-        </header>
+      {/* 3. GALERIAS POR CATEGORIA */}
+      {CATEGORY_SECTIONS.map((sec, idx) => {
+        const list = allImages.filter((img) => sec.match.includes(img.category));
+        if (list.length === 0) return null;
+        const bg = idx % 2 === 0 ? BG : "#fff";
+        return (
+          <CategorySection
+            key={sec.key}
+            title={sec.label}
+            images={list}
+            bg={bg}
+            onOpen={(i) => setLightbox({ list, index: i })}
+          />
+        );
+      })}
 
-        {/* 3. Descrição */}
-        {dev.description && (
-          <section className="mt-12 border-t border-border pt-10">
-            <h2 className="font-heading text-2xl text-foreground">Sobre o empreendimento</h2>
-            <p className="mt-4 whitespace-pre-line font-body text-base leading-relaxed text-foreground/80">
+      {/* 4. SOBRE */}
+      {dev.description && (
+        <section style={{ backgroundColor: BG, padding: "60px 5%" }}>
+          <div ref={fade1.ref} style={fade1.style} className="mx-auto max-w-3xl">
+            <SectionHeading>Sobre o Empreendimento</SectionHeading>
+            <p
+              style={{
+                fontFamily: "Inter, sans-serif",
+                fontSize: 17,
+                color: "#555",
+                lineHeight: 1.85,
+                maxWidth: 720,
+                whiteSpace: "pre-line",
+                marginTop: 16,
+              }}
+            >
               {dev.description}
             </p>
-          </section>
-        )}
+          </div>
+        </section>
+      )}
 
-        {/* 4. Vídeo */}
-        {youtubeId && (
-          <section className="mt-12">
-            <h2 className="font-heading text-2xl text-foreground">Vídeo</h2>
-            <div className="mt-4 aspect-video w-full overflow-hidden rounded-lg bg-surface">
+      {/* 6. VÍDEO */}
+      {youtubeId && (
+        <section style={{ backgroundColor: DARK, padding: "64px 5%" }}>
+          <div ref={fade2.ref} style={fade2.style} className="mx-auto" >
+            <h2
+              style={{
+                fontFamily: "'Playfair Display', serif",
+                fontSize: 32,
+                color: "#fff",
+                textAlign: "center",
+                margin: 0,
+              }}
+            >
+              Conheça o Empreendimento
+            </h2>
+            <div
+              className="mt-8 mx-auto aspect-video w-full overflow-hidden rounded-sm"
+              style={{ maxWidth: 860 }}
+            >
               <iframe
                 src={`https://www.youtube.com/embed/${youtubeId}`}
                 title={`Vídeo - ${dev.title}`}
@@ -217,65 +401,257 @@ function DevelopmentDetail({ dev }: { dev: DevDetail }) {
                 className="h-full w-full"
               />
             </div>
-          </section>
-        )}
+          </div>
+        </section>
+      )}
 
-        {/* 5. Tour Virtual */}
-        {dev.virtual_tour_url && (
-          <section className="mt-12">
-            <Button asChild variant="outline-gold" size="lg">
-              <a href={dev.virtual_tour_url} target="_blank" rel="noopener noreferrer">
-                Fazer Tour Virtual
-                <ExternalLink className="ml-1 h-4 w-4" />
-              </a>
-            </Button>
-          </section>
-        )}
+      {/* 7. FORMULÁRIO */}
+      <section style={{ backgroundColor: DARK, padding: "64px 5%" }}>
+        <div
+          ref={fade3.ref}
+          style={fade3.style}
+          className="mx-auto grid max-w-5xl gap-10 md:grid-cols-2 md:gap-16"
+        >
+          <div>
+            <h2
+              style={{
+                fontFamily: "'Playfair Display', serif",
+                fontSize: "clamp(26px, 4vw, 34px)",
+                color: "#fff",
+                lineHeight: 1.15,
+                margin: 0,
+              }}
+            >
+              Tenho interesse neste empreendimento
+            </h2>
+            <p
+              className="mt-4"
+              style={{
+                fontFamily: "Inter, sans-serif",
+                fontSize: 15,
+                color: "rgba(255,255,255,0.65)",
+                lineHeight: 1.6,
+              }}
+            >
+              Deixe seu contato e Bruno retorna pessoalmente para apresentar as
+              melhores oportunidades.
+            </p>
+          </div>
+          <ContactForm developmentId={dev.id} />
+        </div>
+      </section>
 
-        {/* 6. Formulário */}
-        <ContactSection developmentId={dev.id} title={dev.title} />
-      </article>
+      {/* 8. WHATSAPP FIXO MOBILE */}
+      <a
+        href={whatsappUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed inset-x-0 bottom-0 z-50 md:hidden"
+        style={{
+          backgroundColor: WHATS,
+          color: "#fff",
+          padding: "16px",
+          textAlign: "center",
+          fontFamily: "Inter, sans-serif",
+          fontWeight: 700,
+          fontSize: 15,
+        }}
+      >
+        💬 Falar no WhatsApp
+      </a>
 
-      {/* 7. CTA WhatsApp fixo */}
-      <div className="sticky bottom-0 left-0 right-0 z-40 border-t border-border bg-background/95 px-4 py-3 backdrop-blur md:hidden">
-        <Button asChild variant="primary" size="lg" className="w-full">
-          <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-            Tenho interesse neste empreendimento
-          </a>
-        </Button>
-      </div>
-      <div className="mx-auto hidden max-w-6xl px-6 pb-16 md:block">
-        <Button asChild variant="primary" size="lg">
-          <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-            Tenho interesse neste empreendimento
-          </a>
-        </Button>
-      </div>
+      {/* LIGHTBOX */}
+      {lightbox && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center"
+          style={{ backgroundColor: "rgba(0,0,0,0.95)" }}
+          onClick={() => setLightbox(null)}
+        >
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setLightbox(null);
+            }}
+            className="absolute right-5 top-5 text-white"
+            aria-label="Fechar"
+          >
+            <X className="h-8 w-8" />
+          </button>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setLightbox((s) =>
+                s
+                  ? { ...s, index: (s.index - 1 + s.list.length) % s.list.length }
+                  : s,
+              );
+            }}
+            className="absolute left-3 sm:left-6 text-white"
+            aria-label="Anterior"
+          >
+            <ChevronLeft className="h-10 w-10" />
+          </button>
+          <img
+            src={lightbox.list[lightbox.index].url}
+            alt=""
+            className="max-h-[90vh] max-w-[92vw] object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setLightbox((s) =>
+                s ? { ...s, index: (s.index + 1) % s.list.length } : s,
+              );
+            }}
+            className="absolute right-3 sm:right-6 text-white"
+            aria-label="Próxima"
+          >
+            <ChevronRight className="h-10 w-10" />
+          </button>
+        </div>
+      )}
     </Layout>
   );
 }
 
-function ContactSection({
-  developmentId,
+function SectionHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <div>
+      <h2
+        style={{
+          fontFamily: "'Playfair Display', serif",
+          fontSize: 28,
+          color: DARK,
+          margin: 0,
+          lineHeight: 1.2,
+        }}
+      >
+        {children}
+      </h2>
+      <div
+        style={{
+          width: 40,
+          height: 2,
+          backgroundColor: GOLD,
+          margin: "10px 0 20px",
+        }}
+      />
+    </div>
+  );
+}
+
+function CategorySection({
   title,
+  images,
+  bg,
+  onOpen,
 }: {
-  developmentId: string;
   title: string;
+  images: DevImage[];
+  bg: string;
+  onOpen: (index: number) => void;
 }) {
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const fade = useInViewFade<HTMLDivElement>();
+
+  const scrollBy = (dir: 1 | -1) => {
+    scrollRef.current?.scrollBy({ left: dir * 360, behavior: "smooth" });
+  };
+
+  return (
+    <section style={{ backgroundColor: bg, padding: "48px 5%" }}>
+      <div ref={fade.ref} style={fade.style} className="mx-auto max-w-6xl">
+        <SectionHeading>{title}</SectionHeading>
+        <div className="relative">
+          <div
+            ref={scrollRef}
+            className="flex gap-3 overflow-x-auto pb-2"
+            style={{
+              scrollSnapType: "x mandatory",
+              scrollbarWidth: "none",
+            }}
+          >
+            {images.map((img, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => onOpen(i)}
+                className="relative shrink-0 overflow-hidden"
+                style={{
+                  width: 340,
+                  height: 240,
+                  borderRadius: 2,
+                  scrollSnapAlign: "start",
+                }}
+              >
+                <img
+                  src={img.url}
+                  alt=""
+                  className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                />
+              </button>
+            ))}
+          </div>
+          {images.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={() => scrollBy(-1)}
+                className="absolute left-0 top-1/2 hidden -translate-y-1/2 items-center justify-center md:flex"
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: "50%",
+                  backgroundColor: "rgba(255,255,255,0.95)",
+                  boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
+                  marginLeft: -10,
+                }}
+                aria-label="Anterior"
+              >
+                <ChevronLeft className="h-5 w-5" style={{ color: DARK }} />
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollBy(1)}
+                className="absolute right-0 top-1/2 hidden -translate-y-1/2 items-center justify-center md:flex"
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: "50%",
+                  backgroundColor: "rgba(255,255,255,0.95)",
+                  boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
+                  marginRight: -10,
+                }}
+                aria-label="Próxima"
+              >
+                <ChevronRight className="h-5 w-5" style={{ color: DARK }} />
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ContactForm({ developmentId }: { developmentId: string }) {
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
   } = useForm<ContactForm>({
-    defaultValues: { name: "", phone: "", email: "", message: "" },
+    defaultValues: { name: "", whatsapp: "", message: "" },
   });
 
   const onSubmit = async (values: ContactForm) => {
     const { error } = await supabase.from("leads").insert({
       name: values.name.trim(),
-      phone: values.phone.trim() || null,
-      email: values.email.trim() || null,
+      phone: values.whatsapp.trim() || null,
       message: values.message.trim() || null,
       development_id: developmentId,
       source: "empreendimento",
@@ -287,63 +663,82 @@ function ContactSection({
       return;
     }
 
-    toast.success("Mensagem enviada! Bruno entrará em contato em breve.");
+    toast.success("✓ Mensagem enviada! Em breve entraremos em contato.");
     reset();
   };
 
-  return (
-    <section className="mt-16 border-t border-border pt-12">
-      <h2 className="font-heading text-2xl text-foreground">
-        Tenho interesse em {title}
-      </h2>
-      <p className="mt-2 font-body text-sm text-muted-foreground">
-        Preencha o formulário e Bruno entrará em contato.
-      </p>
+  const inputStyle: React.CSSProperties = {
+    backgroundColor: "rgba(255,255,255,0.08)",
+    border: "1px solid rgba(255,255,255,0.2)",
+    color: "#fff",
+    padding: "12px 14px",
+    fontFamily: "Inter, sans-serif",
+    fontSize: 15,
+    width: "100%",
+    borderRadius: 2,
+    outline: "none",
+  };
 
-      <form onSubmit={handleSubmit(onSubmit)} className="mt-6 grid gap-5 md:max-w-2xl">
-        <div className="grid gap-2">
-          <Label htmlFor="name">Nome *</Label>
-          <Input
-            id="name"
-            {...register("name", {
-              required: "Informe seu nome",
-              maxLength: { value: 100, message: "Máximo 100 caracteres" },
-            })}
-          />
-          {errors.name && (
-            <p className="text-xs text-destructive">{errors.name.message}</p>
-          )}
-        </div>
-        <div className="grid gap-5 md:grid-cols-2">
-          <div className="grid gap-2">
-            <Label htmlFor="phone">Telefone</Label>
-            <Input
-              id="phone"
-              type="tel"
-              {...register("phone", { maxLength: 30 })}
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              {...register("email", { maxLength: 255 })}
-            />
-          </div>
-        </div>
-        <div className="grid gap-2">
-          <Label htmlFor="message">Mensagem</Label>
-          <Textarea
-            id="message"
-            rows={4}
-            {...register("message", { maxLength: 1000 })}
-          />
-        </div>
-        <Button type="submit" variant="primary" size="lg" disabled={isSubmitting}>
-          {isSubmitting ? "Enviando..." : "Enviar mensagem"}
-        </Button>
-      </form>
-    </section>
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+      <div>
+        <input
+          placeholder="Nome *"
+          {...register("name", {
+            required: "Informe seu nome",
+            maxLength: { value: 100, message: "Máximo 100 caracteres" },
+          })}
+          style={inputStyle}
+          onFocus={(e) => (e.currentTarget.style.borderColor = GOLD)}
+          onBlur={(e) =>
+            (e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)")
+          }
+        />
+        {errors.name && (
+          <p className="mt-1 text-xs" style={{ color: "#ff8a8a" }}>
+            {errors.name.message}
+          </p>
+        )}
+      </div>
+      <input
+        placeholder="WhatsApp"
+        type="tel"
+        {...register("whatsapp", { maxLength: 30 })}
+        style={inputStyle}
+        onFocus={(e) => (e.currentTarget.style.borderColor = GOLD)}
+        onBlur={(e) =>
+          (e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)")
+        }
+      />
+      <textarea
+        placeholder="Mensagem (opcional)"
+        rows={4}
+        {...register("message", { maxLength: 1000 })}
+        style={{ ...inputStyle, resize: "vertical" }}
+        onFocus={(e) => (e.currentTarget.style.borderColor = GOLD)}
+        onBlur={(e) =>
+          (e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)")
+        }
+      />
+      <button
+        type="submit"
+        disabled={isSubmitting}
+        style={{
+          backgroundColor: GOLD,
+          color: DARK,
+          padding: "14px 28px",
+          fontFamily: "Inter, sans-serif",
+          fontWeight: 600,
+          fontSize: 15,
+          letterSpacing: 0.5,
+          border: "none",
+          cursor: isSubmitting ? "not-allowed" : "pointer",
+          opacity: isSubmitting ? 0.7 : 1,
+          borderRadius: 2,
+        }}
+      >
+        {isSubmitting ? "Enviando..." : "Quero ser Contactado"}
+      </button>
+    </form>
   );
 }
