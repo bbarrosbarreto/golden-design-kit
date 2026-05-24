@@ -30,7 +30,27 @@ export function ImageUploader({ value, onChange, bucket = "developments", catego
   const [tab, setTab] = useState<string>("todas");
 
   const cats = categories ?? IMAGE_CATEGORIES;
-  const images = normalizeImages(value);
+  const validValues = new Set(cats.map((c) => c.value));
+  const raw = normalizeImages(value);
+  // Re-map categories against the provided category set (normalizeImages
+  // only knows development categories; custom ones get demoted otherwise).
+  const images: DevImage[] = Array.isArray(value)
+    ? (value as unknown[])
+        .map((it) => {
+          if (typeof it === "string") return { url: it, category: "outros" };
+          if (it && typeof it === "object" && "url" in it) {
+            const url = (it as { url: unknown }).url;
+            const cat = (it as { category?: unknown }).category;
+            if (typeof url === "string") {
+              const c = typeof cat === "string" ? cat : "";
+              return { url, category: validValues.has(c) ? c : "outros" };
+            }
+          }
+          return null;
+        })
+        .filter((x): x is DevImage => !!x)
+    : raw;
+
 
 
   const handleFiles = async (files: FileList | null) => {
