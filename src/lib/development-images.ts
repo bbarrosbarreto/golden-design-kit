@@ -2,8 +2,7 @@ export type DevImage = { url: string; category: string };
 
 export const IMAGE_CATEGORIES: { value: string; label: string }[] = [
   { value: "fachada", label: "Fachada" },
-  { value: "area_comum", label: "Área Comum" },
-  { value: "lazer", label: "Lazer" },
+  { value: "area_comum", label: "Lazer e Áreas Comuns" },
   { value: "planta", label: "Planta" },
   { value: "apartamento", label: "Apartamento" },
   { value: "outros", label: "Outros" },
@@ -21,11 +20,10 @@ export function normalizeImages(input: unknown): DevImage[] {
       const url = (item as { url: unknown }).url;
       const cat = (item as { category?: unknown }).category;
       if (typeof url === "string") {
-        out.push({
-          url,
-          category:
-            typeof cat === "string" && VALID.has(cat) ? cat : "outros",
-        });
+        const rawCat = typeof cat === "string" ? cat : "";
+        const mappedCat = rawCat === "lazer" ? "area_comum" : rawCat;
+        const category = VALID.has(mappedCat) ? mappedCat : "outros";
+        out.push({ url, category });
       }
     }
   }
