@@ -14,6 +14,7 @@ import { Route as ImoveisRouteImport } from './routes/imoveis'
 import { Route as EmpreendimentosRouteImport } from './routes/empreendimentos'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ImoveisIndexRouteImport } from './routes/imoveis.index'
 import { Route as EmpreendimentosIndexRouteImport } from './routes/empreendimentos.index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as EmpreendimentosSlugRouteImport } from './routes/empreendimentos.$slug'
@@ -46,6 +47,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ImoveisIndexRoute = ImoveisIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ImoveisRoute,
 } as any)
 const EmpreendimentosIndexRoute = EmpreendimentosIndexRouteImport.update({
   id: '/',
@@ -87,7 +93,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/contato': typeof ContatoRoute
   '/empreendimentos': typeof EmpreendimentosRouteWithChildren
-  '/imoveis': typeof ImoveisRoute
+  '/imoveis': typeof ImoveisRouteWithChildren
   '/sobre': typeof SobreRoute
   '/admin/empreendimentos': typeof AdminEmpreendimentosRoute
   '/admin/imoveis': typeof AdminImoveisRoute
@@ -95,12 +101,12 @@ export interface FileRoutesByFullPath {
   '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/empreendimentos/': typeof EmpreendimentosIndexRoute
+  '/imoveis/': typeof ImoveisIndexRoute
   '/api/public/health': typeof ApiPublicHealthRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/contato': typeof ContatoRoute
-  '/imoveis': typeof ImoveisRoute
   '/sobre': typeof SobreRoute
   '/admin/empreendimentos': typeof AdminEmpreendimentosRoute
   '/admin/imoveis': typeof AdminImoveisRoute
@@ -108,6 +114,7 @@ export interface FileRoutesByTo {
   '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
   '/admin': typeof AdminIndexRoute
   '/empreendimentos': typeof EmpreendimentosIndexRoute
+  '/imoveis': typeof ImoveisIndexRoute
   '/api/public/health': typeof ApiPublicHealthRoute
 }
 export interface FileRoutesById {
@@ -115,7 +122,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/contato': typeof ContatoRoute
   '/empreendimentos': typeof EmpreendimentosRouteWithChildren
-  '/imoveis': typeof ImoveisRoute
+  '/imoveis': typeof ImoveisRouteWithChildren
   '/sobre': typeof SobreRoute
   '/admin/empreendimentos': typeof AdminEmpreendimentosRoute
   '/admin/imoveis': typeof AdminImoveisRoute
@@ -123,6 +130,7 @@ export interface FileRoutesById {
   '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/empreendimentos/': typeof EmpreendimentosIndexRoute
+  '/imoveis/': typeof ImoveisIndexRoute
   '/api/public/health': typeof ApiPublicHealthRoute
 }
 export interface FileRouteTypes {
@@ -139,12 +147,12 @@ export interface FileRouteTypes {
     | '/empreendimentos/$slug'
     | '/admin/'
     | '/empreendimentos/'
+    | '/imoveis/'
     | '/api/public/health'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/contato'
-    | '/imoveis'
     | '/sobre'
     | '/admin/empreendimentos'
     | '/admin/imoveis'
@@ -152,6 +160,7 @@ export interface FileRouteTypes {
     | '/empreendimentos/$slug'
     | '/admin'
     | '/empreendimentos'
+    | '/imoveis'
     | '/api/public/health'
   id:
     | '__root__'
@@ -166,6 +175,7 @@ export interface FileRouteTypes {
     | '/empreendimentos/$slug'
     | '/admin/'
     | '/empreendimentos/'
+    | '/imoveis/'
     | '/api/public/health'
   fileRoutesById: FileRoutesById
 }
@@ -173,7 +183,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ContatoRoute: typeof ContatoRoute
   EmpreendimentosRoute: typeof EmpreendimentosRouteWithChildren
-  ImoveisRoute: typeof ImoveisRoute
+  ImoveisRoute: typeof ImoveisRouteWithChildren
   SobreRoute: typeof SobreRoute
   AdminEmpreendimentosRoute: typeof AdminEmpreendimentosRoute
   AdminImoveisRoute: typeof AdminImoveisRoute
@@ -218,6 +228,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/imoveis/': {
+      id: '/imoveis/'
+      path: '/'
+      fullPath: '/imoveis/'
+      preLoaderRoute: typeof ImoveisIndexRouteImport
+      parentRoute: typeof ImoveisRoute
     }
     '/empreendimentos/': {
       id: '/empreendimentos/'
@@ -285,11 +302,22 @@ const EmpreendimentosRouteWithChildren = EmpreendimentosRoute._addFileChildren(
   EmpreendimentosRouteChildren,
 )
 
+interface ImoveisRouteChildren {
+  ImoveisIndexRoute: typeof ImoveisIndexRoute
+}
+
+const ImoveisRouteChildren: ImoveisRouteChildren = {
+  ImoveisIndexRoute: ImoveisIndexRoute,
+}
+
+const ImoveisRouteWithChildren =
+  ImoveisRoute._addFileChildren(ImoveisRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ContatoRoute: ContatoRoute,
   EmpreendimentosRoute: EmpreendimentosRouteWithChildren,
-  ImoveisRoute: ImoveisRoute,
+  ImoveisRoute: ImoveisRouteWithChildren,
   SobreRoute: SobreRoute,
   AdminEmpreendimentosRoute: AdminEmpreendimentosRoute,
   AdminImoveisRoute: AdminImoveisRoute,
@@ -300,3 +328,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
