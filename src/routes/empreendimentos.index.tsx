@@ -4,7 +4,7 @@ import { MapPin } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 
-export const Route = createFileRoute("/empreendimentos")({
+export const Route = createFileRoute("/empreendimentos/")({
   component: EmpreendimentosPage,
 });
 

@@ -11,9 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SobreRouteImport } from './routes/sobre'
 import { Route as ImoveisRouteImport } from './routes/imoveis'
-import { Route as EmpreendimentosRouteImport } from './routes/empreendimentos'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as EmpreendimentosIndexRouteImport } from './routes/empreendimentos.index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as EmpreendimentosSlugRouteImport } from './routes/empreendimentos.$slug'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
@@ -30,11 +30,6 @@ const ImoveisRoute = ImoveisRouteImport.update({
   path: '/imoveis',
   getParentRoute: () => rootRouteImport,
 } as any)
-const EmpreendimentosRoute = EmpreendimentosRouteImport.update({
-  id: '/empreendimentos',
-  path: '/empreendimentos',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ContatoRoute = ContatoRouteImport.update({
   id: '/contato',
   path: '/contato',
@@ -43,6 +38,11 @@ const ContatoRoute = ContatoRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmpreendimentosIndexRoute = EmpreendimentosIndexRouteImport.update({
+  id: '/empreendimentos/',
+  path: '/empreendimentos/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -74,38 +74,38 @@ const ApiPublicHealthRoute = ApiPublicHealthRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/contato': typeof ContatoRoute
-  '/empreendimentos': typeof EmpreendimentosRouteWithChildren
   '/imoveis': typeof ImoveisRoute
   '/sobre': typeof SobreRoute
   '/admin/empreendimentos': typeof AdminEmpreendimentosRoute
   '/admin/login': typeof AdminLoginRoute
   '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
   '/admin/': typeof AdminIndexRoute
+  '/empreendimentos/': typeof EmpreendimentosIndexRoute
   '/api/public/health': typeof ApiPublicHealthRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/contato': typeof ContatoRoute
-  '/empreendimentos': typeof EmpreendimentosRouteWithChildren
   '/imoveis': typeof ImoveisRoute
   '/sobre': typeof SobreRoute
   '/admin/empreendimentos': typeof AdminEmpreendimentosRoute
   '/admin/login': typeof AdminLoginRoute
   '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
   '/admin': typeof AdminIndexRoute
+  '/empreendimentos': typeof EmpreendimentosIndexRoute
   '/api/public/health': typeof ApiPublicHealthRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/contato': typeof ContatoRoute
-  '/empreendimentos': typeof EmpreendimentosRouteWithChildren
   '/imoveis': typeof ImoveisRoute
   '/sobre': typeof SobreRoute
   '/admin/empreendimentos': typeof AdminEmpreendimentosRoute
   '/admin/login': typeof AdminLoginRoute
   '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
   '/admin/': typeof AdminIndexRoute
+  '/empreendimentos/': typeof EmpreendimentosIndexRoute
   '/api/public/health': typeof ApiPublicHealthRoute
 }
 export interface FileRouteTypes {
@@ -113,49 +113,49 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/contato'
-    | '/empreendimentos'
     | '/imoveis'
     | '/sobre'
     | '/admin/empreendimentos'
     | '/admin/login'
     | '/empreendimentos/$slug'
     | '/admin/'
+    | '/empreendimentos/'
     | '/api/public/health'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/contato'
-    | '/empreendimentos'
     | '/imoveis'
     | '/sobre'
     | '/admin/empreendimentos'
     | '/admin/login'
     | '/empreendimentos/$slug'
     | '/admin'
+    | '/empreendimentos'
     | '/api/public/health'
   id:
     | '__root__'
     | '/'
     | '/contato'
-    | '/empreendimentos'
     | '/imoveis'
     | '/sobre'
     | '/admin/empreendimentos'
     | '/admin/login'
     | '/empreendimentos/$slug'
     | '/admin/'
+    | '/empreendimentos/'
     | '/api/public/health'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ContatoRoute: typeof ContatoRoute
-  EmpreendimentosRoute: typeof EmpreendimentosRouteWithChildren
   ImoveisRoute: typeof ImoveisRoute
   SobreRoute: typeof SobreRoute
   AdminEmpreendimentosRoute: typeof AdminEmpreendimentosRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminIndexRoute: typeof AdminIndexRoute
+  EmpreendimentosIndexRoute: typeof EmpreendimentosIndexRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
 }
 
@@ -175,13 +175,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ImoveisRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/empreendimentos': {
-      id: '/empreendimentos'
-      path: '/empreendimentos'
-      fullPath: '/empreendimentos'
-      preLoaderRoute: typeof EmpreendimentosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/contato': {
       id: '/contato'
       path: '/contato'
@@ -194,6 +187,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/empreendimentos/': {
+      id: '/empreendimentos/'
+      path: '/empreendimentos'
+      fullPath: '/empreendimentos/'
+      preLoaderRoute: typeof EmpreendimentosIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -234,29 +234,27 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface EmpreendimentosRouteChildren {
-  EmpreendimentosSlugRoute: typeof EmpreendimentosSlugRoute
-}
-
-const EmpreendimentosRouteChildren: EmpreendimentosRouteChildren = {
-  EmpreendimentosSlugRoute: EmpreendimentosSlugRoute,
-}
-
-const EmpreendimentosRouteWithChildren = EmpreendimentosRoute._addFileChildren(
-  EmpreendimentosRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ContatoRoute: ContatoRoute,
-  EmpreendimentosRoute: EmpreendimentosRouteWithChildren,
   ImoveisRoute: ImoveisRoute,
   SobreRoute: SobreRoute,
   AdminEmpreendimentosRoute: AdminEmpreendimentosRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminIndexRoute: AdminIndexRoute,
+  EmpreendimentosIndexRoute: EmpreendimentosIndexRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
