@@ -83,7 +83,7 @@ function EmpreendimentosPage() {
 }
 
 function Card({ dev }: { dev: DevRow }) {
-  const cover = dev.images?.[0];
+  const cover = imageUrls(dev.images)[0];
   const delivery = formatDelivery(dev.delivery_date);
   return (
     <a
