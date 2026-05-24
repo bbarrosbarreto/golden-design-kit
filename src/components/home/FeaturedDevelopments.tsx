@@ -55,7 +55,7 @@ function mapRow(d: DevRow): Slide {
     region: d.regions?.name ?? "",
     builder: d.builder ?? "",
     typology: d.typology?.join(" • ") ?? "",
-    cover_image_url: d.images?.[0] ?? null,
+    cover_image_url: imageUrls(d.images)[0] ?? null,
     status: d.status === "pronta_entrega" ? "ready" : d.status === "previsao" ? "forecast" : null,
     delivery_forecast: formatDelivery(d.delivery_date),
     price_from: d.price_from,
