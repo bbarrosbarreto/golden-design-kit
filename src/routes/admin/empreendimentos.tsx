@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-import { imageUrls } from "@/lib/development-images";
+import { pickCoverImage } from "@/lib/development-images";
 
 export const Route = createFileRoute("/admin/empreendimentos")({
   component: EmpreendimentosAdminPage,
@@ -137,7 +137,7 @@ function EmpreendimentosAdminPage() {
               </TableRow>
             ) : (
               filtered.map((d) => {
-                const thumb = imageUrls(d.images)[0];
+                const thumb = pickCoverImage(d.images)?.url;
                 return (
                   <TableRow key={d.id}>
                     <TableCell>

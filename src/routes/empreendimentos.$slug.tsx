@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { imageUrls } from "@/lib/development-images";
+import { orderedImages } from "@/lib/development-images";
 
 export const Route = createFileRoute("/empreendimentos/$slug")({
   component: DevelopmentDetailPage,
@@ -97,7 +97,7 @@ function DevelopmentDetailPage() {
 }
 
 function DevelopmentDetail({ dev }: { dev: DevDetail }) {
-  const images = imageUrls(dev.images);
+  const images = orderedImages(dev.images);
   const [activeImg, setActiveImg] = useState(0);
   const delivery = formatDelivery(dev.delivery_date);
   const youtubeId = dev.video_url ? getYouTubeId(dev.video_url) : null;
@@ -115,7 +115,7 @@ function DevelopmentDetail({ dev }: { dev: DevDetail }) {
           <div className="relative aspect-[16/10] w-full overflow-hidden rounded-lg bg-surface">
             {images.length > 0 ? (
               <img
-                src={images[activeImg]}
+                src={images[activeImg].url}
                 alt={dev.title}
                 className="h-full w-full object-cover"
               />
@@ -136,7 +136,7 @@ function DevelopmentDetail({ dev }: { dev: DevDetail }) {
                       : "border-border opacity-70 hover:opacity-100"
                   }`}
                 >
-                  <img src={img} alt="" className="h-full w-full object-cover" />
+                  <img src={img.url} alt="" className="h-full w-full object-cover" />
                 </button>
               ))}
             </div>

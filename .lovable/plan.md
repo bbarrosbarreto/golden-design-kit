@@ -1,47 +1,31 @@
-## Problema
+## Mudanças
 
-`developments.images` é `text[]` no Postgres. O form envia objetos `{ url, category }`, mas o PostgREST só consegue persistir strings nesse tipo, então a `category` é perdida e ao reabrir todas as fotos caem em "Outros".
+### 1. `src/lib/development-images.ts`
+Adicionar `{ value: "capa", label: "Capa" }` como **primeira entrada** de `IMAGE_CATEGORIES`. O mapeamento legado "lazer" → "area_comum" permanece. `normalizeImages` continua aceitando string[] (legado) e `{ url, category }[]` (jsonb atual).
 
-A mesma situação provavelmente afeta `properties.images` (a verificar e migrar junto, para manter consistência).
+Exportar nova helper:
+```ts
+export function pickCoverImage(input: unknown): DevImage | null
+```
+Regra: primeiro item com `category === "capa"`; senão primeiro com `category === "fachada"`; senão o primeiro item; senão `null`.
 
-## Plano
+### 2. `src/routes/empreendimentos.$slug.tsx`
+- Trocar `const images = imageUrls(dev.images)` por uma normalização que mantenha a categoria e reordene para colocar a capa (capa > fachada > primeira) como **primeiro item** do array exibido na galeria.
+- Hero (`images[activeImg]`) continua usando o índice 0 por padrão → herda a capa automaticamente.
+- Sem mudança de layout/design.
 
-### 1. Migração de schema (`developments.images` text[] → jsonb)
+### 3. `src/routes/empreendimentos.tsx`
+Já está correto (`createFileRoute('/empreendimentos')` com `Outlet`). Nenhuma ação.
 
-Criar uma migration que:
+### 4. Galeria/upload no admin
+- `ImageUploader` já lê `image.url` (não a string) e o upload já salva `{ url, category: "outros" }`. Após a migration para jsonb, isso persiste corretamente.
+- Como `"capa"` agora é a primeira opção do select, o usuário pode marcar a foto desejada como capa direto no card. Nenhuma mudança de código no uploader.
 
-- Adiciona coluna temporária `images_jsonb jsonb` com default `'[]'::jsonb`.
-- Faz backfill convertendo cada string do `text[]` atual em `{ "url": <string>, "category": "outros" }`:
-  ```sql
-  UPDATE developments
-  SET images_jsonb = COALESCE(
-    (SELECT jsonb_agg(jsonb_build_object('url', u, 'category', 'outros'))
-     FROM unnest(images) AS u),
-    '[]'::jsonb
-  );
-  ```
-- Dropa a coluna `images` antiga e renomeia `images_jsonb` para `images`.
-- Define `NOT NULL DEFAULT '[]'::jsonb`.
-
-Fazer o mesmo para `properties.images` se também for `text[]` (verificar antes da migration; se já for jsonb, pular).
-
-### 2. Código
-
-O frontend já está preparado para `{ url, category }[]`:
-- `normalizeImages` aceita string[] (legado) e `{ url, category }[]`.
-- `toPayload` em `DevelopmentForm` envia `v.images` no novo formato.
-- Leitores (`imageUrls`) extraem URLs.
-
-Não é necessária mudança em código — após a migration, o INSERT/UPDATE já vai persistir o objeto completo (jsonb aceita arrays de objetos nativamente).
-
-### 3. Verificação
-
-Após aplicar:
-1. Abrir um empreendimento existente no admin → fotos aparecem com categoria "Outros" (esperado, herdado do backfill).
-2. Alterar a categoria de uma foto, salvar, reabrir → categoria preservada.
-3. Upload de nova foto + categoria + salvar → categoria preservada.
+### 5. Consumidores que mostram thumbnail (`empreendimentos.index.tsx`, `FeaturedDevelopments.tsx`, `admin/empreendimentos.tsx`)
+Trocar `imageUrls(d.images)[0]` por `pickCoverImage(d.images)?.url ?? null` para que listagens/destaques também usem a capa quando definida. Sem mudança visual além da escolha da imagem.
 
 ## Fora de escopo
 
-- Mudar UI ou comportamento do `ImageUploader`/`DevelopmentForm`.
-- Categorizar retroativamente as fotos existentes (todas viram "outros"; o admin re-categoriza pela interface).
+- Migrar nada no banco (já é jsonb conforme informado).
+- Alterar design, layout, formulário ou comportamento de outras seções.
+- Mudar default de categoria no upload (continua "outros" — usuário marca capa manualmente).

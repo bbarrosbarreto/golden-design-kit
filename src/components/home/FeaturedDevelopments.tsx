@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { imageUrls } from "@/lib/development-images";
+import { pickCoverImage } from "@/lib/development-images";
 
 type DevRow = {
   id: string;
@@ -55,7 +55,7 @@ function mapRow(d: DevRow): Slide {
     region: d.regions?.name ?? "",
     builder: d.builder ?? "",
     typology: d.typology?.join(" • ") ?? "",
-    cover_image_url: imageUrls(d.images)[0] ?? null,
+    cover_image_url: pickCoverImage(d.images)?.url ?? null,
     status: d.status === "pronta_entrega" ? "ready" : d.status === "previsao" ? "forecast" : null,
     delivery_forecast: formatDelivery(d.delivery_date),
     price_from: d.price_from,
