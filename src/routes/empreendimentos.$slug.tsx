@@ -1,8 +1,8 @@
-import { createFileRoute, redirect, useParams } from "@tanstack/react-router";
+import { createFileRoute, redirect, useParams, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { BedDouble, Car, ChevronLeft, ChevronRight, Home, Maximize, X } from "lucide-react";
 import { toast } from "sonner";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +11,7 @@ import {
   pickCoverImage,
   type DevImage,
 } from "@/lib/development-images";
+import { pickPropCover } from "@/lib/property-images";
 import { SubmittedState } from "@/components/contact/SubmittedState";
 
 export const Route = createFileRoute("/empreendimentos/$slug")({
@@ -406,6 +407,9 @@ function DevelopmentDetail({ dev }: { dev: DevDetail }) {
         </section>
       )}
 
+      {/* 6.5 IMÓVEIS VINCULADOS */}
+      <LinkedPropertiesCarousel developmentId={dev.id} />
+
       {/* 7. FORMULÁRIO */}
       <section style={{ backgroundColor: DARK, padding: "64px 5%" }}>
         <div
@@ -757,5 +761,279 @@ function ContactForm({ developmentId }: { developmentId: string }) {
         {isSubmitting ? "Enviando..." : "Quero ser Contactado"}
       </button>
     </form>
+  );
+}
+
+type LinkedProperty = {
+  id: string;
+  slug: string;
+  title: string;
+  type: string | null;
+  purpose: string | null;
+  price: number | null;
+  bedrooms: number | null;
+  parking_spots: number | null;
+  area: number | null;
+  built_area: number | null;
+  useful_area: number | null;
+  images: unknown;
+  regions: { name: string } | null;
+};
+
+function LinkedPropertiesCarousel({ developmentId }: { developmentId: string }) {
+  const { data, isLoading } = useQuery({
+    queryKey: ["linked-properties", developmentId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("properties")
+        .select("*, regions(name)")
+        .eq("development_id", developmentId)
+        .eq("active", true)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as LinkedProperty[];
+    },
+    enabled: !!developmentId,
+  });
+
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const fade = useInViewFade<HTMLDivElement>();
+
+  const scrollBy = (dir: 1 | -1) => {
+    scrollRef.current?.scrollBy({ left: dir * 340, behavior: "smooth" });
+  };
+
+  if (isLoading) {
+    return (
+      <section style={{ backgroundColor: "#fff", padding: "64px 5%" }}>
+        <div className="mx-auto max-w-6xl">
+          <p
+            style={{
+              fontFamily: "Inter, sans-serif",
+              fontSize: 11,
+              letterSpacing: 2,
+              textTransform: "uppercase",
+              color: GOLD,
+              margin: 0,
+            }}
+          >
+            Disponíveis neste empreendimento
+          </p>
+          <SectionHeading>Imóveis para você</SectionHeading>
+          <div className="flex gap-4 overflow-hidden">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className="shrink-0 animate-pulse"
+                style={{
+                  width: 320,
+                  height: 360,
+                  backgroundColor: "#eee",
+                  borderRadius: 2,
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (!data || data.length === 0) return null;
+
+  return (
+    <section style={{ backgroundColor: "#fff", padding: "64px 5%" }}>
+      <div ref={fade.ref} style={fade.style} className="mx-auto max-w-6xl">
+        <p
+          style={{
+            fontFamily: "Inter, sans-serif",
+            fontSize: 11,
+            letterSpacing: 2,
+            textTransform: "uppercase",
+            color: GOLD,
+            margin: 0,
+          }}
+        >
+          Disponíveis neste empreendimento
+        </p>
+        <SectionHeading>Imóveis para você</SectionHeading>
+        <div className="relative">
+          <div
+            ref={scrollRef}
+            className="flex gap-4 overflow-x-auto pb-2"
+            style={{
+              scrollSnapType: "x mandatory",
+              scrollbarWidth: "none",
+            }}
+          >
+            {data.map((p) => (
+              <LinkedPropertyCard key={p.id} property={p} />
+            ))}
+          </div>
+          {data.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={() => scrollBy(-1)}
+                className="absolute left-0 top-1/2 hidden -translate-y-1/2 items-center justify-center md:flex"
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: "50%",
+                  backgroundColor: "rgba(255,255,255,0.95)",
+                  boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
+                  marginLeft: -10,
+                }}
+                aria-label="Anterior"
+              >
+                <ChevronLeft className="h-5 w-5" style={{ color: DARK }} />
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollBy(1)}
+                className="absolute right-0 top-1/2 hidden -translate-y-1/2 items-center justify-center md:flex"
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: "50%",
+                  backgroundColor: "rgba(255,255,255,0.95)",
+                  boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
+                  marginRight: -10,
+                }}
+                aria-label="Próxima"
+              >
+                <ChevronRight className="h-5 w-5" style={{ color: DARK }} />
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function LinkedPropertyCard({ property: p }: { property: LinkedProperty }) {
+  const cover = pickPropCover(p.images, p.type)?.url;
+  const area = p.useful_area ?? p.built_area ?? p.area ?? null;
+  const region = p.regions?.name ?? "Brasília/DF";
+  const isTerreno = p.type === "terreno";
+  const typeLabel = p.type ? p.type.charAt(0).toUpperCase() + p.type.slice(1) : "Imóvel";
+  const purposeLabel = p.purpose === "aluguel" ? "Locação" : "Venda";
+
+  return (
+    <Link
+      to="/imoveis/$slug"
+      params={{ slug: p.slug }}
+      className="group shrink-0 overflow-hidden bg-white transition-all duration-300 hover:-translate-y-1"
+      style={{
+        width: 320,
+        scrollSnapAlign: "start",
+        border: "1px solid rgba(0,0,0,0.08)",
+        borderRadius: 2,
+        boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+      }}
+    >
+      <div
+        className="relative w-full overflow-hidden"
+        style={{ height: 200, backgroundColor: "#f0f0f0" }}
+      >
+        {cover ? (
+          <img
+            src={cover}
+            alt={p.title}
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).style.display = "none";
+            }}
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center">
+            <Home className="h-10 w-10" style={{ color: "#bbb" }} />
+          </div>
+        )}
+        <span
+          className="absolute left-3 top-3"
+          style={{
+            backgroundColor: GOLD,
+            color: DARK,
+            fontFamily: "Inter, sans-serif",
+            fontSize: 10,
+            fontWeight: 700,
+            letterSpacing: 1.5,
+            textTransform: "uppercase",
+            padding: "5px 10px",
+            borderRadius: 2,
+          }}
+        >
+          {purposeLabel}
+        </span>
+      </div>
+      <div className="flex flex-col gap-2 p-5">
+        <p
+          style={{
+            fontFamily: "Inter, sans-serif",
+            fontSize: 13,
+            color: "#888",
+            margin: 0,
+          }}
+        >
+          {typeLabel} · {region}
+        </p>
+        <h3
+          style={{
+            fontFamily: "'Playfair Display', serif",
+            fontSize: 18,
+            color: DARK,
+            lineHeight: 1.3,
+            margin: 0,
+          }}
+        >
+          {p.title}
+        </h3>
+        <p
+          style={{
+            fontFamily: "Inter, sans-serif",
+            fontSize: 16,
+            fontWeight: 600,
+            color: GOLD,
+            margin: 0,
+          }}
+        >
+          {p.price != null
+            ? `${formatPrice(p.price)}${p.purpose === "aluguel" ? "/mês" : ""}`
+            : "Consulte o valor"}
+        </p>
+        {(p.bedrooms || p.parking_spots || area) && (
+          <div
+            className="flex flex-wrap items-center gap-3 pt-2"
+            style={{
+              borderTop: "1px solid rgba(0,0,0,0.06)",
+              fontFamily: "Inter, sans-serif",
+              fontSize: 12,
+              color: "#888",
+            }}
+          >
+            {!isTerreno && p.bedrooms ? (
+              <span className="flex items-center gap-1">
+                <BedDouble className="h-3.5 w-3.5" />
+                {p.bedrooms}
+              </span>
+            ) : null}
+            {!isTerreno && p.parking_spots ? (
+              <span className="flex items-center gap-1">
+                <Car className="h-3.5 w-3.5" />
+                {p.parking_spots}
+              </span>
+            ) : null}
+            {area ? (
+              <span className="flex items-center gap-1">
+                <Maximize className="h-3.5 w-3.5" />
+                {area}m²
+              </span>
+            ) : null}
+          </div>
+        )}
+      </div>
+    </Link>
   );
 }

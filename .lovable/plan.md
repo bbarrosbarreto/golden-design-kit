@@ -1,106 +1,68 @@
-# Plano — Página Admin de Leads
+## Contexto
+Na página de detalhe de empreendimento (`src/routes/empreendimentos.$slug.tsx`), inserir uma nova seção de carrossel horizontal exibindo os imóveis do Supabase cujo `development_id` corresponde ao empreendimento atual. A seção deve ficar entre a seção de vídeo (quando existir) e o formulário de contato.
 
-## Arquivos
+## Passos de implementação
 
-1. **`src/routes/admin/leads.tsx`** (novo)
-2. **`src/components/admin/AdminLayout.tsx`** (ajuste pontual: corrigir `to` do item "Leads")
+1. **Adicionar imports necessários**
+   - Importar `pickPropCover` de `@/lib/property-images`
+   - Importar ícones `BedDouble`, `Car`, `Maximize`, `Home` do `lucide-react`
+   - Importar `Link` do `@tanstack/react-router`
 
-Nenhum outro arquivo será alterado. `routeTree.gen.ts` é regenerado automaticamente.
+2. **Adicionar query de imóveis vinculados**
+   - Dentro do componente `DevelopmentDetail`, adicionar `useQuery` com:
+     - `queryKey`: `['linked-properties', dev.id]`
+     - Buscar em `properties` onde `development_id = dev.id` e `active = true`
+     - Ordenar por `created_at` descendente
+     - `enabled: !!dev.id`
 
----
+3. **Criar componente `LinkedPropertiesCarousel`**
+   - Recebe `developmentId: string`
+   - Executa a query acima
+   - Se `isLoading`: renderiza 3 skeleton cards (retângulos cinza animados com `animate-pulse`)
+   - Se `!data || data.length === 0`: retorna `null` (oculta completamente)
+   - Caso contrário: renderiza seção com carrossel horizontal
 
-## 1. `src/routes/admin/leads.tsx`
+4. **Layout da seção**
+   - Fundo: `#fff` (branco) — alternância consistente com seções adjacentes (vídeo é `#1a1a1a`, formulário é `#1a1a1a`, então branco cria contraste)
+   - Eyebrow em dourado: `"Disponíveis neste empreendimento"` (Inter, 11px, tracking, uppercase)
+   - Título: `"Imóveis para você"` em Playfair Display, escuro
+   - Linha dourada decorativa abaixo do título
+   - Padding horizontal: `5%` (mesmo padrão da página)
+   - Container: `max-w-6xl` centralizado
 
-### Rota
-```ts
-export const Route = createFileRoute("/admin/leads")({
-  component: LeadsAdminPage,
-});
-```
+5. **Carrossel horizontal**
+   - Scroll container com `overflow-x-auto`, `scrollSnapType: x mandatory`, `scrollbarWidth: none`
+   - Botões prev/next absolutos (setas circulares brancas com sombra) — visíveis apenas no desktop
+   - Cada card: largura fixa `320px`, `shrink-0`, `scrollSnapAlign: start`
+   - Gap entre cards: `16px`
 
-### Query
-```ts
-useQuery({
-  queryKey: ["admin", "leads"],
-  queryFn: async () => {
-    const { data, error } = await supabase
-      .from("leads")
-      .select("*, developments(title), properties(title)")
-      .order("created_at", { ascending: false });
-    if (error) throw error;
-    return data as LeadRow[];
-  },
-});
-```
+6. **Card de imóvel**
+   - Imagem: `aspect-[16/10]` (160px de altura aproximada), `object-cover`, usando `pickPropCover(p.images, p.type)?.url`
+   - Fallback sem imagem: fundo cinza claro com ícone `Home` cinza
+   - Badge de finalidade: "VENDA" ou "LOCAÇÃO" — fundo `#C9A84C`, texto `#1a1a1a`, fonte 10px uppercase
+   - Tipo + região: texto pequeno cinza (Inter 13px)
+   - Título: Playfair Display 18px, `#1a1a1a`
+   - Preço: Inter 16px font-weight 600, `#C9A84C`
+   - Ícones de quartos, vagas, área (quando disponíveis): Inter 12px, cinza
+   - Card clicável envolto em `<Link to="/imoveis/$slug">`
+   - Border: `1px solid rgba(0,0,0,0.08)`, `border-radius: 2px`, `shadow-sm`
+   - Hover: `translateY(-4px)` + `shadow-md` transição 300ms
 
-Tipo `LeadRow`: `{ id, created_at, name, phone, message, source, status, development_id, property_id, developments: {title}|null, properties: {title}|null }`.
+7. **Responsivo**
+   - Desktop: scroll horizontal com botões prev/next
+   - Mobile: scroll horizontal nativo com touch, 1 card visível
 
-### Cabeçalho
-- `<h1>Leads</h1>` + contador "`{data.length} leads`" (font-heading + text-muted-foreground).
-- Linha de filtros (flex gap-3):
-  - Select origem: Todos | empreendimento | imovel | contato
-  - Select status: Todos | novo | contactado | convertido | descartado
-  - Input de busca (ícone `Search`) — filtra `name` ou `phone` (case-insensitive, ignora não-dígitos no phone).
-- Filtragem 100% client-side via `useMemo` sobre `data`.
+8. **Inserir na página**
+   - Inserir `<LinkedPropertiesCarousel developmentId={dev.id} />` dentro do `Layout`, após a seção de vídeo (linha 407) e antes da seção do formulário (linha 410)
+   - Usar o hook `useInViewFade` já existente para animação fade-in na seção
 
-### Tabela (componentes shadcn `Table`)
-Colunas: **Data | Nome | WhatsApp | Origem | Mensagem | Status | Ações**
+## Arquivos a modificar
+- `src/routes/empreendimentos.$slug.tsx` — único arquivo modificado
 
-- **Data**: `new Date(created_at).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })`.
-- **WhatsApp**: `<a href={`https://wa.me/55${onlyDigits(phone)}`} target="_blank">` com ícone, formatado `(61) 99935-0888`.
-- **Origem** — `<Badge>` com classe condicional:
-  - `empreendimento` → `bg-primary text-primary-foreground` + nome de `developments.title`
-  - `imovel` → `bg-badge-blue text-white` + `properties.title`
-  - `contato` → `bg-muted text-muted-foreground` + "Contato Geral"
-- **Mensagem**: `truncate max-w-[240px]` + `<Tooltip>` (TooltipProvider no topo da página) mostrando texto completo.
-- **Status**: `<Select>` inline controlado, `onValueChange` dispara mutation:
-  ```ts
-  updateStatusMutation.mutate({ id, status })
-  ```
-  Mutation: `supabase.from("leads").update({ status }).eq("id", id)`. `onSuccess` → `toast.success("Status atualizado")` + `invalidateQueries(["admin","leads"])`. Cor do trigger via `statusBadgeClass(status)`:
-  - novo → cinza (`bg-muted`)
-  - contactado → azul (`bg-badge-blue text-white`)
-  - convertido → verde (`bg-badge-green text-white`)
-  - descartado → `bg-destructive/15 text-destructive`
-- **Ações**: dois `Button` ghost/icon:
-  - 💬 (`MessageCircle`) → abre `wa.me/55+phone` em nova aba
-  - 🗑️ (`Trash2`) → `setDeleting(lead)` → abre `AlertDialog`
-
-### Exclusão
-```ts
-deleteMutation: supabase.from("leads").delete().eq("id", id)
-onSuccess → toast + invalidateQueries(["admin","leads"]) + setDeleting(null)
-```
-`AlertDialog` com título "Excluir lead?", descrição com nome do lead, botões Cancelar / Excluir.
-
-### Estados
-- Loading: skeleton de 5 linhas (ou texto "Carregando…" seguindo padrão de empreendimentos).
-- Vazio (sem dados ou após filtros): linha única "Nenhum lead encontrado".
-
-### Visual
-- `AdminLayout` como wrapper raiz.
-- Tipografia/cores apenas via tokens semânticos (`font-heading`, `font-body`, `bg-primary`, `bg-badge-green`, `bg-badge-blue`, `bg-muted`, `text-muted-foreground`, `border-border`).
-- Sem paginação (conforme pedido).
-
----
-
-## 2. `src/components/admin/AdminLayout.tsx`
-
-Hoje o item "Leads" aponta para `/admin`. Trocar para `/admin/leads` e usar ícone `MessageSquare` (mais semântico para mensagens) — substituindo apenas a entrada correspondente no array `NAV`.
-
-```ts
-{ label: "Leads", icon: MessageSquare, to: "/admin/leads" },
-```
-
-Atualizar import de `lucide-react` adicionando `MessageSquare` e removendo `Users` se não restar uso.
-
----
-
-## Helpers internos ao arquivo
-- `onlyDigits(s: string)` → `s.replace(/\D/g, "")`
-- `formatPhone(s)` → exibição "(DD) NNNNN-NNNN"
-- `statusBadgeClass(status)` e `sourceBadge(lead)` → mapas de classes/labels.
-
-## Validação pós-implementação
-- Build TS deve passar (sem mexer em `routeTree.gen.ts`).
-- Abrir `/admin/leads`: lista carrega, filtros funcionam, mudar status persiste, excluir remove a linha, botão WhatsApp abre `wa.me`.
+## Critérios de aceitação
+- Seção aparece apenas quando há imóveis vinculados ativos
+- Cards navegam corretamente para `/imoveis/[slug]`
+- Imagens carregam via `pickPropCover`
+- Skeleton exibido durante carregamento
+- Seção oculta se query retornar vazio
+- Sem regressões no formulário de contato ou lightbox
