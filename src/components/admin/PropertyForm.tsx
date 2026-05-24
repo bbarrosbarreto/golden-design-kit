@@ -143,9 +143,11 @@ function toPayload(v: FormValues) {
   const numOrNull = (s: string) => (s.trim() === "" ? null : Number(s));
   const intOrNull = (s: string) => (s.trim() === "" ? null : Number.parseInt(s, 10));
   const isTerreno = v.type === "terreno";
+  const isApto = v.type === "apartamento";
+  const isCasa = v.type === "casa";
   return {
     title: v.title.trim(),
-    slug: v.slug.trim(),
+    slug: v.slug.trim() || slugify(v.title),
     type: v.type,
     purpose: v.purpose,
     status: v.status,
@@ -156,10 +158,11 @@ function toPayload(v: FormValues) {
     address: v.address.trim() || null,
     price: numOrNull(v.price),
     description: v.description.trim() || null,
-    area: numOrNull(v.area),
-    useful_area: isTerreno ? null : numOrNull(v.useful_area),
-    built_area: isTerreno ? null : numOrNull(v.built_area),
-    green_area: isTerreno ? numOrNull(v.green_area) : null,
+    // Apto: só useful_area. Casa: area+built+useful+green. Terreno: area+useful+green.
+    area: isApto ? null : numOrNull(v.area),
+    useful_area: numOrNull(v.useful_area),
+    built_area: isCasa ? numOrNull(v.built_area) : null,
+    green_area: isApto ? null : numOrNull(v.green_area),
     bedrooms: isTerreno ? null : intOrNull(v.bedrooms),
     suites: isTerreno ? null : intOrNull(v.suites),
     bathrooms: isTerreno ? null : intOrNull(v.bathrooms),
