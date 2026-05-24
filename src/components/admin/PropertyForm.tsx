@@ -483,8 +483,8 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
               Cancelar
             </Button>
             <Button type="submit" variant="primary" disabled={mutation.isPending || formState.isSubmitting}>
-              {mutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-              {isEdit ? "Salvar alterações" : "Criar imóvel"}
+              {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {mutation.isPending ? "Salvando…" : isEdit ? "Salvar alterações" : "Criar imóvel"}
             </Button>
           </DialogFooter>
         </form>
