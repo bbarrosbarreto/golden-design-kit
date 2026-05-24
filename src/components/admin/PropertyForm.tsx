@@ -140,8 +140,23 @@ function toForm(p: PropertyRow): FormValues {
 }
 
 function toPayload(v: FormValues) {
-  const numOrNull = (s: string) => (s.trim() === "" ? null : Number(s));
-  const intOrNull = (s: string) => (s.trim() === "" ? null : Number.parseInt(s, 10));
+  const numOrNull = (s: string | number | undefined | null): number | null => {
+    if (s === undefined || s === null) return null;
+    const str = typeof s === "string" ? s.trim() : String(s);
+    if (str === "") return null;
+    const n = Number(str);
+    return Number.isNaN(n) ? null : n;
+  };
+  const intOrNull = (s: string | number | undefined | null): number | null => {
+    const n = numOrNull(s);
+    return n === null ? null : Math.trunc(n);
+  };
+  const uuidOrNull = (s: string | undefined | null): string | null => {
+    if (!s) return null;
+    const t = s.trim();
+    if (t === "" || t === "none") return null;
+    return t;
+  };
   const isTerreno = v.type === "terreno";
   const isApto = v.type === "apartamento";
   const isCasa = v.type === "casa";
@@ -153,8 +168,8 @@ function toPayload(v: FormValues) {
     status: v.status,
     active: v.active,
     featured: v.featured,
-    region_id: v.region_id || null,
-    development_id: v.development_id || null,
+    region_id: uuidOrNull(v.region_id),
+    development_id: uuidOrNull(v.development_id),
     address: v.address.trim() || null,
     price: numOrNull(v.price),
     description: v.description.trim() || null,
