@@ -12,6 +12,7 @@ import {
   type PropImage,
   type PropertyType,
 } from "@/lib/property-images";
+import { SubmittedState } from "@/components/contact/SubmittedState";
 
 export const Route = createFileRoute("/imoveis/$slug")({
   component: PropertyDetailPage,
