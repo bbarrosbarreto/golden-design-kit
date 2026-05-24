@@ -20,11 +20,10 @@ export function normalizeImages(input: unknown): DevImage[] {
       const url = (item as { url: unknown }).url;
       const cat = (item as { category?: unknown }).category;
       if (typeof url === "string") {
-        out.push({
-          url,
-          category:
-            typeof cat === "string" && VALID.has(cat) ? cat : "outros",
-        });
+        const rawCat = typeof cat === "string" ? cat : "";
+        const mappedCat = rawCat === "lazer" ? "area_comum" : rawCat;
+        const category = VALID.has(mappedCat) ? mappedCat : "outros";
+        out.push({ url, category });
       }
     }
   }
