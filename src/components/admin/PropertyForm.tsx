@@ -249,6 +249,21 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
     },
   });
 
+  const formatSupabaseError = (error: {
+    message?: string;
+    details?: string | null;
+    hint?: string | null;
+    code?: string | null;
+  }) => {
+    const parts = [
+      error.message,
+      error.details,
+      error.hint,
+      error.code ? `(${error.code})` : null,
+    ].filter(Boolean);
+    return parts.join(" — ") || "Erro desconhecido do banco";
+  };
+
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
       const payload = toPayload(values);
@@ -259,10 +274,16 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
           .from("properties")
           .update(payload)
           .eq("id", initialData.id);
-        if (error) throw new Error(error.message);
+        if (error) {
+          console.error("[PropertyForm] update error:", error);
+          throw new Error(formatSupabaseError(error));
+        }
       } else {
         const { error } = await supabase.from("properties").insert(payload);
-        if (error) throw new Error(error.message);
+        if (error) {
+          console.error("[PropertyForm] insert error:", error);
+          throw new Error(formatSupabaseError(error));
+        }
       }
     },
     onSuccess: () => {
