@@ -143,9 +143,11 @@ function toPayload(v: FormValues) {
   const numOrNull = (s: string) => (s.trim() === "" ? null : Number(s));
   const intOrNull = (s: string) => (s.trim() === "" ? null : Number.parseInt(s, 10));
   const isTerreno = v.type === "terreno";
+  const isApto = v.type === "apartamento";
+  const isCasa = v.type === "casa";
   return {
     title: v.title.trim(),
-    slug: v.slug.trim(),
+    slug: v.slug.trim() || slugify(v.title),
     type: v.type,
     purpose: v.purpose,
     status: v.status,
@@ -156,10 +158,11 @@ function toPayload(v: FormValues) {
     address: v.address.trim() || null,
     price: numOrNull(v.price),
     description: v.description.trim() || null,
-    area: numOrNull(v.area),
-    useful_area: isTerreno ? null : numOrNull(v.useful_area),
-    built_area: isTerreno ? null : numOrNull(v.built_area),
-    green_area: isTerreno ? numOrNull(v.green_area) : null,
+    // Apto: só useful_area. Casa: area+built+useful+green. Terreno: area+useful+green.
+    area: isApto ? null : numOrNull(v.area),
+    useful_area: numOrNull(v.useful_area),
+    built_area: isCasa ? numOrNull(v.built_area) : null,
+    green_area: isApto ? null : numOrNull(v.green_area),
     bedrooms: isTerreno ? null : intOrNull(v.bedrooms),
     suites: isTerreno ? null : intOrNull(v.suites),
     bathrooms: isTerreno ? null : intOrNull(v.bathrooms),
@@ -241,10 +244,10 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
           .from("properties")
           .update(payload)
           .eq("id", initialData.id);
-        if (error) throw error;
+        if (error) throw new Error(error.message);
       } else {
         const { error } = await supabase.from("properties").insert(payload);
-        if (error) throw error;
+        if (error) throw new Error(error.message);
       }
     },
     onSuccess: () => {
@@ -252,8 +255,16 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
       queryClient.invalidateQueries({ queryKey: ["admin", "properties"] });
       onOpenChange(false);
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => {
+      console.error("[PropertyForm] save error:", e);
+      toast.error(e.message || "Erro ao salvar imóvel");
+    },
   });
+
+  const onInvalid = (errors: unknown) => {
+    console.warn("[PropertyForm] validation errors:", errors);
+    toast.error("Verifique os campos obrigatórios");
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -265,12 +276,15 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
         </DialogHeader>
 
         <form
-          onSubmit={handleSubmit((v) => mutation.mutate(v))}
+          onSubmit={handleSubmit((v) => mutation.mutate(v), onInvalid)}
           className="space-y-5 font-body"
         >
           <div className="space-y-2">
             <Label htmlFor="title">Título *</Label>
-            <Input id="title" {...register("title", { required: true })} />
+            <Input id="title" {...register("title", { required: "Título é obrigatório" })} />
+            {formState.errors.title?.message && (
+              <p className="text-sm text-destructive">{formState.errors.title.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -365,29 +379,49 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div className="space-y-2">
-              <Label htmlFor="area">
-                {isTerreno ? "Área do Terreno (m²)" : "Área Total (m²)"}
-              </Label>
-              <Input id="area" type="number" step="0.01" {...register("area")} />
-            </div>
-            {!isTerreno && (
+            {type === "apartamento" && (
+              <div className="space-y-2">
+                <Label htmlFor="useful_area">Área (m²)</Label>
+                <Input id="useful_area" type="number" step="0.01" {...register("useful_area")} />
+              </div>
+            )}
+
+            {type === "casa" && (
               <>
                 <div className="space-y-2">
-                  <Label htmlFor="useful_area">Área Útil (m²)</Label>
-                  <Input id="useful_area" type="number" step="0.01" {...register("useful_area")} />
+                  <Label htmlFor="area">Área Total do Terreno (m²)</Label>
+                  <Input id="area" type="number" step="0.01" {...register("area")} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="built_area">Área Construída (m²)</Label>
                   <Input id="built_area" type="number" step="0.01" {...register("built_area")} />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="useful_area">Área Útil (m²)</Label>
+                  <Input id="useful_area" type="number" step="0.01" {...register("useful_area")} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="green_area">Área Verde (m²)</Label>
+                  <Input id="green_area" type="number" step="0.01" {...register("green_area")} />
+                </div>
               </>
             )}
-            {isTerreno && (
-              <div className="space-y-2">
-                <Label htmlFor="green_area">Área Verde (m²)</Label>
-                <Input id="green_area" type="number" step="0.01" {...register("green_area")} />
-              </div>
+
+            {type === "terreno" && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="area">Área Total (m²)</Label>
+                  <Input id="area" type="number" step="0.01" {...register("area")} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="useful_area">Área Útil/Construível (m²)</Label>
+                  <Input id="useful_area" type="number" step="0.01" {...register("useful_area")} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="green_area">Área Verde (m²)</Label>
+                  <Input id="green_area" type="number" step="0.01" {...register("green_area")} />
+                </div>
+              </>
             )}
           </div>
 
@@ -449,8 +483,8 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
               Cancelar
             </Button>
             <Button type="submit" variant="primary" disabled={mutation.isPending || formState.isSubmitting}>
-              {mutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-              {isEdit ? "Salvar alterações" : "Criar imóvel"}
+              {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {mutation.isPending ? "Salvando…" : isEdit ? "Salvar alterações" : "Criar imóvel"}
             </Button>
           </DialogFooter>
         </form>

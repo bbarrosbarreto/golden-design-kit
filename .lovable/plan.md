@@ -1,49 +1,43 @@
-# Plano: página admin de imóveis
+## Correções no PropertyForm
 
-## O que vou implementar
+### Bug 1 — Campos de área por tipo
 
-1. **Criar a rota `/admin/imoveis`**
-   - Página com o mesmo padrão visual do admin de empreendimentos.
-   - Cabeçalho com título **Imóveis** e botão **Novo Imóvel**.
-   - Tabela com as colunas: Título, Tipo, Status, Região, Preço, Ativo e Ações.
-   - Confirmação antes de excluir.
+Reescrever o bloco de campos de área com renderização condicional por `type`:
 
-2. **Criar o formulário de imóvel (criação/edição)**
-   - Modal/drawer reutilizando o padrão visual já usado no admin.
-   - Campos do schema já existente no banco, incluindo relacionamento com região e empreendimento.
-   - Geração de slug, validação, edição e persistência via Lovable Cloud.
-   - Comportamento condicional por tipo de imóvel quando fizer sentido nos campos e categorias de imagem.
+**Apartamento** — somente:
+- `useful_area` com label **"Área (m²)"**
 
-3. **Ajustar o fluxo de imagens para imóveis**
-   - Upload no bucket público `properties`.
-   - Salvar e editar imagens no formato `jsonb`: `[{ url, category }]`.
-   - Categorias específicas por tipo de imóvel, sem quebrar o uploader já usado por empreendimentos.
+**Casa** — quatro campos:
+- `area` → **"Área Total do Terreno (m²)"**
+- `built_area` → **"Área Construída (m²)"**
+- `useful_area` → **"Área Útil (m²)"**
+- `green_area` → **"Área Verde (m²)"**
 
-4. **Adicionar “Imóveis” no menu admin**
-   - Inserir o link na sidebar/menu ao lado de **Empreendimentos**, seguindo o padrão visual existente.
+**Terreno** — três campos:
+- `area` → **"Área Total (m²)"**
+- `useful_area` → **"Área Útil/Construível (m²)"**
+- `green_area` → **"Área Verde (m²)"**
 
-5. **Garantir atualização da listagem após CRUD**
-   - Invalidar o cache do React Query após criar, editar e excluir.
+Atualizar `toPayload` para zerar (null) os campos não exibidos conforme o tipo, garantindo que valores antigos não persistam ao trocar o tipo do imóvel.
 
-## Arquivos previstos
+### Bug 2 — Submit silencioso
 
-- **Novo:** `src/routes/admin/imoveis.tsx`
-- **Novo:** `src/components/admin/PropertyForm.tsx`
-- **Novo:** `src/lib/property-images.ts`
-- **Editar:** `src/components/admin/ImageUploader.tsx`
-- **Editar:** `src/components/admin/AdminLayout.tsx`
+Diagnóstico provável: o formulário usa `register("title", { required: true })` mas nunca renderiza mensagens de erro, então quando algum campo obrigatório falha o `handleSubmit` bloqueia silenciosamente. Além disso, `slug` é gerado em `useEffect` e pode não estar pronto quando o usuário clica rapidamente em "Criar".
 
-## Detalhes técnicos
+Correções:
 
-- Query principal baseada em `properties` com joins de `regions` e `developments`.
-- Operações de CRUD usando os métodos já definidos para `properties`.
-- Exclusão com `delete().eq('id', id)`.
-- Upload mantendo estrutura pública do bucket `properties`.
-- Sem migration e sem mudanças fora da área admin, exceto o item mínimo do menu admin.
-- Sem alterar layout público do site nem rotas públicas.
+1. **Mensagens de erro visíveis**: registrar `title` com `{ required: "Título é obrigatório" }` e renderizar `formState.errors.title?.message` em um `<p className="text-sm text-destructive">` abaixo do campo. Mesmo padrão se for necessário marcar outro campo obrigatório.
 
-## Resultado esperado
+2. **Slug garantido no submit**: dentro do `handleSubmit`, antes de chamar `mutation.mutate`, recalcular `values.slug = values.slug?.trim() || slugify(values.title)`. Remove a dependência da ordem de execução do `useEffect`.
 
-- Novo item **Imóveis** no admin.
-- Tela administrativa funcional para listar, criar, editar e excluir imóveis.
-- Upload e leitura de imagens compatíveis com `jsonb` no formato novo.
+3. **Onsubmit invalid handler**: passar o segundo argumento ao `handleSubmit((valid) => …, (errors) => { console.warn("form invalid", errors); toast.error("Verifique os campos obrigatórios"); })` para que o usuário receba feedback mesmo se a validação falhar.
+
+4. **Erros do Supabase com detalhe**: no `onError` da mutação, exibir `toast.error(e.message || "Erro ao salvar imóvel")` e logar `console.error(e)` para diagnóstico. Já existe `toast.error`, garantir que a mensagem do PostgrestError seja propagada (usar `error.message` retornado pelo Supabase no `mutationFn`).
+
+5. **Loading state**: o botão já usa `mutation.isPending`; garantir `disabled={mutation.isPending}` e manter o spinner. Adicionar texto "Salvando…" enquanto `isPending`.
+
+### Arquivo afetado
+
+- `src/components/admin/PropertyForm.tsx` (único arquivo modificado)
+
+Nenhuma alteração em rotas, schema do banco, ImageUploader ou AdminLayout.
