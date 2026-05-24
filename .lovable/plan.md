@@ -1,42 +1,47 @@
-## Objetivo
+## Problema
 
-Suportar categorias por foto no cadastro de empreendimentos. Estrutura nova: `{ url: string; category: string }[]`. Compatível com dados legados em `string[]`.
+`developments.images` é `text[]` no Postgres. O form envia objetos `{ url, category }`, mas o PostgREST só consegue persistir strings nesse tipo, então a `category` é perdida e ao reabrir todas as fotos caem em "Outros".
 
-## Categorias
+A mesma situação provavelmente afeta `properties.images` (a verificar e migrar junto, para manter consistência).
 
-`fachada` (Fachada), `area_comum` (Área Comum), `lazer` (Lazer), `planta` (Planta), `apartamento` (Apartamento), `outros` (Outros). Padrão: `outros`.
+## Plano
 
-## Arquivos alterados
+### 1. Migração de schema (`developments.images` text[] → jsonb)
 
-### 1. `src/components/admin/ImageUploader.tsx`
-- Trocar tipo da prop: `value: { url: string; category: string }[]` e `onChange` correspondente.
-- Constante `CATEGORIES` com `value`/`label`.
-- Função `normalize(input)` aceita `string[]` ou nova forma e retorna sempre `{ url, category }[]` (legacy → `category: "outros"`).
-- Upload: novas fotos entram com `category: "outros"`.
-- Render: agrupar por categoria usando `Tabs` do shadcn (aba "Todas" + uma por categoria que tenha foto). Cada card mostra thumbnail, `<Select>` de categoria e botão X.
-- Mudança de categoria/remoção atualiza via `onChange`.
+Criar uma migration que:
 
-### 2. `src/components/admin/DevelopmentForm.tsx`
-- Tipo `DevelopmentRow.images`: `Array<{ url: string; category: string }> | string[] | null` (input tolerante).
-- `FormValues.images`: `{ url: string; category: string }[]`.
-- `empty.images`: `[]`.
-- `toForm`: normalizar `d.images` (se item for string → `{ url, category: "outros" }`).
-- `toPayload.images`: já é a estrutura nova (salva como JSON).
-- Passar `images` e `onChange` atualizados ao `<ImageUploader />`.
+- Adiciona coluna temporária `images_jsonb jsonb` com default `'[]'::jsonb`.
+- Faz backfill convertendo cada string do `text[]` atual em `{ "url": <string>, "category": "outros" }`:
+  ```sql
+  UPDATE developments
+  SET images_jsonb = COALESCE(
+    (SELECT jsonb_agg(jsonb_build_object('url', u, 'category', 'outros'))
+     FROM unnest(images) AS u),
+    '[]'::jsonb
+  );
+  ```
+- Dropa a coluna `images` antiga e renomeia `images_jsonb` para `images`.
+- Define `NOT NULL DEFAULT '[]'::jsonb`.
 
-### 3. Consumidores de leitura (não alterar layout, só leitura tolerante)
-Verificar e adaptar somente os pontos que leem `dev.images[0]` como string:
-- `src/routes/admin/empreendimentos.tsx` (thumbnail da tabela): aceitar item string ou `{ url }`.
-- `src/routes/empreendimentos.index.tsx`, `src/routes/empreendimentos.$slug.tsx`, `src/components/home/FeaturedDevelopments.tsx`: normalizar leitura para extrair `url`.
+Fazer o mesmo para `properties.images` se também for `text[]` (verificar antes da migration; se já for jsonb, pular).
 
-Helper compartilhado em `src/lib/development-images.ts` com:
-```ts
-export type DevImage = { url: string; category: string };
-export function normalizeImages(input: unknown): DevImage[];
-export function imageUrls(input: unknown): string[];
-```
-Usado por todos os consumidores para evitar repetição.
+### 2. Código
+
+O frontend já está preparado para `{ url, category }[]`:
+- `normalizeImages` aceita string[] (legado) e `{ url, category }[]`.
+- `toPayload` em `DevelopmentForm` envia `v.images` no novo formato.
+- Leitores (`imageUrls`) extraem URLs.
+
+Não é necessária mudança em código — após a migration, o INSERT/UPDATE já vai persistir o objeto completo (jsonb aceita arrays de objetos nativamente).
+
+### 3. Verificação
+
+Após aplicar:
+1. Abrir um empreendimento existente no admin → fotos aparecem com categoria "Outros" (esperado, herdado do backfill).
+2. Alterar a categoria de uma foto, salvar, reabrir → categoria preservada.
+3. Upload de nova foto + categoria + salvar → categoria preservada.
 
 ## Fora de escopo
 
-Migração retroativa de dados no banco (a conversão é feita em runtime via `normalizeImages`). Nenhum outro campo do formulário é alterado.
+- Mudar UI ou comportamento do `ImageUploader`/`DevelopmentForm`.
+- Categorizar retroativamente as fotos existentes (todas viram "outros"; o admin re-categoriza pela interface).
