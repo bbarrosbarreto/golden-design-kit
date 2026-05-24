@@ -456,7 +456,6 @@ function DevelopmentDetail({ dev }: { dev: DevDetail }) {
           fontWeight: 700,
           fontSize: 15,
         }}
-        ref={fade4.ref}
       >
         💬 Falar no WhatsApp
       </a>
