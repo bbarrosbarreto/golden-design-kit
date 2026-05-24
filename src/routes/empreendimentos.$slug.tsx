@@ -136,7 +136,7 @@ function DevelopmentDetail({ dev }: { dev: DevDetail }) {
                       : "border-border opacity-70 hover:opacity-100"
                   }`}
                 >
-                  <img src={img} alt="" className="h-full w-full object-cover" />
+                  <img src={img.url} alt="" className="h-full w-full object-cover" />
                 </button>
               ))}
             </div>
