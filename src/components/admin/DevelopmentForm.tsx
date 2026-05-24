@@ -25,6 +25,7 @@ import { Switch } from "@/components/ui/switch";
 import { ImageUploader } from "@/components/admin/ImageUploader";
 import { supabase } from "@/integrations/supabase/client";
 import { slugify } from "@/lib/slug";
+import { type DevImage, normalizeImages } from "@/lib/development-images";
 
 export type DevelopmentRow = {
   id: string;
@@ -39,7 +40,7 @@ export type DevelopmentRow = {
   price_from: number | null;
   area_from: number | null;
   area_to: number | null;
-  images: string[] | null;
+  images: DevImage[] | string[] | null;
   video_url: string | null;
   virtual_tour_url: string | null;
   featured: boolean | null;
