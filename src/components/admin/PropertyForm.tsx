@@ -276,12 +276,15 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
         </DialogHeader>
 
         <form
-          onSubmit={handleSubmit((v) => mutation.mutate(v))}
+          onSubmit={handleSubmit((v) => mutation.mutate(v), onInvalid)}
           className="space-y-5 font-body"
         >
           <div className="space-y-2">
             <Label htmlFor="title">Título *</Label>
-            <Input id="title" {...register("title", { required: true })} />
+            <Input id="title" {...register("title", { required: "Título é obrigatório" })} />
+            {formState.errors.title?.message && (
+              <p className="text-sm text-destructive">{formState.errors.title.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
