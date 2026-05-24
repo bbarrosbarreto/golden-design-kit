@@ -21,14 +21,17 @@ interface Props {
   value: DevImage[] | unknown;
   onChange: (images: DevImage[]) => void;
   bucket?: string;
+  categories?: { value: string; label: string }[];
 }
 
-export function ImageUploader({ value, onChange, bucket = "developments" }: Props) {
+export function ImageUploader({ value, onChange, bucket = "developments", categories }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [tab, setTab] = useState<string>("todas");
 
+  const cats = categories ?? IMAGE_CATEGORIES;
   const images = normalizeImages(value);
+
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -73,10 +76,11 @@ export function ImageUploader({ value, onChange, bucket = "developments" }: Prop
     onChange(images.filter((img) => img.url !== url));
   };
 
-  const grouped = IMAGE_CATEGORIES.map((cat) => ({
+  const grouped = cats.map((cat) => ({
     ...cat,
     items: images.filter((img) => img.category === cat.value),
   })).filter((g) => g.items.length > 0);
+
 
   const renderCard = (img: DevImage, i: number) => (
     <div
@@ -100,12 +104,13 @@ export function ImageUploader({ value, onChange, bucket = "developments" }: Prop
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {IMAGE_CATEGORIES.map((c) => (
+            {cats.map((c) => (
               <SelectItem key={c.value} value={c.value} className="text-xs">
                 {c.label}
               </SelectItem>
             ))}
           </SelectContent>
+
         </Select>
       </div>
     </div>
