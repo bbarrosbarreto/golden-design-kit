@@ -206,7 +206,7 @@ function DevelopmentDetail({ dev }: { dev: DevDetail }) {
   const fade1 = useInViewFade<HTMLDivElement>();
   const fade2 = useInViewFade<HTMLDivElement>();
   const fade3 = useInViewFade<HTMLDivElement>();
-  const fade4 = useInViewFade<HTMLDivElement>();
+  
 
   const statusLabel =
     dev.status === "pronta_entrega"
