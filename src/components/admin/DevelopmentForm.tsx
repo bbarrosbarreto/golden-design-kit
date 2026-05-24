@@ -101,7 +101,7 @@ function toForm(d: DevelopmentRow): FormValues {
     price_from: d.price_from?.toString() ?? "",
     area_from: d.area_from?.toString() ?? "",
     area_to: d.area_to?.toString() ?? "",
-    images: d.images ?? [],
+    images: normalizeImages(d.images),
     video_url: d.video_url ?? "",
     virtual_tour_url: d.virtual_tour_url ?? "",
     featured: d.featured ?? false,
