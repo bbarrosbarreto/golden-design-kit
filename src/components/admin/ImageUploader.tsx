@@ -21,14 +21,37 @@ interface Props {
   value: DevImage[] | unknown;
   onChange: (images: DevImage[]) => void;
   bucket?: string;
+  categories?: { value: string; label: string }[];
 }
 
-export function ImageUploader({ value, onChange, bucket = "developments" }: Props) {
+export function ImageUploader({ value, onChange, bucket = "developments", categories }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [tab, setTab] = useState<string>("todas");
 
-  const images = normalizeImages(value);
+  const cats = categories ?? IMAGE_CATEGORIES;
+  const validValues = new Set(cats.map((c) => c.value));
+  const raw = normalizeImages(value);
+  // Re-map categories against the provided category set (normalizeImages
+  // only knows development categories; custom ones get demoted otherwise).
+  const images: DevImage[] = Array.isArray(value)
+    ? (value as unknown[])
+        .map((it) => {
+          if (typeof it === "string") return { url: it, category: "outros" };
+          if (it && typeof it === "object" && "url" in it) {
+            const url = (it as { url: unknown }).url;
+            const cat = (it as { category?: unknown }).category;
+            if (typeof url === "string") {
+              const c = typeof cat === "string" ? cat : "";
+              return { url, category: validValues.has(c) ? c : "outros" };
+            }
+          }
+          return null;
+        })
+        .filter((x): x is DevImage => !!x)
+    : raw;
+
+
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -73,10 +96,11 @@ export function ImageUploader({ value, onChange, bucket = "developments" }: Prop
     onChange(images.filter((img) => img.url !== url));
   };
 
-  const grouped = IMAGE_CATEGORIES.map((cat) => ({
+  const grouped = cats.map((cat) => ({
     ...cat,
     items: images.filter((img) => img.category === cat.value),
   })).filter((g) => g.items.length > 0);
+
 
   const renderCard = (img: DevImage, i: number) => (
     <div
@@ -100,12 +124,13 @@ export function ImageUploader({ value, onChange, bucket = "developments" }: Prop
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {IMAGE_CATEGORIES.map((c) => (
+            {cats.map((c) => (
               <SelectItem key={c.value} value={c.value} className="text-xs">
                 {c.label}
               </SelectItem>
             ))}
           </SelectContent>
+
         </Select>
       </div>
     </div>

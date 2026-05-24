@@ -9,9 +9,10 @@ import { cn } from "@/lib/utils";
 const NAV = [
   { label: "Dashboard", icon: LayoutDashboard, to: "/admin" },
   { label: "Empreendimentos", icon: Building2, to: "/admin/empreendimentos" },
-  { label: "Imóveis", icon: Home, to: "/admin" },
+  { label: "Imóveis", icon: Home, to: "/admin/imoveis" },
   { label: "Leads", icon: Users, to: "/admin" },
 ] as const;
+
 
 export function AdminLayout({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
