@@ -1,12 +1,31 @@
 export type DevImage = { url: string; category: string };
 
 export const IMAGE_CATEGORIES: { value: string; label: string }[] = [
+  { value: "capa", label: "Capa" },
   { value: "fachada", label: "Fachada" },
   { value: "area_comum", label: "Lazer e Áreas Comuns" },
   { value: "planta", label: "Planta" },
   { value: "apartamento", label: "Apartamento" },
   { value: "outros", label: "Outros" },
 ];
+
+export function pickCoverImage(input: unknown): DevImage | null {
+  const list = normalizeImages(input);
+  if (list.length === 0) return null;
+  return (
+    list.find((i) => i.category === "capa") ??
+    list.find((i) => i.category === "fachada") ??
+    list[0]
+  );
+}
+
+export function orderedImages(input: unknown): DevImage[] {
+  const list = normalizeImages(input);
+  const cover = pickCoverImage(list);
+  if (!cover) return list;
+  const rest = list.filter((i) => i !== cover);
+  return [cover, ...rest];
+}
 
 const VALID = new Set(IMAGE_CATEGORIES.map((c) => c.value));
 
