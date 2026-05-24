@@ -244,10 +244,10 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
           .from("properties")
           .update(payload)
           .eq("id", initialData.id);
-        if (error) throw error;
+        if (error) throw new Error(error.message);
       } else {
         const { error } = await supabase.from("properties").insert(payload);
-        if (error) throw error;
+        if (error) throw new Error(error.message);
       }
     },
     onSuccess: () => {
@@ -255,8 +255,16 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
       queryClient.invalidateQueries({ queryKey: ["admin", "properties"] });
       onOpenChange(false);
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => {
+      console.error("[PropertyForm] save error:", e);
+      toast.error(e.message || "Erro ao salvar imóvel");
+    },
   });
+
+  const onInvalid = (errors: unknown) => {
+    console.warn("[PropertyForm] validation errors:", errors);
+    toast.error("Verifique os campos obrigatórios");
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
