@@ -11,6 +11,7 @@ import {
   pickCoverImage,
   type DevImage,
 } from "@/lib/development-images";
+import { SubmittedState } from "@/components/contact/SubmittedState";
 
 export const Route = createFileRoute("/empreendimentos/$slug")({
   component: DevelopmentDetailPage,
