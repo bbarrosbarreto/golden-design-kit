@@ -639,6 +639,7 @@ function CategorySection({
 }
 
 function ContactForm({ developmentId }: { developmentId: string }) {
+  const [submitted, setSubmitted] = useState(false);
   const {
     register,
     handleSubmit,
@@ -659,13 +660,28 @@ function ContactForm({ developmentId }: { developmentId: string }) {
 
     if (error) {
       console.error("Lead insert error:", error);
-      toast.error("Não foi possível enviar sua mensagem. Tente novamente.");
+      toast.error("Erro ao enviar mensagem. Tente novamente.");
       return;
     }
 
-    toast.success("✓ Mensagem enviada! Em breve entraremos em contato.");
+    toast.success("Mensagem enviada!", {
+      description:
+        "Parabéns, você está a um passo de adquirir seu novo imóvel. Em breve nossa equipe entrará em contato para te atender.",
+    });
     reset();
+    setSubmitted(true);
   };
+
+  if (submitted) {
+    return (
+      <SubmittedState
+        onReset={() => {
+          reset();
+          setSubmitted(false);
+        }}
+      />
+    );
+  }
 
   const inputStyle: React.CSSProperties = {
     backgroundColor: "rgba(255,255,255,0.08)",
