@@ -379,29 +379,49 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div className="space-y-2">
-              <Label htmlFor="area">
-                {isTerreno ? "Área do Terreno (m²)" : "Área Total (m²)"}
-              </Label>
-              <Input id="area" type="number" step="0.01" {...register("area")} />
-            </div>
-            {!isTerreno && (
+            {type === "apartamento" && (
+              <div className="space-y-2">
+                <Label htmlFor="useful_area">Área (m²)</Label>
+                <Input id="useful_area" type="number" step="0.01" {...register("useful_area")} />
+              </div>
+            )}
+
+            {type === "casa" && (
               <>
                 <div className="space-y-2">
-                  <Label htmlFor="useful_area">Área Útil (m²)</Label>
-                  <Input id="useful_area" type="number" step="0.01" {...register("useful_area")} />
+                  <Label htmlFor="area">Área Total do Terreno (m²)</Label>
+                  <Input id="area" type="number" step="0.01" {...register("area")} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="built_area">Área Construída (m²)</Label>
                   <Input id="built_area" type="number" step="0.01" {...register("built_area")} />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="useful_area">Área Útil (m²)</Label>
+                  <Input id="useful_area" type="number" step="0.01" {...register("useful_area")} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="green_area">Área Verde (m²)</Label>
+                  <Input id="green_area" type="number" step="0.01" {...register("green_area")} />
+                </div>
               </>
             )}
-            {isTerreno && (
-              <div className="space-y-2">
-                <Label htmlFor="green_area">Área Verde (m²)</Label>
-                <Input id="green_area" type="number" step="0.01" {...register("green_area")} />
-              </div>
+
+            {type === "terreno" && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="area">Área Total (m²)</Label>
+                  <Input id="area" type="number" step="0.01" {...register("area")} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="useful_area">Área Útil/Construível (m²)</Label>
+                  <Input id="useful_area" type="number" step="0.01" {...register("useful_area")} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="green_area">Área Verde (m²)</Label>
+                  <Input id="green_area" type="number" step="0.01" {...register("green_area")} />
+                </div>
+              </>
             )}
           </div>
 
