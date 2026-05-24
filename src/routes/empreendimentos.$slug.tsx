@@ -115,7 +115,7 @@ function DevelopmentDetail({ dev }: { dev: DevDetail }) {
           <div className="relative aspect-[16/10] w-full overflow-hidden rounded-lg bg-surface">
             {images.length > 0 ? (
               <img
-                src={images[activeImg]}
+                src={images[activeImg].url}
                 alt={dev.title}
                 className="h-full w-full object-cover"
               />
