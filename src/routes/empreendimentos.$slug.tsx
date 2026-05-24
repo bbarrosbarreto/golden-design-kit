@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
+import { imageUrls } from "@/lib/development-images";
 
 export const Route = createFileRoute("/empreendimentos/$slug")({
   component: DevelopmentDetailPage,
@@ -27,7 +28,7 @@ type DevDetail = {
   price_from: number | null;
   area_from: number | null;
   area_to: number | null;
-  images: string[] | null;
+  images: unknown;
   video_url: string | null;
   virtual_tour_url: string | null;
   regions: { name: string } | null;
@@ -96,7 +97,7 @@ function DevelopmentDetailPage() {
 }
 
 function DevelopmentDetail({ dev }: { dev: DevDetail }) {
-  const images = dev.images ?? [];
+  const images = imageUrls(dev.images);
   const [activeImg, setActiveImg] = useState(0);
   const delivery = formatDelivery(dev.delivery_date);
   const youtubeId = dev.video_url ? getYouTubeId(dev.video_url) : null;

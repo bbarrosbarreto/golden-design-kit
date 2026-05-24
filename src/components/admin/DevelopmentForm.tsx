@@ -25,6 +25,7 @@ import { Switch } from "@/components/ui/switch";
 import { ImageUploader } from "@/components/admin/ImageUploader";
 import { supabase } from "@/integrations/supabase/client";
 import { slugify } from "@/lib/slug";
+import { type DevImage, normalizeImages } from "@/lib/development-images";
 
 export type DevelopmentRow = {
   id: string;
@@ -39,7 +40,7 @@ export type DevelopmentRow = {
   price_from: number | null;
   area_from: number | null;
   area_to: number | null;
-  images: string[] | null;
+  images: DevImage[] | string[] | null;
   video_url: string | null;
   virtual_tour_url: string | null;
   featured: boolean | null;
@@ -59,7 +60,7 @@ interface FormValues {
   price_from: string;
   area_from: string;
   area_to: string;
-  images: string[];
+  images: DevImage[];
   video_url: string;
   virtual_tour_url: string;
   featured: boolean;
@@ -100,7 +101,7 @@ function toForm(d: DevelopmentRow): FormValues {
     price_from: d.price_from?.toString() ?? "",
     area_from: d.area_from?.toString() ?? "",
     area_to: d.area_to?.toString() ?? "",
-    images: d.images ?? [],
+    images: normalizeImages(d.images),
     video_url: d.video_url ?? "",
     virtual_tour_url: d.virtual_tour_url ?? "",
     featured: d.featured ?? false,
