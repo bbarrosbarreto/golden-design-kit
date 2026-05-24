@@ -136,7 +136,7 @@ function EmpreendimentosAdminPage() {
               </TableRow>
             ) : (
               filtered.map((d) => {
-                const thumb = d.images?.[0];
+                const thumb = imageUrls(d.images)[0];
                 return (
                   <TableRow key={d.id}>
                     <TableCell>
