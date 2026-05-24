@@ -60,7 +60,7 @@ interface FormValues {
   price_from: string;
   area_from: string;
   area_to: string;
-  images: string[];
+  images: DevImage[];
   video_url: string;
   virtual_tour_url: string;
   featured: boolean;
