@@ -14,7 +14,7 @@ type DevRow = {
   slug: string;
   title: string;
   typology: string[] | null;
-  images: string[] | null;
+  images: unknown;
   status: "pronta_entrega" | "previsao" | null;
   delivery_date: string | null;
   price_from: number | null;
