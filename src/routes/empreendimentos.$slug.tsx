@@ -28,7 +28,7 @@ type DevDetail = {
   price_from: number | null;
   area_from: number | null;
   area_to: number | null;
-  images: string[] | null;
+  images: unknown;
   video_url: string | null;
   virtual_tour_url: string | null;
   regions: { name: string } | null;
