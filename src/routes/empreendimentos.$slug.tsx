@@ -797,7 +797,6 @@ function LinkedPropertiesCarousel({ developmentId }: { developmentId: string }) 
   });
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  const fade = useInViewFade<HTMLDivElement>();
 
   const scrollBy = (dir: 1 | -1) => {
     scrollRef.current?.scrollBy({ left: dir * 340, behavior: "smooth" });
@@ -843,7 +842,7 @@ function LinkedPropertiesCarousel({ developmentId }: { developmentId: string }) 
 
   return (
     <section style={{ backgroundColor: "#fff", padding: "64px 5%" }}>
-      <div ref={fade.ref} style={fade.style} className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-6xl animate-fade-in">
         <p
           style={{
             fontFamily: "Inter, sans-serif",
