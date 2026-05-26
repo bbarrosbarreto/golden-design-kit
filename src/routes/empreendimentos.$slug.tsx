@@ -797,7 +797,6 @@ function LinkedPropertiesCarousel({ developmentId }: { developmentId: string }) 
   });
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  const fade = useInViewFade<HTMLDivElement>();
 
   const scrollBy = (dir: 1 | -1) => {
     scrollRef.current?.scrollBy({ left: dir * 340, behavior: "smooth" });
