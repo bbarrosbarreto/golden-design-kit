@@ -376,6 +376,9 @@ function DevelopmentDetail({ dev }: { dev: DevDetail }) {
         </section>
       )}
 
+      {/* 5. IMÓVEIS VINCULADOS */}
+      <LinkedPropertiesCarousel developmentId={dev.id} />
+
       {/* 6. VÍDEO */}
       {youtubeId && (
         <section style={{ backgroundColor: DARK, padding: "64px 5%" }}>
@@ -406,9 +409,6 @@ function DevelopmentDetail({ dev }: { dev: DevDetail }) {
           </div>
         </section>
       )}
-
-      {/* 6.5 IMÓVEIS VINCULADOS */}
-      <LinkedPropertiesCarousel developmentId={dev.id} />
 
       {/* 7. FORMULÁRIO */}
       <section style={{ backgroundColor: DARK, padding: "64px 5%" }}>
