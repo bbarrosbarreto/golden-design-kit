@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { Building2, Home, LayoutDashboard, LogOut, MessageSquare } from "lucide-react";
+import { Building2, Handshake, Home, LayoutDashboard, LogOut, MessageSquare } from "lucide-react";
 import { AdminGuard } from "@/components/admin/AdminGuard";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +10,7 @@ const NAV = [
   { label: "Dashboard", icon: LayoutDashboard, to: "/admin" },
   { label: "Empreendimentos", icon: Building2, to: "/admin/empreendimentos" },
   { label: "Imóveis", icon: Home, to: "/admin/imoveis" },
+  { label: "Parceiros", icon: Handshake, to: "/admin/parceiros" },
   { label: "Leads", icon: MessageSquare, to: "/admin/leads" },
 ] as const;
 
