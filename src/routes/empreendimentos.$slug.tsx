@@ -500,7 +500,7 @@ function DevelopmentDetail({ dev }: { dev: DevDetail }) {
             <ChevronLeft className="h-10 w-10" />
           </button>
           <img
-            src={lightbox.list[lightbox.index].url}
+            src={optimizedImageUrl(lightbox.list[lightbox.index].url, { width: 1920, quality: 82 })}
             alt=""
             className="max-h-[90vh] max-w-[92vw] object-contain"
             onClick={(e) => e.stopPropagation()}
