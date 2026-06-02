@@ -257,7 +257,7 @@ function PropertyDetail({ prop }: { prop: PropertyDetail }) {
       <section className="relative w-full" style={{ height: "70vh", backgroundColor: DARK }}>
         {cover && (
           <img
-            src={cover.url}
+            src={optimizedImageUrl(cover.url, { width: 1600, quality: 80 })}
             alt={prop.title}
             className="absolute inset-0 h-full w-full object-cover"
           />
