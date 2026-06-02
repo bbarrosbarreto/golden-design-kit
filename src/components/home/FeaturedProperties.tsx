@@ -152,8 +152,9 @@ function PropertyCard({ property: p }: { property: PropertyRow }) {
       <div className="relative aspect-video w-full overflow-hidden bg-surface">
         {cover ? (
           <img
-            src={cover}
+            src={optimizedImageUrl(cover, { width: 800, quality: 75 })}
             alt={p.title}
+            loading="lazy"
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).style.display = "none";
             }}
