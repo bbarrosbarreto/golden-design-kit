@@ -227,7 +227,7 @@ function DevelopmentDetail({ dev }: { dev: DevDetail }) {
       >
         {cover && (
           <img
-            src={cover.url}
+            src={optimizedImageUrl(cover.url, { width: 1600, quality: 80 })}
             alt={dev.title}
             className="absolute inset-0 h-full w-full object-cover"
           />
