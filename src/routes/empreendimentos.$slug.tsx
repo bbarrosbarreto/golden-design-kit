@@ -12,6 +12,7 @@ import {
   type DevImage,
 } from "@/lib/development-images";
 import { pickPropCover } from "@/lib/property-images";
+import { optimizedImageUrl } from "@/lib/image-url";
 import { SubmittedState } from "@/components/contact/SubmittedState";
 
 export const Route = createFileRoute("/empreendimentos/$slug")({
