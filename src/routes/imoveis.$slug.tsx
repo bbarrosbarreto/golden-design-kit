@@ -632,7 +632,7 @@ function CategorySection({
                 }}
               >
                 <img
-                  src={img.url}
+                  src={optimizedImageUrl(img.url, { width: 700, quality: 75 })}
                   alt=""
                   className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
                 />
