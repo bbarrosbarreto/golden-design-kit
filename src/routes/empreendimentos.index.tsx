@@ -4,6 +4,7 @@ import { MapPin } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { pickCoverImage } from "@/lib/development-images";
+import { optimizedImageUrl } from "@/lib/image-url";
 
 export const Route = createFileRoute("/empreendimentos/")({
   component: EmpreendimentosPage,
@@ -93,8 +94,9 @@ function Card({ dev }: { dev: DevRow }) {
       <div className="relative aspect-[4/3] overflow-hidden bg-surface">
         {cover ? (
           <img
-            src={cover}
+            src={optimizedImageUrl(cover, { width: 800, quality: 75 })}
             alt={dev.title}
+            loading="lazy"
             className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
           />
         ) : (

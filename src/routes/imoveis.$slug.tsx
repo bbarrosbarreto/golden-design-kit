@@ -12,6 +12,7 @@ import {
   type PropImage,
   type PropertyType,
 } from "@/lib/property-images";
+import { optimizedImageUrl } from "@/lib/image-url";
 import { SubmittedState } from "@/components/contact/SubmittedState";
 
 export const Route = createFileRoute("/imoveis/$slug")({
@@ -256,7 +257,7 @@ function PropertyDetail({ prop }: { prop: PropertyDetail }) {
       <section className="relative w-full" style={{ height: "70vh", backgroundColor: DARK }}>
         {cover && (
           <img
-            src={cover.url}
+            src={optimizedImageUrl(cover.url, { width: 1600, quality: 80 })}
             alt={prop.title}
             className="absolute inset-0 h-full w-full object-cover"
           />
@@ -535,7 +536,7 @@ function PropertyDetail({ prop }: { prop: PropertyDetail }) {
             <ChevronLeft className="h-10 w-10" />
           </button>
           <img
-            src={lightbox.list[lightbox.index].url}
+            src={optimizedImageUrl(lightbox.list[lightbox.index].url, { width: 1920, quality: 82 })}
             alt=""
             className="max-h-[90vh] max-w-[92vw] object-contain"
             onClick={(e) => e.stopPropagation()}
@@ -631,7 +632,7 @@ function CategorySection({
                 }}
               >
                 <img
-                  src={img.url}
+                  src={optimizedImageUrl(img.url, { width: 700, quality: 75 })}
                   alt=""
                   className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
                 />
