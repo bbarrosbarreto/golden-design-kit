@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { optimizedImageUrl } from "@/lib/image-url";
 import { pickCoverImage } from "@/lib/development-images";
 
 type DevRow = {
