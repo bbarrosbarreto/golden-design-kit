@@ -4,6 +4,7 @@ import { MapPin } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { pickCoverImage } from "@/lib/development-images";
+import { optimizedImageUrl } from "@/lib/image-url";
 
 export const Route = createFileRoute("/empreendimentos/")({
   component: EmpreendimentosPage,
