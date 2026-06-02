@@ -5,6 +5,7 @@ import { BedDouble, Car, Maximize, ChevronLeft, ChevronRight, Home } from "lucid
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { pickPropCover } from "@/lib/property-images";
+import { optimizedImageUrl } from "@/lib/image-url";
 
 type PropertyRow = {
   id: string;
