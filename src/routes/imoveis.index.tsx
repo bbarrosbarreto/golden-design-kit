@@ -5,6 +5,7 @@ import { Bed, Home, MapPin, Maximize, Car } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { pickPropCover } from "@/lib/property-images";
+import { optimizedImageUrl } from "@/lib/image-url";
 import {
   Select,
   SelectContent,
