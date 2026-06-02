@@ -939,7 +939,7 @@ function LinkedPropertyCard({ property: p }: { property: LinkedProperty }) {
       >
         {cover ? (
           <img
-            src={cover}
+            src={optimizedImageUrl(cover, { width: 500, quality: 72 })}
             alt={p.title}
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).style.display = "none";
