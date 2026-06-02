@@ -164,7 +164,7 @@ function Slide({ dev }: { dev: Slide }) {
     <div className="grid animate-in fade-in duration-300 md:grid-cols-[55%_45%]">
       <div className="relative h-[320px] overflow-hidden bg-muted md:h-[480px]">
         {dev.cover_image_url ? (
-          <img src={dev.cover_image_url} alt={dev.name} className="h-full w-full object-cover" />
+          <img src={optimizedImageUrl(dev.cover_image_url, { width: 1400, quality: 78 })} alt={dev.name} className="h-full w-full object-cover" />
         ) : (
           <div className="h-full w-full bg-surface" />
         )}
