@@ -170,11 +170,11 @@ export function ImageUploader({
           <X className="h-3 w-3" />
         </button>
         <div className="space-y-1 border-t border-border p-2">
-          <div className="flex items-end gap-2">
-            <div className="w-[65%]">
+          <div className="flex items-center gap-2">
+            <div className="min-w-0 flex-1">
               <Select value={img.category} onValueChange={(v) => updateCategory(img.url, v)}>
                 <SelectTrigger className="h-8 text-xs">
-                  <SelectValue />
+                  <SelectValue className="truncate" />
                 </SelectTrigger>
                 <SelectContent>
                   {cats.map((c) => (
@@ -185,7 +185,7 @@ export function ImageUploader({
                 </SelectContent>
               </Select>
             </div>
-            <div className="w-[35%]">
+            <div className="w-14 shrink-0">
               <label className="mb-1 block text-[10px] uppercase tracking-wide text-muted-foreground">
                 Ordem
               </label>
@@ -194,12 +194,14 @@ export function ImageUploader({
                 min={1}
                 value={img.order}
                 onChange={(e) => updateOrder(img.url, e.target.value)}
-                className={`h-8 text-xs ${dup ? "border-destructive" : ""}`}
+                className={`h-8 text-center text-xs tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${dup ? "border-destructive" : ""}`}
               />
             </div>
           </div>
           {dup && (
-            <p className="text-xs text-destructive">Número repetido nesta categoria</p>
+            <p className="w-full text-xs leading-tight text-destructive">
+              Número repetido nesta categoria
+            </p>
           )}
         </div>
       </div>
