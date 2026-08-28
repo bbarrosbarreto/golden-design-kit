@@ -24,8 +24,10 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ImageUploader } from "@/components/admin/ImageUploader";
+import { FaqEditor } from "@/components/admin/FaqEditor";
 import { supabase } from "@/integrations/supabase/client";
 import { slugify } from "@/lib/slug";
+import { type FaqItem, normalizeFaq } from "@/lib/faq";
 import {
   type PropImage,
   type PropertyType,
@@ -34,6 +36,7 @@ import {
   normalizePropImages,
   resolveCategoryOrder,
 } from "@/lib/property-images";
+import { suggestPropertyFaq } from "@/lib/property-faq";
 
 export type PropertyRow = {
   id: string;
