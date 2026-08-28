@@ -24,8 +24,10 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ImageUploader } from "@/components/admin/ImageUploader";
+import { FaqEditor } from "@/components/admin/FaqEditor";
 import { supabase } from "@/integrations/supabase/client";
 import { slugify } from "@/lib/slug";
+import { type FaqItem, normalizeFaq } from "@/lib/faq";
 import {
   type PropImage,
   type PropertyType,
@@ -34,6 +36,7 @@ import {
   normalizePropImages,
   resolveCategoryOrder,
 } from "@/lib/property-images";
+import { suggestPropertyFaq } from "@/lib/property-faq";
 
 export type PropertyRow = {
   id: string;
@@ -61,6 +64,7 @@ export type PropertyRow = {
   virtual_tour_url: string | null;
   images: PropImage[] | string[] | null;
   image_category_order?: string[] | null;
+  faq?: unknown;
 };
 
 interface FormValues {
@@ -88,6 +92,7 @@ interface FormValues {
   virtual_tour_url: string;
   images: PropImage[];
   image_category_order: string[];
+  faq: FaqItem[];
 }
 
 const empty: FormValues = {
@@ -115,6 +120,7 @@ const empty: FormValues = {
   virtual_tour_url: "",
   images: [],
   image_category_order: [],
+  faq: [],
 };
 
 function toForm(p: PropertyRow): FormValues {
@@ -145,27 +151,31 @@ function toForm(p: PropertyRow): FormValues {
     image_category_order: Array.isArray(p.image_category_order)
       ? p.image_category_order.filter((c): c is string => typeof c === "string")
       : [],
+    faq: normalizeFaq(p.faq),
   };
 }
 
+function numOrNull(s: string | number | undefined | null): number | null {
+  if (s === undefined || s === null) return null;
+  const str = typeof s === "string" ? s.trim() : String(s);
+  if (str === "") return null;
+  const n = Number(str);
+  return Number.isNaN(n) ? null : n;
+}
+
+function intOrNull(s: string | number | undefined | null): number | null {
+  const n = numOrNull(s);
+  return n === null ? null : Math.trunc(n);
+}
+
+function uuidOrNull(s: string | undefined | null): string | null {
+  if (!s) return null;
+  const t = s.trim();
+  if (t === "" || t === "none") return null;
+  return t;
+}
+
 function toPayload(v: FormValues) {
-  const numOrNull = (s: string | number | undefined | null): number | null => {
-    if (s === undefined || s === null) return null;
-    const str = typeof s === "string" ? s.trim() : String(s);
-    if (str === "") return null;
-    const n = Number(str);
-    return Number.isNaN(n) ? null : n;
-  };
-  const intOrNull = (s: string | number | undefined | null): number | null => {
-    const n = numOrNull(s);
-    return n === null ? null : Math.trunc(n);
-  };
-  const uuidOrNull = (s: string | undefined | null): string | null => {
-    if (!s) return null;
-    const t = s.trim();
-    if (t === "" || t === "none") return null;
-    return t;
-  };
   const isTerreno = v.type === "terreno";
   const isApto = v.type === "apartamento";
   const isCasa = v.type === "casa";
@@ -195,6 +205,7 @@ function toPayload(v: FormValues) {
     virtual_tour_url: v.virtual_tour_url.trim() || null,
     images: v.images,
     image_category_order: v.image_category_order,
+    faq: v.faq,
   };
 }
 
@@ -231,6 +242,10 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
   const featured = watch("featured");
   const images = watch("images");
   const categoryOrder = watch("image_category_order");
+  const faq = watch("faq");
+  const region_id = watch("region_id");
+  const price = watch("price");
+  const address = watch("address");
   const isTerreno = type === "terreno";
 
   useEffect(() => {
@@ -248,6 +263,25 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
       if (error) throw error;
       return data as { id: string; name: string }[];
     },
+  });
+
+  const regionName = regionsQuery.data?.find((r) => r.id === region_id)?.name ?? null;
+
+  const propertyFaqSuggestions = suggestPropertyFaq({
+    title,
+    type,
+    purpose,
+    price: numOrNull(price),
+    address,
+    bedrooms: intOrNull(watch("bedrooms")),
+    suites: intOrNull(watch("suites")),
+    bathrooms: intOrNull(watch("bathrooms")),
+    parking_spots: intOrNull(watch("parking_spots")),
+    area: numOrNull(watch("area")),
+    built_area: numOrNull(watch("built_area")),
+    useful_area: numOrNull(watch("useful_area")),
+    green_area: numOrNull(watch("green_area")),
+    region_name: regionName,
   });
 
   const developmentsQuery = useQuery({
@@ -582,6 +616,21 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
               </Button>
             </div>
           )}
+
+          <div className="space-y-3 rounded-lg border border-border bg-surface p-4">
+            <div className="space-y-1">
+              <h3 className="font-heading text-lg">Perguntas frequentes</h3>
+              <p className="text-sm text-muted-foreground">
+                Responda com dados reais — evite respostas genéricas. Perguntas
+                em branco ou com [PREENCHER] não serão publicadas.
+              </p>
+            </div>
+            <FaqEditor
+              value={faq}
+              onChange={(items) => setValue("faq", items)}
+              suggestions={propertyFaqSuggestions}
+            />
+          </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">

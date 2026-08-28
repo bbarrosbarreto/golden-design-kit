@@ -23,9 +23,12 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { ImageUploader } from "@/components/admin/ImageUploader";
+import { FaqEditor } from "@/components/admin/FaqEditor";
 import { supabase } from "@/integrations/supabase/client";
 import { slugify } from "@/lib/slug";
+import { type FaqItem, normalizeFaq } from "@/lib/faq";
 import { type DevImage, normalizeImages } from "@/lib/development-images";
+import { suggestDevelopmentFaq } from "@/lib/development-faq";
 
 export type DevelopmentRow = {
   id: string;
@@ -46,6 +49,7 @@ export type DevelopmentRow = {
   featured: boolean | null;
   featured_order: number | null;
   active: boolean | null;
+  faq?: unknown;
 };
 
 interface FormValues {
@@ -66,6 +70,7 @@ interface FormValues {
   featured: boolean;
   featured_order: string;
   active: boolean;
+  faq: FaqItem[];
 }
 
 const empty: FormValues = {
@@ -86,6 +91,7 @@ const empty: FormValues = {
   featured: false,
   featured_order: "",
   active: true,
+  faq: [],
 };
 
 function toForm(d: DevelopmentRow): FormValues {
@@ -107,6 +113,7 @@ function toForm(d: DevelopmentRow): FormValues {
     featured: d.featured ?? false,
     featured_order: d.featured_order?.toString() ?? "",
     active: d.active ?? true,
+    faq: normalizeFaq(d.faq),
   };
 }
 
@@ -130,6 +137,7 @@ function toPayload(v: FormValues) {
     featured: v.featured,
     featured_order: v.featured ? numOrNull(v.featured_order) : null,
     active: v.active,
+    faq: v.faq,
   };
 }
 
@@ -164,6 +172,14 @@ export function DevelopmentForm({ open, onOpenChange, initialData }: Props) {
   const active = watch("active");
   const images = watch("images");
   const typology = watch("typology");
+  const faq = watch("faq");
+  const region_id = watch("region_id");
+  const price_from = watch("price_from");
+  const area_from = watch("area_from");
+  const area_to = watch("area_to");
+  const builder = watch("builder");
+  const delivery_date = watch("delivery_date");
+  const description = watch("description");
 
   useEffect(() => {
     if (!slugDirty) setValue("slug", slugify(title));
@@ -183,6 +199,20 @@ export function DevelopmentForm({ open, onOpenChange, initialData }: Props) {
       }
       return data as { id: string; name: string }[];
     },
+  });
+
+  const regionName = regionsQuery.data?.find((r) => r.id === region_id)?.name ?? null;
+
+  const developmentFaqSuggestions = suggestDevelopmentFaq({
+    title,
+    builder,
+    status,
+    delivery_date,
+    typology,
+    price_from: price_from ? Number(price_from) : null,
+    area_from: area_from ? Number(area_from) : null,
+    area_to: area_to ? Number(area_to) : null,
+    region_name: regionName,
   });
 
   const mutation = useMutation({
@@ -370,6 +400,21 @@ export function DevelopmentForm({ open, onOpenChange, initialData }: Props) {
           <div className="space-y-2">
             <Label>Imagens</Label>
             <ImageUploader value={images} onChange={(urls) => setValue("images", urls)} />
+          </div>
+
+          <div className="space-y-3 rounded-lg border border-border bg-surface p-4">
+            <div className="space-y-1">
+              <h3 className="font-heading text-lg">Perguntas frequentes</h3>
+              <p className="text-sm text-muted-foreground">
+                Responda com dados reais — evite respostas genéricas. Perguntas
+                em branco ou com [PREENCHER] não serão publicadas.
+              </p>
+            </div>
+            <FaqEditor
+              value={faq}
+              onChange={(items) => setValue("faq", items)}
+              suggestions={developmentFaqSuggestions}
+            />
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
