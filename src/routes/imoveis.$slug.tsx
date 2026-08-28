@@ -665,7 +665,12 @@ function PropertyDetail({ prop }: { prop: PropertyDetail }) {
           </button>
           <img
             src={optimizedImageUrl(lightbox.list[lightbox.index].url, { width: 1920, quality: 82 })}
-            alt=""
+            alt={imageAlt(
+              lightbox.list[lightbox.index],
+              prop.title,
+              lightbox.list.length,
+              prop.type,
+            )}
             className="max-h-[90vh] max-w-[92vw] object-contain"
             onClick={(e) => e.stopPropagation()}
           />
