@@ -151,6 +151,7 @@ function toForm(p: PropertyRow): FormValues {
     image_category_order: Array.isArray(p.image_category_order)
       ? p.image_category_order.filter((c): c is string => typeof c === "string")
       : [],
+    faq: normalizeFaq(p.faq),
   };
 }
 
