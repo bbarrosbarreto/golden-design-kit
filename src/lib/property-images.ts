@@ -113,6 +113,21 @@ export function sectionLabel(
   );
 }
 
+export function imageAlt(
+  img: PropImage,
+  propertyTitle: string,
+  categoryCount: number,
+  type?: PropertyType | string | null,
+): string {
+  const label =
+    SINGULAR_LABELS[img.category] ??
+    categoriesFor(type).find((c) => c.value === img.category)?.label ??
+    "Foto";
+  return categoryCount > 1
+    ? `${label} — ${propertyTitle} (foto ${img.order})`
+    : `${label} — ${propertyTitle}`;
+}
+
 const LEGACY_CATEGORY_MAP: Record<string, string> = {
   quintal: "jardim",
 };
