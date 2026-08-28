@@ -722,11 +722,15 @@ function CategorySection({
   title,
   images,
   bg,
+  propertyTitle,
+  propertyType,
   onOpen,
 }: {
   title: string;
   images: PropImage[];
   bg: string;
+  propertyTitle: string;
+  propertyType: PropertyType;
   onOpen: (index: number) => void;
 }) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
