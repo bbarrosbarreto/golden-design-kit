@@ -1,7 +1,8 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Loader2, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -11,47 +12,80 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  type DevImage,
-  IMAGE_CATEGORIES,
-  normalizeImages,
-} from "@/lib/development-images";
+import { IMAGE_CATEGORIES } from "@/lib/development-images";
+import { findDuplicateOrders, nextOrderFor, type PropImage } from "@/lib/property-images";
+
+type UploaderImage = PropImage;
 
 interface Props {
-  value: DevImage[] | unknown;
-  onChange: (images: DevImage[]) => void;
+  value: UploaderImage[] | unknown;
+  onChange: (images: UploaderImage[]) => void;
   bucket?: string;
   categories?: { value: string; label: string }[];
+  onValidityChange?: (valid: boolean) => void;
 }
 
-export function ImageUploader({ value, onChange, bucket = "developments", categories }: Props) {
+export function ImageUploader({
+  value,
+  onChange,
+  bucket = "developments",
+  categories,
+  onValidityChange,
+}: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [tab, setTab] = useState<string>("todas");
 
   const cats = categories ?? IMAGE_CATEGORIES;
   const validValues = new Set(cats.map((c) => c.value));
-  const raw = normalizeImages(value);
-  // Re-map categories against the provided category set (normalizeImages
-  // only knows development categories; custom ones get demoted otherwise).
-  const images: DevImage[] = Array.isArray(value)
-    ? (value as unknown[])
-        .map((it) => {
-          if (typeof it === "string") return { url: it, category: "outros" };
-          if (it && typeof it === "object" && "url" in it) {
-            const url = (it as { url: unknown }).url;
-            const cat = (it as { category?: unknown }).category;
-            if (typeof url === "string") {
-              const c = typeof cat === "string" ? cat : "";
-              return { url, category: validValues.has(c) ? c : "outros" };
-            }
-          }
-          return null;
-        })
-        .filter((x): x is DevImage => !!x)
-    : raw;
 
+  // Normaliza contra o conjunto de categorias recebido e garante `order`.
+  const images: UploaderImage[] = (() => {
+    if (!Array.isArray(value)) return [];
+    const maxByCat = new Map<string, number>();
+    const pending: { img: UploaderImage; hasOrder: boolean }[] = [];
+    for (const it of value as unknown[]) {
+      let url: string | null = null;
+      let rawCat = "";
+      let rawOrder: unknown;
+      if (typeof it === "string") {
+        url = it;
+      } else if (it && typeof it === "object" && "url" in it) {
+        const u = (it as { url: unknown }).url;
+        if (typeof u === "string") url = u;
+        const c = (it as { category?: unknown }).category;
+        rawCat = typeof c === "string" ? c : "";
+        rawOrder = (it as { order?: unknown }).order;
+      }
+      if (!url) continue;
+      const category = validValues.has(rawCat) ? rawCat : "outros";
+      const num = Number(rawOrder);
+      const hasOrder =
+        rawOrder !== undefined &&
+        rawOrder !== null &&
+        rawOrder !== "" &&
+        Number.isFinite(num) &&
+        Math.trunc(num) >= 1;
+      const order = hasOrder ? Math.trunc(num) : 0;
+      if (hasOrder) maxByCat.set(category, Math.max(maxByCat.get(category) ?? 0, order));
+      pending.push({ img: { url, category, order }, hasOrder });
+    }
+    return pending.map(({ img, hasOrder }) => {
+      if (hasOrder) return img;
+      const next = (maxByCat.get(img.category) ?? 0) + 1;
+      maxByCat.set(img.category, next);
+      return { ...img, order: next };
+    });
+  })();
 
+  const duplicates = findDuplicateOrders(images);
+  const isDuplicate = (img: UploaderImage) =>
+    duplicates.some((d) => d.category === img.category && d.order === img.order);
+
+  const dupKey = duplicates.map((d) => `${d.category}:${d.order}`).sort().join("|");
+  useEffect(() => {
+    onValidityChange?.(dupKey === "");
+  }, [dupKey, onValidityChange]);
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -64,7 +98,8 @@ export function ImageUploader({ value, onChange, bucket = "developments", catego
 
     setUploading(true);
     try {
-      const uploaded: DevImage[] = [];
+      const uploaded: UploaderImage[] = [];
+      let next = nextOrderFor(images, "outros");
       for (const file of Array.from(files)) {
         const path = `${crypto.randomUUID()}-${file.name}`;
         const { data, error } = await supabase.storage
@@ -76,7 +111,8 @@ export function ImageUploader({ value, onChange, bucket = "developments", catego
           continue;
         }
         const { data: pub } = supabase.storage.from(bucket).getPublicUrl(data.path);
-        uploaded.push({ url: pub.publicUrl, category: "outros" });
+        uploaded.push({ url: pub.publicUrl, category: "outros", order: next });
+        next += 1;
       }
       if (uploaded.length) {
         onChange([...images, ...uploaded]);
@@ -89,52 +125,86 @@ export function ImageUploader({ value, onChange, bucket = "developments", catego
   };
 
   const updateCategory = (url: string, category: string) => {
-    onChange(images.map((img) => (img.url === url ? { ...img, category } : img)));
+    const order = nextOrderFor(
+      images.filter((i) => i.url !== url),
+      category,
+    );
+    onChange(images.map((img) => (img.url === url ? { ...img, category, order } : img)));
+  };
+
+  const updateOrder = (url: string, raw: string) => {
+    const n = Math.trunc(Number(raw));
+    const order = Number.isFinite(n) && n >= 1 ? n : 1;
+    onChange(images.map((img) => (img.url === url ? { ...img, order } : img)));
   };
 
   const removeImage = (url: string) => {
     onChange(images.filter((img) => img.url !== url));
   };
 
-  const grouped = cats.map((cat) => ({
-    ...cat,
-    items: images.filter((img) => img.category === cat.value),
-  })).filter((g) => g.items.length > 0);
+  const grouped = cats
+    .map((cat) => ({
+      ...cat,
+      items: images
+        .filter((img) => img.category === cat.value)
+        .sort((a, b) => a.order - b.order),
+    }))
+    .filter((g) => g.items.length > 0);
 
-
-  const renderCard = (img: DevImage, i: number) => (
-    <div
-      key={`${img.url}-${i}`}
-      className="group relative overflow-hidden rounded-md border border-border bg-surface"
-    >
-      <div className="aspect-square">
-        <img src={img.url} alt="" className="h-full w-full object-cover" />
-      </div>
-      <button
-        type="button"
-        onClick={() => removeImage(img.url)}
-        className="absolute right-1 top-1 grid h-6 w-6 place-content-center rounded-full bg-foreground/80 text-background opacity-0 transition-opacity group-hover:opacity-100"
-        aria-label="Remover imagem"
+  const renderCard = (img: UploaderImage, i: number) => {
+    const dup = isDuplicate(img);
+    return (
+      <div
+        key={`${img.url}-${i}`}
+        className="group relative overflow-hidden rounded-md border border-border bg-surface"
       >
-        <X className="h-3 w-3" />
-      </button>
-      <div className="border-t border-border p-2">
-        <Select value={img.category} onValueChange={(v) => updateCategory(img.url, v)}>
-          <SelectTrigger className="h-8 text-xs">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {cats.map((c) => (
-              <SelectItem key={c.value} value={c.value} className="text-xs">
-                {c.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-
-        </Select>
+        <div className="aspect-square">
+          <img src={img.url} alt="" className="h-full w-full object-cover" />
+        </div>
+        <button
+          type="button"
+          onClick={() => removeImage(img.url)}
+          className="absolute right-1 top-1 grid h-6 w-6 place-content-center rounded-full bg-foreground/80 text-background opacity-0 transition-opacity group-hover:opacity-100"
+          aria-label="Remover imagem"
+        >
+          <X className="h-3 w-3" />
+        </button>
+        <div className="space-y-1 border-t border-border p-2">
+          <div className="flex items-end gap-2">
+            <div className="w-[65%]">
+              <Select value={img.category} onValueChange={(v) => updateCategory(img.url, v)}>
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {cats.map((c) => (
+                    <SelectItem key={c.value} value={c.value} className="text-xs">
+                      {c.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="w-[35%]">
+              <label className="mb-1 block text-[10px] uppercase tracking-wide text-muted-foreground">
+                Ordem
+              </label>
+              <Input
+                type="number"
+                min={1}
+                value={img.order}
+                onChange={(e) => updateOrder(img.url, e.target.value)}
+                className={`h-8 text-xs ${dup ? "border-destructive" : ""}`}
+              />
+            </div>
+          </div>
+          {dup && (
+            <p className="text-xs text-destructive">Número repetido nesta categoria</p>
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="space-y-3">
