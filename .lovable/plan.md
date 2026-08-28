@@ -12,7 +12,7 @@ Ajustar `buildTitle` para que, após o truncamento, qualquer sequência final de
 - Nenhuma outra função, metadado, layout ou comportamento será alterado
 
 ## Implementação
-1. Criar uma pequena função auxiliar local (ou inline) que aplique `.replace(/[\s+\-,:/&]+$/g, "")` no texto truncado.
+1. Criar uma pequena função auxiliar local (ou inline) que aplique `.replace(/[\s+\-,;:/&]+$/, "")` no texto truncado.
 2. Aplicar essa limpeza no `truncated` logo após o corte na última palavra inteira e antes de concatenar `…`.
 3. Manter a lógica atual de:
    - Omitir região se já estiver no título
