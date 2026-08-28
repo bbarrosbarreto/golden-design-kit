@@ -49,6 +49,7 @@ export type DevelopmentRow = {
   featured: boolean | null;
   featured_order: number | null;
   active: boolean | null;
+  faq?: unknown;
 };
 
 interface FormValues {
