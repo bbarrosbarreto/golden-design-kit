@@ -153,6 +153,51 @@ function formatDelivery(date: string | null) {
   return d.toLocaleDateString("pt-BR", { month: "2-digit", year: "numeric" });
 }
 
+function buildDevelopmentDescription(dev: DevDetail): string {
+  const frags: string[] = [];
+
+  if (dev.typology && dev.typology.length > 0) {
+    frags.push(`${dev.typology.join(" e ")} quartos`);
+  }
+  if (dev.area_from != null && dev.area_to != null) {
+    frags.push(
+      dev.area_to !== dev.area_from
+        ? `de ${dev.area_from} a ${dev.area_to} m²`
+        : `${dev.area_from} m²`,
+    );
+  } else if (dev.area_from != null) {
+    frags.push(`${dev.area_from} m²`);
+  } else if (dev.area_to != null) {
+    frags.push(`até ${dev.area_to} m²`);
+  }
+  if (dev.price_from != null) {
+    frags.push(`a partir de ${formatPrice(dev.price_from)}`);
+  }
+
+  const delivery =
+    dev.status === "pronta_entrega"
+      ? "Pronta entrega"
+      : dev.status === "previsao" && dev.delivery_date
+        ? `Entrega prevista para ${formatDelivery(dev.delivery_date)}`
+        : null;
+
+  const brand = "Bruno Barreto, CRECI-DF 34.060.";
+  const base = frags.length > 0 ? `${dev.title}: ${frags.join(", ")}.` : `${dev.title}.`;
+  const middle = delivery ? ` ${delivery}.` : "";
+  const result = `${base}${middle} ${brand}`;
+
+  if (result.length <= 155) return result;
+
+  // Trunca a primeira frase em palavra inteira, sem pontuação solta antes de "…"
+  const suffix = `${middle} ${brand}`;
+  const maxBase = 155 - suffix.length - 1; // 1 char para "…"
+  let truncated = base.slice(0, Math.max(0, maxBase)).trimEnd();
+  const lastSpace = truncated.lastIndexOf(" ");
+  if (lastSpace > 0) truncated = truncated.slice(0, lastSpace);
+  truncated = truncated.replace(/[\s+\-,;:/&]+$/, "");
+  return `${truncated}…${suffix}`.slice(0, 160);
+}
+
 function getYouTubeId(url: string): string | null {
   const m = url.match(
     /(?:youtube\.com\/(?:watch\?v=|embed\/|v\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/,
