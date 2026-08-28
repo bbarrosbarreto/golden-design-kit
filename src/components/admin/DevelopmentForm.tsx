@@ -402,6 +402,21 @@ export function DevelopmentForm({ open, onOpenChange, initialData }: Props) {
             <ImageUploader value={images} onChange={(urls) => setValue("images", urls)} />
           </div>
 
+          <div className="space-y-3 rounded-lg border border-border bg-surface p-4">
+            <div className="space-y-1">
+              <h3 className="font-heading text-lg">Perguntas frequentes</h3>
+              <p className="text-sm text-muted-foreground">
+                Responda com dados reais — evite respostas genéricas. Perguntas
+                em branco ou com [PREENCHER] não serão publicadas.
+              </p>
+            </div>
+            <FaqEditor
+              value={faq}
+              onChange={(items) => setValue("faq", items)}
+              suggestions={developmentFaqSuggestions}
+            />
+          </div>
+
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="video_url">URL do vídeo</Label>
