@@ -3,6 +3,9 @@ import { Building2, Home, Handshake, Users } from "lucide-react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 
 export const Route = createFileRoute("/admin/")({
+  head: () => ({
+    meta: [{ name: "robots", content: "noindex, nofollow" }],
+  }),
   component: AdminDashboardPage,
 });
 

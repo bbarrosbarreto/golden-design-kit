@@ -1,0 +1,17 @@
+# Bruno Barreto Imóveis
+
+> Corretor de imóveis em Brasília/DF (CRECI-DF 34.060) com curadoria de alto padrão e visão de arquiteto. Slogan: "Onde a arquitetura encontra oportunidade".
+
+Site com empreendimentos (lançamentos) e imóveis prontos no Distrito Federal, além de contato direto por WhatsApp.
+
+## Pages
+
+- [Home](/): Empreendimentos e imóveis em destaque, diferenciais e parceiros.
+- [Empreendimentos](/empreendimentos): Lançamentos no Distrito Federal com tipologia, preço a partir de e previsão de entrega.
+- [Imóveis](/imoveis): Apartamentos, casas e terrenos com filtros por tipo, finalidade e região.
+- [Sobre](/sobre): Quem é Bruno Barreto, formação e forma de atendimento.
+- [Contato](/contato): WhatsApp, email, Instagram e formulário de contato.
+
+## Optional
+
+- [Sitemap](/sitemap.xml): Lista completa das páginas públicas.

@@ -19,13 +19,15 @@ export function Hero() {
 
       {/* Content */}
       <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
-        <p className="mb-6 font-body text-xs font-medium uppercase tracking-[0.25em] text-primary">
-          Corretor de Imóveis · CRECI-DF 34.060
-        </p>
-
-        <h1 className="font-heading text-4xl leading-tight text-background sm:text-5xl md:text-6xl lg:text-7xl">
-          Onde a arquitetura encontra oportunidade
+        <h1>
+          <span className="mb-6 block font-body text-xs font-medium uppercase tracking-[0.25em] text-primary">
+            Bruno Barreto · Corretor de Imóveis em Brasília · CRECI-DF 34.060
+          </span>
+          <span className="block font-heading text-4xl leading-tight text-background sm:text-5xl md:text-6xl lg:text-7xl">
+            Onde a arquitetura encontra oportunidade
+          </span>
         </h1>
+
 
         <p className="mx-auto mt-6 max-w-xl font-body text-base text-background/80 sm:text-lg">
           Curadoria de alto padrão em imóveis no Distrito Federal

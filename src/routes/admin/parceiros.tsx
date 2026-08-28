@@ -36,6 +36,9 @@ import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/admin/parceiros")({
+  head: () => ({
+    meta: [{ name: "robots", content: "noindex, nofollow" }],
+  }),
   component: ParceirosAdminPage,
 });
 

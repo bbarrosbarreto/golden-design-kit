@@ -30,6 +30,9 @@ import { cn } from "@/lib/utils";
 import { pickPropCover } from "@/lib/property-images";
 
 export const Route = createFileRoute("/admin/imoveis")({
+  head: () => ({
+    meta: [{ name: "robots", content: "noindex, nofollow" }],
+  }),
   component: ImoveisAdminPage,
 });
 

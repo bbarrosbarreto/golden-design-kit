@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SobreRouteImport } from './routes/sobre'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ImoveisRouteImport } from './routes/imoveis'
 import { Route as EmpreendimentosRouteImport } from './routes/empreendimentos'
 import { Route as ContatoRouteImport } from './routes/contato'
@@ -19,6 +20,7 @@ import { Route as EmpreendimentosIndexRouteImport } from './routes/empreendiment
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as ImoveisSlugRouteImport } from './routes/imoveis.$slug'
 import { Route as EmpreendimentosSlugRouteImport } from './routes/empreendimentos.$slug'
+import { Route as AdminRedefinirSenhaRouteImport } from './routes/admin/redefinir-senha'
 import { Route as AdminParceirosRouteImport } from './routes/admin/parceiros'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as AdminLeadsRouteImport } from './routes/admin/leads'
@@ -29,6 +31,11 @@ import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
 const SobreRoute = SobreRouteImport.update({
   id: '/sobre',
   path: '/sobre',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ImoveisRoute = ImoveisRouteImport.update({
@@ -76,6 +83,11 @@ const EmpreendimentosSlugRoute = EmpreendimentosSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => EmpreendimentosRoute,
 } as any)
+const AdminRedefinirSenhaRoute = AdminRedefinirSenhaRouteImport.update({
+  id: '/admin/redefinir-senha',
+  path: '/admin/redefinir-senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminParceirosRoute = AdminParceirosRouteImport.update({
   id: '/admin/parceiros',
   path: '/admin/parceiros',
@@ -112,12 +124,14 @@ export interface FileRoutesByFullPath {
   '/contato': typeof ContatoRoute
   '/empreendimentos': typeof EmpreendimentosRouteWithChildren
   '/imoveis': typeof ImoveisRouteWithChildren
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sobre': typeof SobreRoute
   '/admin/empreendimentos': typeof AdminEmpreendimentosRoute
   '/admin/imoveis': typeof AdminImoveisRoute
   '/admin/leads': typeof AdminLeadsRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/parceiros': typeof AdminParceirosRoute
+  '/admin/redefinir-senha': typeof AdminRedefinirSenhaRoute
   '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
   '/admin/': typeof AdminIndexRoute
@@ -128,12 +142,14 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/contato': typeof ContatoRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sobre': typeof SobreRoute
   '/admin/empreendimentos': typeof AdminEmpreendimentosRoute
   '/admin/imoveis': typeof AdminImoveisRoute
   '/admin/leads': typeof AdminLeadsRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/parceiros': typeof AdminParceirosRoute
+  '/admin/redefinir-senha': typeof AdminRedefinirSenhaRoute
   '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
   '/admin': typeof AdminIndexRoute
@@ -147,12 +163,14 @@ export interface FileRoutesById {
   '/contato': typeof ContatoRoute
   '/empreendimentos': typeof EmpreendimentosRouteWithChildren
   '/imoveis': typeof ImoveisRouteWithChildren
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sobre': typeof SobreRoute
   '/admin/empreendimentos': typeof AdminEmpreendimentosRoute
   '/admin/imoveis': typeof AdminImoveisRoute
   '/admin/leads': typeof AdminLeadsRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/parceiros': typeof AdminParceirosRoute
+  '/admin/redefinir-senha': typeof AdminRedefinirSenhaRoute
   '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
   '/admin/': typeof AdminIndexRoute
@@ -167,12 +185,14 @@ export interface FileRouteTypes {
     | '/contato'
     | '/empreendimentos'
     | '/imoveis'
+    | '/sitemap.xml'
     | '/sobre'
     | '/admin/empreendimentos'
     | '/admin/imoveis'
     | '/admin/leads'
     | '/admin/login'
     | '/admin/parceiros'
+    | '/admin/redefinir-senha'
     | '/empreendimentos/$slug'
     | '/imoveis/$slug'
     | '/admin/'
@@ -183,12 +203,14 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/contato'
+    | '/sitemap.xml'
     | '/sobre'
     | '/admin/empreendimentos'
     | '/admin/imoveis'
     | '/admin/leads'
     | '/admin/login'
     | '/admin/parceiros'
+    | '/admin/redefinir-senha'
     | '/empreendimentos/$slug'
     | '/imoveis/$slug'
     | '/admin'
@@ -201,12 +223,14 @@ export interface FileRouteTypes {
     | '/contato'
     | '/empreendimentos'
     | '/imoveis'
+    | '/sitemap.xml'
     | '/sobre'
     | '/admin/empreendimentos'
     | '/admin/imoveis'
     | '/admin/leads'
     | '/admin/login'
     | '/admin/parceiros'
+    | '/admin/redefinir-senha'
     | '/empreendimentos/$slug'
     | '/imoveis/$slug'
     | '/admin/'
@@ -220,12 +244,14 @@ export interface RootRouteChildren {
   ContatoRoute: typeof ContatoRoute
   EmpreendimentosRoute: typeof EmpreendimentosRouteWithChildren
   ImoveisRoute: typeof ImoveisRouteWithChildren
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SobreRoute: typeof SobreRoute
   AdminEmpreendimentosRoute: typeof AdminEmpreendimentosRoute
   AdminImoveisRoute: typeof AdminImoveisRoute
   AdminLeadsRoute: typeof AdminLeadsRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminParceirosRoute: typeof AdminParceirosRoute
+  AdminRedefinirSenhaRoute: typeof AdminRedefinirSenhaRoute
   AdminIndexRoute: typeof AdminIndexRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
 }
@@ -237,6 +263,13 @@ declare module '@tanstack/react-router' {
       path: '/sobre'
       fullPath: '/sobre'
       preLoaderRoute: typeof SobreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/imoveis': {
@@ -301,6 +334,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/empreendimentos/$slug'
       preLoaderRoute: typeof EmpreendimentosSlugRouteImport
       parentRoute: typeof EmpreendimentosRoute
+    }
+    '/admin/redefinir-senha': {
+      id: '/admin/redefinir-senha'
+      path: '/admin/redefinir-senha'
+      fullPath: '/admin/redefinir-senha'
+      preLoaderRoute: typeof AdminRedefinirSenhaRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/admin/parceiros': {
       id: '/admin/parceiros'
@@ -379,12 +419,14 @@ const rootRouteChildren: RootRouteChildren = {
   ContatoRoute: ContatoRoute,
   EmpreendimentosRoute: EmpreendimentosRouteWithChildren,
   ImoveisRoute: ImoveisRouteWithChildren,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   SobreRoute: SobreRoute,
   AdminEmpreendimentosRoute: AdminEmpreendimentosRoute,
   AdminImoveisRoute: AdminImoveisRoute,
   AdminLeadsRoute: AdminLeadsRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminParceirosRoute: AdminParceirosRoute,
+  AdminRedefinirSenhaRoute: AdminRedefinirSenhaRoute,
   AdminIndexRoute: AdminIndexRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,
 }

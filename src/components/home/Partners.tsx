@@ -46,7 +46,7 @@ export function Partners() {
                 const inner = p.logo_url ? (
                   <img
                     src={p.logo_url}
-                    alt={p.name}
+                    alt={`Logo ${p.name} — parceiro Bruno Barreto Imóveis`}
                     loading="lazy"
                     className="max-h-12 max-w-32 object-contain"
                   />
