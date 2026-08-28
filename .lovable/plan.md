@@ -6,7 +6,7 @@ Tarefas pequenas e independentes no site Bruno Barreto Imóveis, sem alterar lay
 
 - Trocar `<html lang="en">` por `<html lang="pt-BR">`.
 - Substituir a meta `author: "Lovable"` por `{ name: "author", content: "Bruno Barreto Imóveis" }`.
-- Trocar `twitter:site` de `"@Lovable"` para `"@brunobarreto.corretor"`.
+- Remover a meta `twitter:site` por completo (a marca não tem conta no X; o handle do Instagram não é válido no X).
 - Trocar `twitter:card` de `"summary"` para `"summary_large_image"`.
 - Adicionar as metas que faltam:
   - `og:site_name` = "Bruno Barreto Imóveis"
