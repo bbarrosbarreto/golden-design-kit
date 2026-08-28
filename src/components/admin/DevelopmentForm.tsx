@@ -91,6 +91,7 @@ const empty: FormValues = {
   featured: false,
   featured_order: "",
   active: true,
+  faq: [],
 };
 
 function toForm(d: DevelopmentRow): FormValues {
