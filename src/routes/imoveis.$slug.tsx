@@ -292,6 +292,9 @@ function useInViewFade<T extends HTMLElement>() {
 function PropertyDetail({ prop }: { prop: PropertyDetail }) {
   const allImages = normalizePropImages(prop.images, prop.type);
   const cover = pickPropCover(prop.images, prop.type);
+  const coverCategoryCount = cover
+    ? allImages.filter((i) => i.category === cover.category).length
+    : 0;
   const youtubeId = prop.video_url ? getYouTubeId(prop.video_url) : null;
   const isTerreno = prop.type === "terreno";
   const isCasa = prop.type === "casa";
