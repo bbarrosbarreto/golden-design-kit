@@ -23,9 +23,12 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { ImageUploader } from "@/components/admin/ImageUploader";
+import { FaqEditor } from "@/components/admin/FaqEditor";
 import { supabase } from "@/integrations/supabase/client";
 import { slugify } from "@/lib/slug";
+import { type FaqItem, normalizeFaq } from "@/lib/faq";
 import { type DevImage, normalizeImages } from "@/lib/development-images";
+import { suggestDevelopmentFaq } from "@/lib/development-faq";
 
 export type DevelopmentRow = {
   id: string;
