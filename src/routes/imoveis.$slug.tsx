@@ -386,7 +386,7 @@ function PropertyDetail({ prop }: { prop: PropertyDetail }) {
         {cover && (
           <img
             src={optimizedImageUrl(cover.url, { width: 1600, quality: 80 })}
-            alt={prop.title}
+            alt={imageAlt(cover, prop.title, coverCategoryCount, prop.type)}
             className="absolute inset-0 h-full w-full object-cover"
           />
         )}
