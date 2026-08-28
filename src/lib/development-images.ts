@@ -56,3 +56,29 @@ export function imageUrls(input: unknown): string[] {
 export function categoryLabel(value: string): string {
   return IMAGE_CATEGORIES.find((c) => c.value === value)?.label ?? "Outros";
 }
+
+const SINGULAR_LABELS: Record<string, string> = {
+  capa: "Capa",
+  fachada: "Fachada",
+  area_comum: "Área Comum",
+  planta: "Planta",
+  apartamento: "Apartamento",
+  outros: "Foto",
+};
+
+/**
+ * Alt descritivo para fotos de empreendimentos:
+ * "{Categoria} — {título}", acrescentando " (foto N)" quando a categoria
+ * tem 2+ fotos. `photoNumber` é 1-based (posição da foto dentro da categoria).
+ */
+export function imageAlt(
+  img: DevImage,
+  developmentTitle: string,
+  photoNumber: number,
+  categoryCount: number,
+): string {
+  const label = SINGULAR_LABELS[img.category] ?? categoryLabel(img.category);
+  return categoryCount > 1
+    ? `${label} — ${developmentTitle} (foto ${photoNumber})`
+    : `${label} — ${developmentTitle}`;
+}

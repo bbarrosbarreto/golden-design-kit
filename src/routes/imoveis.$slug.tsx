@@ -15,6 +15,7 @@ import {
   type PropertyType,
 } from "@/lib/property-images";
 import { optimizedImageUrl } from "@/lib/image-url";
+import { buildSeoTitle } from "@/lib/seo-title";
 import { SubmittedState } from "@/components/contact/SubmittedState";
 
 const WHATSAPP_NUMBER = "5561999350888";
@@ -83,37 +84,6 @@ interface ContactFormValues {
   message: string;
 }
 
-function normalizeText(value: string): string {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
-}
-
-function buildTitle(prop: PropertyDetail, slug: string): string {
-  const region = prop.regions?.name;
-  const suffix = " | Bruno Barreto";
-
-  const regionSegment =
-    region && !normalizeText(prop.title).includes(normalizeText(region))
-      ? ` | ${region}`
-      : "";
-
-  const full = `${prop.title}${regionSegment}${suffix}`;
-  if (full.length <= 65) return full;
-
-  const withoutRegion = `${prop.title}${suffix}`;
-  if (withoutRegion.length <= 65) return withoutRegion;
-
-  const maxTitle = 65 - suffix.length - 1; // reserve 1 char for ellipsis
-  let truncated = prop.title.slice(0, Math.max(0, maxTitle)).trimEnd();
-  const lastSpace = truncated.lastIndexOf(" ");
-  if (lastSpace > 0) truncated = truncated.slice(0, lastSpace);
-  truncated = truncated.replace(/[\s+\-,;:/&]+$/, "");
-
-  return `${truncated}…${suffix}`;
-}
-
 function buildPropertyDescription(prop: PropertyDetail): string {
   const type = TYPE_LABEL[prop.type];
   const purpose = prop.purpose === "aluguel" ? "para alugar" : "à venda";
@@ -161,7 +131,7 @@ export const Route = createFileRoute("/imoveis/$slug")({
     const cover = loaderData ? pickPropCover(loaderData.images, loaderData.type) : null;
     const ogImage = cover?.url ? cover.url : null;
     const title = loaderData
-      ? buildTitle(loaderData, params.slug)
+      ? buildSeoTitle({ title: loaderData.title, region: loaderData.regions?.name })
       : "Imóvel | Bruno Barreto Imóveis";
     const description = loaderData
       ? buildPropertyDescription(loaderData)

@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useParams, Link } from "@tanstack/react-router";
+import { createFileRoute, notFound, useRouter, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -7,12 +7,14 @@ import { toast } from "sonner";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import {
+  imageAlt,
   normalizeImages,
   pickCoverImage,
   type DevImage,
 } from "@/lib/development-images";
 import { pickPropCover } from "@/lib/property-images";
 import { optimizedImageUrl } from "@/lib/image-url";
+import { buildSeoTitle } from "@/lib/seo-title";
 import { SubmittedState } from "@/components/contact/SubmittedState";
 
 function titleFromSlug(slug: string) {
@@ -24,22 +26,53 @@ function titleFromSlug(slug: string) {
 }
 
 export const Route = createFileRoute("/empreendimentos/$slug")({
-  head: ({ params }) => {
-    const name = titleFromSlug(params.slug);
-    const title = `${name} | Empreendimento em Brasília/DF`.slice(0, 70);
-    const description = `Conheça o empreendimento ${name}: tipologias, plantas, lazer, previsão de entrega e valores. Atendimento de Bruno Barreto, CRECI-DF 34.060.`;
+  loader: async ({ params }) => {
+    const { data, error } = await supabase
+      .from("developments")
+      .select("*, regions(name)")
+      .eq("slug", params.slug)
+      .eq("active", true)
+      .maybeSingle();
+    if (error || !data) throw notFound();
+    return data as DevDetail;
+  },
+  head: ({ loaderData, params }) => {
     const url = `https://brunobarretoimoveis.com.br/empreendimentos/${params.slug}`;
+    const cover = loaderData ? pickCoverImage(loaderData.images) : null;
+    const ogImage = cover?.url ?? null;
+    const title = loaderData
+      ? buildSeoTitle({ title: loaderData.title, region: loaderData.regions?.name })
+      : "Empreendimento | Bruno Barreto";
+    const description = loaderData
+      ? buildDevelopmentDescription(loaderData)
+      : "Lançamentos e empreendimentos de alto padrão em Brasília/DF com a curadoria de Bruno Barreto, corretor imobiliário CRECI-DF 34.060.";
+
+    const meta: { title?: string; name?: string; content?: string; property?: string }[] = [
+      { title },
+      { name: "description", content: description },
+      { property: "og:title", content: title },
+      { property: "og:description", content: description },
+      { property: "og:url", content: url },
+      { property: "og:type", content: "article" },
+      { property: "og:site_name", content: "Bruno Barreto Imóveis" },
+      { property: "og:locale", content: "pt_BR" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: title },
+      { name: "twitter:description", content: description },
+    ];
+
+    if (ogImage) {
+      meta.push(
+        { property: "og:image", content: ogImage },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "630" },
+        { property: "og:image:alt", content: title },
+        { name: "twitter:image", content: ogImage },
+      );
+    }
+
     return {
-      meta: [
-        { title },
-        { name: "description", content: description },
-        { property: "og:title", content: title },
-        { property: "og:description", content: description },
-        { property: "og:url", content: url },
-        { property: "og:type", content: "article" },
-        { name: "twitter:title", content: title },
-        { name: "twitter:description", content: description },
-      ],
+      meta,
       links: [{ rel: "canonical", href: url }],
       scripts: [
         {
@@ -47,7 +80,7 @@ export const Route = createFileRoute("/empreendimentos/$slug")({
           children: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "RealEstateListing",
-            name,
+            name: loaderData?.title ?? titleFromSlug(params.slug),
             description,
             url,
             category: "Empreendimento",
@@ -62,6 +95,11 @@ export const Route = createFileRoute("/empreendimentos/$slug")({
       ],
     };
   },
+  pendingMs: 300,
+  pendingMinMs: 400,
+  pendingComponent: DevelopmentDetailPending,
+  notFoundComponent: DevelopmentDetailNotFound,
+  errorComponent: DevelopmentDetailError,
   component: DevelopmentDetailPage,
 });
 
@@ -115,6 +153,51 @@ function formatDelivery(date: string | null) {
   return d.toLocaleDateString("pt-BR", { month: "2-digit", year: "numeric" });
 }
 
+function buildDevelopmentDescription(dev: DevDetail): string {
+  const frags: string[] = [];
+
+  if (dev.typology && dev.typology.length > 0) {
+    frags.push(dev.typology.join(" e "));
+  }
+  if (dev.area_from != null && dev.area_to != null) {
+    frags.push(
+      dev.area_to !== dev.area_from
+        ? `de ${dev.area_from} a ${dev.area_to} m²`
+        : `${dev.area_from} m²`,
+    );
+  } else if (dev.area_from != null) {
+    frags.push(`${dev.area_from} m²`);
+  } else if (dev.area_to != null) {
+    frags.push(`até ${dev.area_to} m²`);
+  }
+  if (dev.price_from != null) {
+    frags.push(`a partir de ${formatPrice(dev.price_from)}`);
+  }
+
+  const delivery =
+    dev.status === "pronta_entrega"
+      ? "Pronta entrega"
+      : dev.status === "previsao" && dev.delivery_date
+        ? `Entrega prevista para ${formatDelivery(dev.delivery_date)}`
+        : null;
+
+  const brand = "Bruno Barreto, CRECI-DF 34.060.";
+  const base = frags.length > 0 ? `${dev.title}: ${frags.join(", ")}.` : `${dev.title}.`;
+  const middle = delivery ? ` ${delivery}.` : "";
+  const result = `${base}${middle} ${brand}`;
+
+  if (result.length <= 155) return result;
+
+  // Trunca a primeira frase em palavra inteira, sem pontuação solta antes de "…"
+  const suffix = `${middle} ${brand}`;
+  const maxBase = 155 - suffix.length - 1; // 1 char para "…"
+  let truncated = base.slice(0, Math.max(0, maxBase)).trimEnd();
+  const lastSpace = truncated.lastIndexOf(" ");
+  if (lastSpace > 0) truncated = truncated.slice(0, lastSpace);
+  truncated = truncated.replace(/[\s+\-,;:/&]+$/, "");
+  return `${truncated}…${suffix}`.slice(0, 160);
+}
+
 function getYouTubeId(url: string): string | null {
   const m = url.match(
     /(?:youtube\.com\/(?:watch\?v=|embed\/|v\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/,
@@ -128,37 +211,60 @@ interface ContactForm {
   message: string;
 }
 
+function DevelopmentDetailPending() {
+  return (
+    <Layout>
+      <div className="mx-auto max-w-6xl px-6 py-16">
+        <div className="aspect-[16/10] w-full animate-pulse rounded-lg bg-muted" />
+      </div>
+    </Layout>
+  );
+}
+
+function DevelopmentDetailNotFound() {
+  return (
+    <Layout>
+      <div className="mx-auto max-w-2xl px-6 py-24 text-center">
+        <h1 className="font-heading text-3xl font-bold text-foreground">Empreendimento não encontrado</h1>
+        <p className="mt-4 text-muted-foreground">
+          O empreendimento que você procurou não está mais disponível ou o endereço está incorreto.
+        </p>
+        <Link
+          to="/empreendimentos"
+          className="mt-8 inline-block rounded-sm bg-primary px-6 py-3 text-sm font-medium text-primary-foreground"
+        >
+          Ver empreendimentos
+        </Link>
+      </div>
+    </Layout>
+  );
+}
+
+function DevelopmentDetailError({ error, reset }: { error: Error; reset: () => void }) {
+  const router = useRouter();
+  return (
+    <Layout>
+      <div className="mx-auto max-w-2xl px-6 py-24 text-center">
+        <h1 className="font-heading text-3xl font-bold text-foreground">Erro ao carregar o empreendimento</h1>
+        <p className="mt-4 text-muted-foreground">{error.message}</p>
+        <button
+          type="button"
+          onClick={() => {
+            router.invalidate();
+            reset();
+          }}
+          className="mt-8 inline-block rounded-sm bg-primary px-6 py-3 text-sm font-medium text-primary-foreground"
+        >
+          Tentar novamente
+        </button>
+      </div>
+    </Layout>
+  );
+}
+
 function DevelopmentDetailPage() {
-  const { slug } = useParams({ from: "/empreendimentos/$slug" });
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["development", slug],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("developments")
-        .select("*, regions(name)")
-        .eq("slug", slug)
-        .eq("active", true)
-        .maybeSingle();
-      if (error) throw error;
-      return data as DevDetail | null;
-    },
-  });
-
-  if (isLoading) {
-    return (
-      <Layout>
-        <div className="mx-auto max-w-6xl px-6 py-16">
-          <div className="aspect-[16/10] w-full animate-pulse rounded-lg bg-muted" />
-        </div>
-      </Layout>
-    );
-  }
-
-  if (error || !data) {
-    throw redirect({ to: "/empreendimentos" });
-  }
-
-  return <DevelopmentDetail dev={data} />;
+  const dev = Route.useLoaderData();
+  return <DevelopmentDetail dev={dev} />;
 }
 
 function useInViewFade<T extends HTMLElement>() {
@@ -397,6 +503,7 @@ function DevelopmentDetail({ dev }: { dev: DevDetail }) {
             title={sec.label}
             images={list}
             bg={bg}
+            developmentTitle={dev.title}
             onOpen={(i) => setLightbox({ list, index: i })}
           />
         );
@@ -548,7 +655,15 @@ function DevelopmentDetail({ dev }: { dev: DevDetail }) {
           </button>
           <img
             src={optimizedImageUrl(lightbox.list[lightbox.index].url, { width: 1920, quality: 82 })}
-            alt=""
+            alt={imageAlt(
+              lightbox.list[lightbox.index],
+              dev.title,
+              lightbox.list
+                .slice(0, lightbox.index + 1)
+                .filter((x) => x.category === lightbox.list[lightbox.index].category).length,
+              lightbox.list.filter((x) => x.category === lightbox.list[lightbox.index].category)
+                .length,
+            )}
             className="max-h-[90vh] max-w-[92vw] object-contain"
             onClick={(e) => e.stopPropagation()}
           />
@@ -601,11 +716,13 @@ function CategorySection({
   title,
   images,
   bg,
+  developmentTitle,
   onOpen,
 }: {
   title: string;
   images: DevImage[];
   bg: string;
+  developmentTitle: string;
   onOpen: (index: number) => void;
 }) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -628,7 +745,11 @@ function CategorySection({
               scrollbarWidth: "none",
             }}
           >
-            {images.map((img, i) => (
+            {images.map((img, i) => {
+              const catCount = images.filter((x) => x.category === img.category).length;
+              const catPos =
+                images.slice(0, i + 1).filter((x) => x.category === img.category).length;
+              return (
               <button
                 key={i}
                 type="button"
@@ -643,11 +764,12 @@ function CategorySection({
               >
                 <img
                   src={optimizedImageUrl(img.url, { width: 700, quality: 75 })}
-                  alt=""
+                  alt={imageAlt(img, developmentTitle, catPos, catCount)}
                   className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
                 />
               </button>
-            ))}
+              );
+            })}
           </div>
           {images.length > 1 && (
             <>
