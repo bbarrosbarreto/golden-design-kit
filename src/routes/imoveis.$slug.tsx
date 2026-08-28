@@ -16,6 +16,7 @@ import {
 } from "@/lib/property-images";
 import { optimizedImageUrl } from "@/lib/image-url";
 import { buildSeoTitle } from "@/lib/seo-title";
+import { buildBreadcrumbSchema, buildListingSchema } from "@/lib/property-schema";
 import { SubmittedState } from "@/components/contact/SubmittedState";
 
 const WHATSAPP_NUMBER = "5561999350888";
@@ -68,6 +69,9 @@ type PropertyDetail = {
   parking_spots: number | null;
   images: unknown;
   image_category_order: unknown;
+  features: unknown;
+  status: string | null;
+  published_at: string | null;
   video_url: string | null;
   regions: { name: string } | null;
   developments: { id: string; title: string; slug: string } | null;
@@ -164,25 +168,28 @@ export const Route = createFileRoute("/imoveis/$slug")({
     return {
       meta,
       links: [{ rel: "canonical", href: url }],
-      scripts: [
-        {
-          type: "application/ld+json",
-          children: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "RealEstateListing",
-            name: loaderData?.title ?? titleFromSlug(params.slug),
-            description,
-            url,
-            category: "Imóvel",
-            broker: {
-              "@type": "RealEstateAgent",
-              name: "Bruno Barreto Imóveis",
-              telephone: "+5561999350888",
-              areaServed: "Distrito Federal, Brasil",
+      scripts: loaderData
+        ? [
+            {
+              type: "application/ld+json",
+              children: JSON.stringify(buildListingSchema(loaderData, description)),
             },
-          }),
-        },
-      ],
+            {
+              type: "application/ld+json",
+              children: JSON.stringify(buildBreadcrumbSchema(loaderData)),
+            },
+          ]
+        : [
+            {
+              type: "application/ld+json",
+              children: JSON.stringify(
+                buildBreadcrumbSchema({
+                  title: titleFromSlug(params.slug),
+                  slug: params.slug,
+                }),
+              ),
+            },
+          ],
     };
   },
   pendingMs: 300,
