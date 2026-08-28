@@ -72,6 +72,17 @@ type PropertyDetail = {
   developments: { id: string; title: string; slug: string } | null;
 };
 
+const GOLD = "#C9A84C";
+const DARK = "#1a1a1a";
+const BG = "#FAFAF8";
+const WHATS = "#25D366";
+
+interface ContactFormValues {
+  name: string;
+  whatsapp: string;
+  message: string;
+}
+
 function buildTitle(prop: PropertyDetail, slug: string): string {
   const region = prop.regions?.name;
   const suffix = " | Bruno Barreto Imóveis";
