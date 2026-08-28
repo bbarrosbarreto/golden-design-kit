@@ -1,68 +1,54 @@
-## Contexto
-Na página de detalhe de empreendimento (`src/routes/empreendimentos.$slug.tsx`), inserir uma nova seção de carrossel horizontal exibindo os imóveis do Supabase cujo `development_id` corresponde ao empreendimento atual. A seção deve ficar entre a seção de vídeo (quando existir) e o formulário de contato.
+# Acesso admin + correções de SEO
 
-## Passos de implementação
+Duas frentes: primeiro destravar seu login no admin, depois corrigir as pendências de SEO.
 
-1. **Adicionar imports necessários**
-   - Importar `pickPropCover` de `@/lib/property-images`
-   - Importar ícones `BedDouble`, `Car`, `Maximize`, `Home` do `lucide-react`
-   - Importar `Link` do `@tanstack/react-router`
+## Parte 1 — Recuperação de senha do admin (prioridade)
 
-2. **Adicionar query de imóveis vinculados**
-   - Dentro do componente `DevelopmentDetail`, adicionar `useQuery` com:
-     - `queryKey`: `['linked-properties', dev.id]`
-     - Buscar em `properties` onde `development_id = dev.id` e `active = true`
-     - Ordenar por `created_at` descendente
-     - `enabled: !!dev.id`
+Hoje a tela `/admin/login` só tem email + senha. Não existe nenhum caminho de "esqueci minha senha", por isso você fica travado.
 
-3. **Criar componente `LinkedPropertiesCarousel`**
-   - Recebe `developmentId: string`
-   - Executa a query acima
-   - Se `isLoading`: renderiza 3 skeleton cards (retângulos cinza animados com `animate-pulse`)
-   - Se `!data || data.length === 0`: retorna `null` (oculta completamente)
-   - Caso contrário: renderiza seção com carrossel horizontal
+O que será feito:
 
-4. **Layout da seção**
-   - Fundo: `#fff` (branco) — alternância consistente com seções adjacentes (vídeo é `#1a1a1a`, formulário é `#1a1a1a`, então branco cria contraste)
-   - Eyebrow em dourado: `"Disponíveis neste empreendimento"` (Inter, 11px, tracking, uppercase)
-   - Título: `"Imóveis para você"` em Playfair Display, escuro
-   - Linha dourada decorativa abaixo do título
-   - Padding horizontal: `5%` (mesmo padrão da página)
-   - Container: `max-w-6xl` centralizado
+1. **Link "Esqueci minha senha"** na tela `/admin/login`, abrindo um campo de email que dispara o envio do link de redefinição para o email cadastrado.
+2. **Nova página `/admin/redefinir-senha`** (pública), onde você define a nova senha ao clicar no link recebido por email. Mostra confirmação e redireciona para o login.
+3. **Mensagens claras** de erro/sucesso em português (email não encontrado, link expirado, senha muito curta, etc.).
 
-5. **Carrossel horizontal**
-   - Scroll container com `overflow-x-auto`, `scrollSnapType: x mandatory`, `scrollbarWidth: none`
-   - Botões prev/next absolutos (setas circulares brancas com sombra) — visíveis apenas no desktop
-   - Cada card: largura fixa `320px`, `shrink-0`, `scrollSnapAlign: start`
-   - Gap entre cards: `16px`
+Observação: o email de redefinição vai para o endereço cadastrado no usuário admin. Se você não tiver acesso a esse email, me avise — nesse caso o caminho é criar um novo usuário admin.
 
-6. **Card de imóvel**
-   - Imagem: `aspect-[16/10]` (160px de altura aproximada), `object-cover`, usando `pickPropCover(p.images, p.type)?.url`
-   - Fallback sem imagem: fundo cinza claro com ícone `Home` cinza
-   - Badge de finalidade: "VENDA" ou "LOCAÇÃO" — fundo `#C9A84C`, texto `#1a1a1a`, fonte 10px uppercase
-   - Tipo + região: texto pequeno cinza (Inter 13px)
-   - Título: Playfair Display 18px, `#1a1a1a`
-   - Preço: Inter 16px font-weight 600, `#C9A84C`
-   - Ícones de quartos, vagas, área (quando disponíveis): Inter 12px, cinza
-   - Card clicável envolto em `<Link to="/imoveis/$slug">`
-   - Border: `1px solid rgba(0,0,0,0.08)`, `border-radius: 2px`, `shadow-sm`
-   - Hover: `translateY(-4px)` + `shadow-md` transição 300ms
+## Parte 2 — Correções de SEO
 
-7. **Responsivo**
-   - Desktop: scroll horizontal com botões prev/next
-   - Mobile: scroll horizontal nativo com touch, 1 card visível
+O scanner apontou 8 pendências. Serão corrigidas assim:
 
-8. **Inserir na página**
-   - Inserir `<LinkedPropertiesCarousel developmentId={dev.id} />` dentro do `Layout`, após a seção de vídeo (linha 407) e antes da seção do formulário (linha 410)
-   - Usar o hook `useInViewFade` já existente para animação fade-in na seção
+### Metadados por página (título, descrição, canonical, Open Graph)
+Hoje só o `__root.tsx` define metadados, então todas as páginas compartilham o mesmo título e descrição. Cada rota pública ganha `head()` próprio com título único (<60 caracteres), descrição (50–160), `og:title`, `og:description`, `og:url` e `canonical` apontando para ela mesma:
 
-## Arquivos a modificar
-- `src/routes/empreendimentos.$slug.tsx` — único arquivo modificado
+- `/` — Home
+- `/empreendimentos` e `/empreendimentos/$slug` (título/descrição/imagem vindos do empreendimento)
+- `/imoveis` e `/imoveis/$slug` (idem, a partir do imóvel)
+- `/sobre`
+- `/contato`
 
-## Critérios de aceitação
-- Seção aparece apenas quando há imóveis vinculados ativos
-- Cards navegam corretamente para `/imoveis/[slug]`
-- Imagens carregam via `pickPropCover`
-- Skeleton exibido durante carregamento
-- Seção oculta se query retornar vazio
-- Sem regressões no formulário de contato ou lightbox
+Nas páginas de detalhe, a foto de capa vira `og:image`/`twitter:image`. As rotas `/admin/*` recebem `noindex`.
+
+### Dados estruturados (JSON-LD)
+- `RealEstateAgent` na home com nome "Bruno Barreto Imóveis", slogan e CRECI-DF 34060.
+- `Product`/`RealEstateListing` nas páginas de detalhe de imóvel e empreendimento, usando os dados já carregados.
+
+### Conteúdo e acessibilidade
+- H1 da home passa a nomear o profissional e o serviço, mantendo o slogan como subtítulo (sem mudar o visual).
+- Hierarquia de headings corrigida em `/empreendimentos` e `/imoveis` (títulos dos cards de `h3` para `h2`).
+- `aria-label`/`<label>` nos filtros da listagem de imóveis.
+- Alt text descritivo nas logos de parceiros ("Logo Cyrela" em vez de "Cyrela").
+
+### Arquivos de rastreamento
+- `public/robots.txt` liberando o site e bloqueando `/admin`.
+- Sitemap dinâmico em `src/routes/sitemap[.]xml.ts`, listando as páginas fixas e todos os imóveis/empreendimentos ativos do banco.
+
+### Google Search Console
+Ainda não está conectado. Depois de publicar, posso conduzir a conexão e a verificação do domínio `brunobarretoimoveis.com.br` em uma etapa seguinte — precisa da sua autorização no fluxo do Google.
+
+## Detalhes técnicos
+
+- Metadados via `head()` do TanStack Router em cada arquivo de rota; canonical apenas nas folhas, nunca no `__root`.
+- Nas rotas de detalhe, o `head()` lê `loaderData`/dados da query já existente — nenhuma query nova.
+- Recuperação de senha via `supabase.auth.resetPasswordForEmail` com `redirectTo` para `/admin/redefinir-senha`, e `supabase.auth.updateUser({ password })` na página de redefinição.
+- Nenhuma alteração de layout, paleta ou tipografia.
