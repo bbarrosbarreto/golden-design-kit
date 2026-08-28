@@ -137,6 +137,7 @@ function toPayload(v: FormValues) {
     featured: v.featured,
     featured_order: v.featured ? numOrNull(v.featured_order) : null,
     active: v.active,
+    faq: v.faq,
   };
 }
 
