@@ -10,13 +10,26 @@ interface SitemapEntry {
   path: string;
   changefreq?: "daily" | "weekly" | "monthly";
   priority?: string;
+  lastmod?: string;
 }
 
-async function fetchSlugs(table: "developments" | "properties"): Promise<string[]> {
-  const slugs: string[] = [];
+interface SlugRow {
+  slug: string | null;
+  updated_at: string | null;
+}
+
+function toISODate(value: string | null | undefined): string | undefined {
+  if (!value) return undefined;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return undefined;
+  return date.toISOString().slice(0, 10);
+}
+
+async function fetchSlugs(table: "developments" | "properties"): Promise<SlugRow[]> {
+  const rows: SlugRow[] = [];
   const pageSize = 1000;
   for (let offset = 0; ; offset += pageSize) {
-    const url = `${SUPABASE_URL}/rest/v1/${table}?select=slug&active=eq.true&order=slug&offset=${offset}&limit=${pageSize}`;
+    const url = `${SUPABASE_URL}/rest/v1/${table}?select=slug,updated_at&active=eq.true&order=slug&offset=${offset}&limit=${pageSize}`;
     const res = await fetch(url, {
       headers: {
         apikey: SUPABASE_ANON_KEY,
@@ -24,11 +37,13 @@ async function fetchSlugs(table: "developments" | "properties"): Promise<string[
       },
     });
     if (!res.ok) break;
-    const rows = (await res.json()) as { slug: string | null }[];
-    for (const row of rows) if (row.slug) slugs.push(row.slug);
-    if (rows.length < pageSize) break;
+    const data = (await res.json()) as SlugRow[];
+    for (const row of data) {
+      if (row.slug) rows.push(row);
+    }
+    if (data.length < pageSize) break;
   }
-  return slugs;
+  return rows;
 }
 
 export const Route = createFileRoute("/sitemap.xml")({
@@ -48,18 +63,20 @@ export const Route = createFileRoute("/sitemap.xml")({
           fetchSlugs("properties").catch(() => []),
         ]);
 
-        for (const slug of devs) {
+        for (const row of devs) {
           entries.push({
-            path: `/empreendimentos/${encodeURIComponent(slug)}`,
+            path: `/empreendimentos/${encodeURIComponent(row.slug!)}`,
             changefreq: "weekly",
             priority: "0.8",
+            lastmod: toISODate(row.updated_at),
           });
         }
-        for (const slug of props) {
+        for (const row of props) {
           entries.push({
-            path: `/imoveis/${encodeURIComponent(slug)}`,
+            path: `/imoveis/${encodeURIComponent(row.slug!)}`,
             changefreq: "weekly",
             priority: "0.8",
+            lastmod: toISODate(row.updated_at),
           });
         }
 
@@ -67,6 +84,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           [
             "  <url>",
             `    <loc>${BASE_URL}${e.path}</loc>`,
+            e.lastmod ? `    <lastmod>${e.lastmod}</lastmod>` : null,
             e.changefreq ? `    <changefreq>${e.changefreq}</changefreq>` : null,
             e.priority ? `    <priority>${e.priority}</priority>` : null,
             "  </url>",
