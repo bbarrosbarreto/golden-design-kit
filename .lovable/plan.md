@@ -17,7 +17,7 @@ Novo `src/components/admin/FaqEditor.tsx`, props `value`, `onChange`, `suggestio
 - "Adicionar pergunta" insere par vazio; contador discreto "{n} perguntas";
 - "Gerar perguntas sugeridas" (`variant="outline"`) anexa apenas sugestões cuja pergunta ainda não existe (comparação sem acento/case), nunca sobrescreve, desabilita quando todas já entraram;
 - card com "[PREENCHER" na resposta ganha borda `border-warning`, fundo `bg-warning-muted` e o texto "Falta preencher" em `text-xs text-warning`;
-- havendo pendências, um `<Alert>` com fundo `bg-warning-muted` e texto `text-warning-foreground`: "{n} respostas ainda contêm texto de exemplo. Publicar assim prejudica o site — reescreva antes de salvar." Só aviso, salvamento continua liberado.
+- havendo pendências, um `<Alert>` com fundo `bg-warning-muted`, borda `border-warning` e texto `text-warning`: "{n} respostas ainda contêm texto de exemplo. Publicar assim prejudica o site — reescreva antes de salvar." Só aviso, salvamento continua liberado.
 
 ## 2. Sugestões
 
