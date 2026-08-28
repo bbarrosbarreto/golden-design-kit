@@ -407,17 +407,15 @@ function PropertyDetail({ prop }: { prop: PropertyDetail }) {
       </section>
 
       {/* 3. GALERIAS POR CATEGORIA */}
-      {sections.map((sec, idx) => {
-        const list = allImages.filter((img) => sec.match.includes(img.category));
-        if (list.length === 0) return null;
+      {groups.map((group, idx) => {
         const bg = idx % 2 === 0 ? BG : "#fff";
         return (
           <CategorySection
-            key={sec.key}
-            title={sec.label}
-            images={list}
+            key={group.category}
+            title={sectionLabel(group.category, prop.type)}
+            images={group.images}
             bg={bg}
-            onOpen={(i) => setLightbox({ list, index: i })}
+            onOpen={(i) => setLightbox({ list: group.images, index: i })}
           />
         );
       })}
