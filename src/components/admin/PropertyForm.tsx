@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ImageUploader } from "@/components/admin/ImageUploader";
 import { supabase } from "@/integrations/supabase/client";
 import { slugify } from "@/lib/slug";
@@ -29,7 +30,9 @@ import {
   type PropImage,
   type PropertyType,
   categoriesFor,
+  categoryLabel,
   normalizePropImages,
+  resolveCategoryOrder,
 } from "@/lib/property-images";
 
 export type PropertyRow = {
@@ -57,6 +60,7 @@ export type PropertyRow = {
   video_url: string | null;
   virtual_tour_url: string | null;
   images: PropImage[] | string[] | null;
+  image_category_order?: string[] | null;
 };
 
 interface FormValues {
@@ -83,6 +87,7 @@ interface FormValues {
   video_url: string;
   virtual_tour_url: string;
   images: PropImage[];
+  image_category_order: string[];
 }
 
 const empty: FormValues = {
@@ -109,6 +114,7 @@ const empty: FormValues = {
   video_url: "",
   virtual_tour_url: "",
   images: [],
+  image_category_order: [],
 };
 
 function toForm(p: PropertyRow): FormValues {
@@ -136,6 +142,9 @@ function toForm(p: PropertyRow): FormValues {
     video_url: p.video_url ?? "",
     virtual_tour_url: p.virtual_tour_url ?? "",
     images: normalizePropImages(p.images, p.type),
+    image_category_order: Array.isArray(p.image_category_order)
+      ? p.image_category_order.filter((c): c is string => typeof c === "string")
+      : [],
   };
 }
 
@@ -185,6 +194,7 @@ function toPayload(v: FormValues) {
     video_url: v.video_url.trim() || null,
     virtual_tour_url: v.virtual_tour_url.trim() || null,
     images: v.images,
+    image_category_order: v.image_category_order,
   };
 }
 
@@ -202,11 +212,13 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
     useForm<FormValues>({ defaultValues: empty });
 
   const [slugDirty, setSlugDirty] = useState(false);
+  const [imagesValid, setImagesValid] = useState(true);
 
   useEffect(() => {
     if (open) {
       reset(initialData ? toForm(initialData) : empty);
       setSlugDirty(!!initialData);
+      setImagesValid(true);
     }
   }, [open, initialData, reset]);
 
@@ -218,6 +230,7 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
   const active = watch("active");
   const featured = watch("featured");
   const images = watch("images");
+  const categoryOrder = watch("image_category_order");
   const isTerreno = type === "terreno";
 
   useEffect(() => {
@@ -302,6 +315,21 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
     toast.error("Verifique os campos obrigatórios");
   };
 
+  const sectionOrder = resolveCategoryOrder(type, categoryOrder).filter((cat) =>
+    images.some((i) => i.category === cat),
+  );
+
+  const moveSection = (index: number, delta: number) => {
+    const target = index + delta;
+    if (target < 0 || target >= sectionOrder.length) return;
+    const next = [...sectionOrder];
+    const [item] = next.splice(index, 1);
+    next.splice(target, 0, item);
+    // Preserva as categorias sem fotos no fim, mantendo a ordem resolvida.
+    const rest = resolveCategoryOrder(type, categoryOrder).filter((c) => !next.includes(c));
+    setValue("image_category_order", [...next, ...rest]);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
@@ -315,6 +343,13 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
           onSubmit={handleSubmit((v) => mutation.mutate(v), onInvalid)}
           className="space-y-5 font-body"
         >
+          {!imagesValid && (
+            <Alert variant="destructive">
+              <AlertDescription>
+                Corrija os números de ordem repetidos antes de salvar.
+              </AlertDescription>
+            </Alert>
+          )}
           <div className="space-y-2">
             <Label htmlFor="title">Título *</Label>
             <Input id="title" {...register("title", { required: "Título é obrigatório" })} />
@@ -489,8 +524,64 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
               onChange={(urls) => setValue("images", urls)}
               bucket="properties"
               categories={categoriesFor(type)}
+              onValidityChange={setImagesValid}
             />
           </div>
+
+          {sectionOrder.length > 0 && (
+            <div className="space-y-2 rounded-md border border-border bg-surface p-4">
+              <Label>Ordem das seções na página</Label>
+              <p className="text-xs text-muted-foreground">
+                Define a ordem em que os blocos de fotos aparecem na página do imóvel.
+              </p>
+              <ul className="space-y-1">
+                {sectionOrder.map((cat, idx) => (
+                  <li
+                    key={cat}
+                    className="flex items-center justify-between rounded-md border border-border bg-background px-3 py-2"
+                  >
+                    <span className="text-sm">
+                      {categoryLabel(cat, type)}{" "}
+                      <span className="text-xs text-muted-foreground">
+                        ({images.filter((i) => i.category === cat).length} foto
+                        {images.filter((i) => i.category === cat).length === 1 ? "" : "s"})
+                      </span>
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Mover para cima"
+                        disabled={idx === 0}
+                        onClick={() => moveSection(idx, -1)}
+                      >
+                        <ChevronUp className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Mover para baixo"
+                        disabled={idx === sectionOrder.length - 1}
+                        onClick={() => moveSection(idx, 1)}
+                      >
+                        <ChevronDown className="h-4 w-4" />
+                      </Button>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <Button
+                type="button"
+                variant="ghost"
+                className="text-xs"
+                onClick={() => setValue("image_category_order", [])}
+              >
+                Restaurar ordem padrão
+              </Button>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
@@ -518,7 +609,7 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit" variant="primary" disabled={mutation.isPending || formState.isSubmitting}>
+            <Button type="submit" variant="primary" disabled={mutation.isPending || formState.isSubmitting || !imagesValid}>
               {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {mutation.isPending ? "Salvando…" : isEdit ? "Salvar alterações" : "Criar imóvel"}
             </Button>
