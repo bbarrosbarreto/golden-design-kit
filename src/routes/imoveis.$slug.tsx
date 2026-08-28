@@ -104,32 +104,6 @@ const TYPE_LABEL: Record<PropertyType, string> = {
   terreno: "Terreno",
 };
 
-function getSectionsFor(type: PropertyType): {
-  key: string;
-  match: string[];
-  label: string;
-}[] {
-  const base = [
-    { key: "imovel", match: ["fachada", "sala", "cozinha", "quarto", "banheiro"], label: "O Imóvel" },
-  ];
-  if (type === "apartamento") {
-    base.push({ key: "area_comum", match: ["area_comum"], label: "Áreas Comuns" });
-  }
-  if (type === "casa") {
-    base[0].label = "A Casa";
-    base.push({ key: "externa", match: ["area_externa", "jardim"], label: "Área Externa" });
-  }
-  if (type === "terreno") {
-    return [
-      { key: "terreno", match: ["frente", "fundo", "lateral", "vista_aerea", "entorno"], label: "O Terreno" },
-      { key: "planta", match: ["planta"], label: "Plantas" },
-      { key: "outros", match: ["outros"], label: "Galeria" },
-    ];
-  }
-  base.push({ key: "planta", match: ["planta"], label: "Plantas" });
-  base.push({ key: "outros", match: ["outros"], label: "Galeria" });
-  return base;
-}
 
 function formatPrice(value: number) {
   return new Intl.NumberFormat("pt-BR", {
