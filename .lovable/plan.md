@@ -2,6 +2,12 @@
 
 Etapa só de painel: criar o editor de FAQ e ligá-lo aos formulários de imóvel e empreendimento. Páginas públicas e JSON-LD ficam intocados.
 
+## 0. Tokens de aviso no design system
+
+Em `src/styles.css` adicionar, no `:root` e no `@theme inline`, as variáveis e tokens de cor `warning` no mesmo padrão das existentes:
+- `:root`: `--warning: 38 75% 42%`, `--warning-foreground: 0 0% 100%`, `--warning-muted: 38 70% 94%`
+- `@theme inline`: `--color-warning: hsl(var(--warning))`, `--color-warning-foreground: hsl(var(--warning-foreground))`, `--color-warning-muted: hsl(var(--warning-muted))`
+
 ## 1. Tipo e componente
 
 Novo `src/lib/faq.ts`: tipo `FaqItem = { q: string; a: string }`, `normalizeFaq(value: unknown): FaqItem[]` (lê o jsonb, descarta lixo) e helpers de comparação sem acento/case e de preposição por região (`no Lago Sul`, `na Asa Norte`, padrão `em`).
@@ -10,8 +16,8 @@ Novo `src/components/admin/FaqEditor.tsx`, props `value`, `onChange`, `suggestio
 - lista vertical de cards com Input (pergunta) + Textarea 3 linhas auto-expansível (resposta) e botões-ícone subir / descer / remover;
 - "Adicionar pergunta" insere par vazio; contador discreto "{n} perguntas";
 - "Gerar perguntas sugeridas" (`variant="outline"`) anexa apenas sugestões cuja pergunta ainda não existe (comparação sem acento/case), nunca sobrescreve, desabilita quando todas já entraram;
-- card com "[PREENCHER" na resposta ganha borda âmbar (token de aviso no design system, sem cor hardcoded) e o texto "Falta preencher" em `text-xs`;
-- havendo pendências, um `<Alert>` acima da lista: "{n} respostas ainda contêm texto de exemplo. Publicar assim prejudica o site — reescreva antes de salvar." Só aviso, salvamento continua liberado.
+- card com "[PREENCHER" na resposta ganha borda `border-warning`, fundo `bg-warning-muted` e o texto "Falta preencher" em `text-xs text-warning`;
+- havendo pendências, um `<Alert>` com fundo `bg-warning-muted` e texto `text-warning-foreground`: "{n} respostas ainda contêm texto de exemplo. Publicar assim prejudica o site — reescreva antes de salvar." Só aviso, salvamento continua liberado.
 
 ## 2. Sugestões
 
