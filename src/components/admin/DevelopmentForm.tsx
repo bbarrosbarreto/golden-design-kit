@@ -201,6 +201,21 @@ export function DevelopmentForm({ open, onOpenChange, initialData }: Props) {
     },
   });
 
+  const regionName = regionsQuery.data?.find((r) => r.id === region_id)?.name ?? null;
+
+  const developmentFaqSuggestions = suggestDevelopmentFaq({
+    title,
+    builder,
+    status,
+    delivery_date,
+    typology,
+    price_from: price_from ? Number(price_from) : null,
+    area_from: area_from ? Number(area_from) : null,
+    area_to: area_to ? Number(area_to) : null,
+    description,
+    region_name: regionName,
+  });
+
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
       const payload = toPayload(values);
