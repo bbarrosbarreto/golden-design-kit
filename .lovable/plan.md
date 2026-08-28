@@ -19,7 +19,7 @@ export function buildSeoTitle(input: {
 
 Regras preservadas exatamente: limite de 65 caracteres, região omitida quando já aparece no título (comparação sem acentos/case via `normalizeText`), sufixo `" | Bruno Barreto"`, remoção do segmento de região antes de truncar o título, corte na última palavra inteira, limpeza de pontuação solta (`/[\s+\-,;:/&]+$/`) antes de "…".
 
-**Não alterar `imoveis.$slug.tsx`** (regra do escopo): a cópia local dele permanece; a migração dele para o helper fica como débito técnico opcional futuro.
+**Alterar também `src/routes/imoveis.$slug.tsx`**: importar `buildSeoTitle` do helper e remover a função `buildTitle` local (extração pura, comportamento idêntico — sem duplicação de lógica).
 
 ## 2. `imageAlt` em `src/lib/development-images.ts`
 
