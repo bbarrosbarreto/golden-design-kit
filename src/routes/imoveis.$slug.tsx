@@ -1,5 +1,4 @@
-import { createFileRoute, Link, redirect, useParams } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
@@ -8,6 +7,7 @@ import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import {
   groupImagesByCategory,
+  imageAlt,
   normalizePropImages,
   pickPropCover,
   sectionLabel,
@@ -17,6 +17,14 @@ import {
 import { optimizedImageUrl } from "@/lib/image-url";
 import { SubmittedState } from "@/components/contact/SubmittedState";
 
+const WHATSAPP_NUMBER = "5561999350888";
+
+const TYPE_LABEL: Record<PropertyType, string> = {
+  apartamento: "Apartamento",
+  casa: "Casa",
+  terreno: "Terreno",
+};
+
 function titleFromSlug(slug: string) {
   return slug
     .split("-")
@@ -25,48 +33,20 @@ function titleFromSlug(slug: string) {
     .join(" ");
 }
 
-export const Route = createFileRoute("/imoveis/$slug")({
-  head: ({ params }) => {
-    const name = titleFromSlug(params.slug);
-    const title = `${name} | Imóvel em Brasília/DF`.slice(0, 70);
-    const description = `Detalhes do imóvel ${name}: fotos, área, quartos, vagas e valor. Fale com Bruno Barreto, corretor em Brasília/DF, CRECI-DF 34.060.`;
-    const url = `https://brunobarretoimoveis.com.br/imoveis/${params.slug}`;
-    return {
-      meta: [
-        { title },
-        { name: "description", content: description },
-        { property: "og:title", content: title },
-        { property: "og:description", content: description },
-        { property: "og:url", content: url },
-        { property: "og:type", content: "article" },
-        { name: "twitter:title", content: title },
-        { name: "twitter:description", content: description },
-      ],
-      links: [{ rel: "canonical", href: url }],
-      scripts: [
-        {
-          type: "application/ld+json",
-          children: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "RealEstateListing",
-            name,
-            description,
-            url,
-            category: "Imóvel",
-            broker: {
-              "@type": "RealEstateAgent",
-              name: "Bruno Barreto Imóveis",
-              telephone: "+5561999350888",
-              areaServed: "Distrito Federal, Brasil",
-            },
-          }),
-        },
-      ],
-    };
-  },
-  component: PropertyDetailPage,
-});
+function formatPrice(value: number) {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
 
+function getYouTubeId(url: string): string | null {
+  const m = url.match(
+    /(?:youtube\.com\/(?:watch\?v=|embed\/|v\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/,
+  );
+  return m ? m[1] : null;
+}
 
 type PropertyDetail = {
   id: string;
@@ -92,71 +72,180 @@ type PropertyDetail = {
   developments: { id: string; title: string; slug: string } | null;
 };
 
-const GOLD = "#C9A84C";
-const DARK = "#1a1a1a";
-const BG = "#FAFAF8";
-const WHATS = "#25D366";
-const WHATSAPP_NUMBER = "5561999350888";
-
-const TYPE_LABEL: Record<PropertyType, string> = {
-  apartamento: "Apartamento",
-  casa: "Casa",
-  terreno: "Terreno",
-};
-
-
-function formatPrice(value: number) {
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-    maximumFractionDigits: 0,
-  }).format(value);
+function buildTitle(prop: PropertyDetail, slug: string): string {
+  const region = prop.regions?.name;
+  const suffix = " | Bruno Barreto Imóveis";
+  const connector = region ? ` | ${region}` : "";
+  const full = `${prop.title}${connector}${suffix}`;
+  if (full.length <= 60) return full;
+  const reserved = `${connector}${suffix}`.length;
+  const maxTitle = 60 - reserved - 1;
+  return `${prop.title.slice(0, Math.max(0, maxTitle)).trimEnd()}…${connector}${suffix}`;
 }
 
-function getYouTubeId(url: string): string | null {
-  const m = url.match(
-    /(?:youtube\.com\/(?:watch\?v=|embed\/|v\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/,
+function buildPropertyDescription(prop: PropertyDetail): string {
+  const type = TYPE_LABEL[prop.type];
+  const purpose = prop.purpose === "aluguel" ? "para alugar" : "à venda";
+  const region = prop.regions?.name;
+  const parts: string[] = [];
+
+  parts.push(`${type} ${purpose}${region ? ` em ${region}` : ""}`);
+
+  if (prop.bedrooms != null && prop.type !== "terreno") {
+    parts.push(`${prop.bedrooms} quarto${prop.bedrooms > 1 ? "s" : ""}`);
+  }
+  if (prop.suites != null && prop.suites > 0 && prop.type !== "terreno") {
+    parts.push(`${prop.suites} suíte${prop.suites > 1 ? "s" : ""}`);
+  }
+  if (prop.bathrooms != null && prop.bathrooms > 0 && prop.type !== "terreno") {
+    parts.push(`${prop.bathrooms} banheiro${prop.bathrooms > 1 ? "s" : ""}`);
+  }
+  const area = prop.useful_area ?? prop.area;
+  if (area != null) parts.push(`${area} m²`);
+  if (prop.parking_spots != null && prop.parking_spots > 0) {
+    parts.push(`${prop.parking_spots} vaga${prop.parking_spots > 1 ? "s" : ""}`);
+  }
+  parts.push(prop.price != null ? formatPrice(prop.price) : "Valor sob consulta");
+
+  const base = parts.join(", ") + ".";
+  const suffix = " Fale com Bruno Barreto, CRECI-DF 34.060.";
+  const available = 155 - suffix.length;
+  if (base.length <= available) return base + suffix;
+  return base.slice(0, Math.max(0, available - 1)).trimEnd() + "…" + suffix;
+}
+
+export const Route = createFileRoute("/imoveis/$slug")({
+  loader: async ({ params }) => {
+    const { data, error } = await supabase
+      .from("properties")
+      .select("*, regions(name), developments(id, title, slug)")
+      .eq("slug", params.slug)
+      .eq("active", true)
+      .maybeSingle();
+    if (error || !data) throw notFound();
+    return data as PropertyDetail;
+  },
+  head: ({ loaderData, params }) => {
+    const url = `https://brunobarretoimoveis.com.br/imoveis/${params.slug}`;
+    const cover = loaderData ? pickPropCover(loaderData.images, loaderData.type) : null;
+    const ogImage = cover?.url ? cover.url : null;
+    const title = loaderData
+      ? buildTitle(loaderData, params.slug)
+      : "Imóvel | Bruno Barreto Imóveis";
+    const description = loaderData
+      ? buildPropertyDescription(loaderData)
+      : "Imóveis de alto padrão em Brasília/DF com a curadoria de Bruno Barreto, corretor imobiliário CRECI-DF 34.060.";
+
+    const meta: { title?: string; name?: string; content?: string; property?: string }[] = [
+      { title },
+      { name: "description", content: description },
+      { property: "og:title", content: title },
+      { property: "og:description", content: description },
+      { property: "og:url", content: url },
+      { property: "og:type", content: "article" },
+      { property: "og:site_name", content: "Bruno Barreto Imóveis" },
+      { property: "og:locale", content: "pt_BR" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: title },
+      { name: "twitter:description", content: description },
+    ];
+
+    if (ogImage) {
+      meta.push(
+        { property: "og:image", content: ogImage },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "630" },
+        { property: "og:image:alt", content: title },
+        { name: "twitter:image", content: ogImage },
+      );
+    }
+
+    return {
+      meta,
+      links: [{ rel: "canonical", href: url }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "RealEstateListing",
+            name: loaderData?.title ?? titleFromSlug(params.slug),
+            description,
+            url,
+            category: "Imóvel",
+            broker: {
+              "@type": "RealEstateAgent",
+              name: "Bruno Barreto Imóveis",
+              telephone: "+5561999350888",
+              areaServed: "Distrito Federal, Brasil",
+            },
+          }),
+        },
+      ],
+    };
+  },
+  pendingMs: 300,
+  pendingMinMs: 400,
+  pendingComponent: PropertyDetailPending,
+  notFoundComponent: PropertyDetailNotFound,
+  errorComponent: PropertyDetailError,
+  component: PropertyDetailPage,
+});
+
+function PropertyDetailPending() {
+  return (
+    <Layout>
+      <div className="mx-auto max-w-6xl px-6 py-16">
+        <div className="aspect-[16/10] w-full animate-pulse rounded-lg bg-muted" />
+      </div>
+    </Layout>
   );
-  return m ? m[1] : null;
 }
 
-interface ContactFormValues {
-  name: string;
-  whatsapp: string;
-  message: string;
+function PropertyDetailNotFound() {
+  return (
+    <Layout>
+      <div className="mx-auto max-w-2xl px-6 py-24 text-center">
+        <h1 className="font-heading text-3xl font-bold text-foreground">Imóvel não encontrado</h1>
+        <p className="mt-4 text-muted-foreground">
+          O imóvel que você procurou não está mais disponível ou o endereço está incorreto.
+        </p>
+        <Link
+          to="/imoveis"
+          className="mt-8 inline-block rounded-sm bg-primary px-6 py-3 text-sm font-medium text-primary-foreground"
+        >
+          Ver imóveis disponíveis
+        </Link>
+      </div>
+    </Layout>
+  );
+}
+
+function PropertyDetailError({ error, reset }: { error: Error; reset: () => void }) {
+  const router = useRouter();
+  return (
+    <Layout>
+      <div className="mx-auto max-w-2xl px-6 py-24 text-center">
+        <h1 className="font-heading text-3xl font-bold text-foreground">Erro ao carregar o imóvel</h1>
+        <p className="mt-4 text-muted-foreground">{error.message}</p>
+        <button
+          type="button"
+          onClick={() => {
+            router.invalidate();
+            reset();
+          }}
+          className="mt-8 inline-block rounded-sm bg-primary px-6 py-3 text-sm font-medium text-primary-foreground"
+        >
+          Tentar novamente
+        </button>
+      </div>
+    </Layout>
+  );
 }
 
 function PropertyDetailPage() {
-  const { slug } = useParams({ from: "/imoveis/$slug" });
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["property", slug],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("properties")
-        .select("*, regions(name), developments(id, title, slug)")
-        .eq("slug", slug)
-        .eq("active", true)
-        .maybeSingle();
-      if (error) throw error;
-      return data as PropertyDetail | null;
-    },
-  });
-
-  if (isLoading) {
-    return (
-      <Layout>
-        <div className="mx-auto max-w-6xl px-6 py-16">
-          <div className="aspect-[16/10] w-full animate-pulse rounded-lg bg-muted" />
-        </div>
-      </Layout>
-    );
-  }
-
-  if (error || !data) {
-    throw redirect({ to: "/imoveis" });
-  }
-
-  return <PropertyDetail prop={data} />;
+  const prop = Route.useLoaderData();
+  return <PropertyDetail prop={prop} />;
 }
 
 function useInViewFade<T extends HTMLElement>() {
