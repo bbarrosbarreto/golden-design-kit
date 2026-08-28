@@ -74,18 +74,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Bruno Barreto Imóveis | Corretor em Brasília/DF" },
       { name: "description", content: "Curadoria de alto padrão em imóveis no Distrito Federal. Empreendimentos e anúncios com visão de arquiteto. CRECI-DF 34.060" },
-      { name: "author", content: "Lovable" },
+      { name: "author", content: "Bruno Barreto Imóveis" },
       { property: "og:title", content: "Bruno Barreto Imóveis | Corretor em Brasília/DF" },
       { property: "og:description", content: "Curadoria de alto padrão em imóveis no Distrito Federal. Empreendimentos e anúncios com visão de arquiteto. CRECI-DF 34.060" },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
+      { property: "og:site_name", content: "Bruno Barreto Imóveis" },
+      { property: "og:locale", content: "pt_BR" },
+      { property: "og:url", content: "https://brunobarretoimoveis.com.br" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Bruno Barreto Imóveis | Corretor em Brasília/DF" },
       { name: "twitter:description", content: "Curadoria de alto padrão em imóveis no Distrito Federal. Empreendimentos e anúncios com visão de arquiteto. CRECI-DF 34.060" },
       { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/hDMZqNlfVCTnpJfR1dLYHlq8TAh2/social-images/social-1779562685212-IMG_1318.webp" },
       { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/hDMZqNlfVCTnpJfR1dLYHlq8TAh2/social-images/social-1779562685212-IMG_1318.webp" },
     ],
     links: [
+      { rel: "canonical", href: "https://brunobarretoimoveis.com.br" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
@@ -132,7 +135,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="pt-BR">
       <head>
         <HeadContent />
       </head>
