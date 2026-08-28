@@ -6,6 +6,12 @@ const COMMON_END = [
   { value: "outros", label: "Outros" },
 ];
 
+const EXTRA_CATEGORIES = [
+  { value: "area_servico", label: "Área de Serviço" },
+  { value: "espacos_lazer", label: "Espaços de Lazer" },
+  { value: "demais_espacos", label: "Demais Espaços" },
+];
+
 export const PROPERTY_CATEGORIES: Record<PropertyType, { value: string; label: string }[]> = {
   apartamento: [
     { value: "capa", label: "Capa" },
@@ -15,6 +21,7 @@ export const PROPERTY_CATEGORIES: Record<PropertyType, { value: string; label: s
     { value: "quarto", label: "Quarto" },
     { value: "banheiro", label: "Banheiro" },
     { value: "area_comum", label: "Lazer e Áreas Comuns" },
+    ...EXTRA_CATEGORIES,
     ...COMMON_END,
   ],
   casa: [
@@ -26,6 +33,7 @@ export const PROPERTY_CATEGORIES: Record<PropertyType, { value: string; label: s
     { value: "banheiro", label: "Banheiro" },
     { value: "area_externa", label: "Área Externa" },
     { value: "quintal", label: "Quintal" },
+    ...EXTRA_CATEGORIES,
     ...COMMON_END,
   ],
   terreno: [
