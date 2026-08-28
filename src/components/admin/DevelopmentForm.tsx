@@ -70,6 +70,7 @@ interface FormValues {
   featured: boolean;
   featured_order: string;
   active: boolean;
+  faq: FaqItem[];
 }
 
 const empty: FormValues = {
