@@ -5,6 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/admin/login")({
+  head: () => ({
+    meta: [
+      { title: "Acesso restrito | Bruno Barreto Imóveis" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: AdminLogin,
 });
 
@@ -14,6 +20,9 @@ function AdminLogin() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [mode, setMode] = useState<"login" | "reset">("login");
+  const [resetSent, setResetSent] = useState(false);
+
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
