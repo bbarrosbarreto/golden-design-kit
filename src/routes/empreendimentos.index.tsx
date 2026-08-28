@@ -134,7 +134,7 @@ function Card({ dev }: { dev: DevRow }) {
         </div>
       </div>
       <div className="flex flex-1 flex-col gap-2 p-5">
-        <h3 className="font-heading text-xl text-foreground">{dev.title}</h3>
+        <h2 className="font-heading text-xl text-foreground">{dev.title}</h2>
         {dev.regions?.name && (
           <p className="flex items-center gap-1.5 font-body text-sm text-muted-foreground">
             <MapPin className="h-3.5 w-3.5 text-primary" />

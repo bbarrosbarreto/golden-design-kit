@@ -115,7 +115,7 @@ function ImoveisIndexPage() {
 
         <div className="mt-8 grid grid-cols-1 gap-3 md:grid-cols-3">
           <Select value={typeFilter} onValueChange={setTypeFilter}>
-            <SelectTrigger>
+            <SelectTrigger aria-label="Filtrar por tipo de imóvel">
               <SelectValue placeholder="Tipo" />
             </SelectTrigger>
             <SelectContent>
@@ -126,7 +126,7 @@ function ImoveisIndexPage() {
             </SelectContent>
           </Select>
           <Select value={purposeFilter} onValueChange={setPurposeFilter}>
-            <SelectTrigger>
+            <SelectTrigger aria-label="Filtrar por finalidade">
               <SelectValue placeholder="Finalidade" />
             </SelectTrigger>
             <SelectContent>
@@ -136,7 +136,7 @@ function ImoveisIndexPage() {
             </SelectContent>
           </Select>
           <Select value={regionFilter} onValueChange={setRegionFilter}>
-            <SelectTrigger>
+            <SelectTrigger aria-label="Filtrar por região">
               <SelectValue placeholder="Região" />
             </SelectTrigger>
             <SelectContent>
@@ -219,7 +219,7 @@ function Card({ property }: { property: PropertyRow }) {
             {property.regions.name}
           </p>
         )}
-        <h3 className="font-body text-base font-semibold text-foreground">
+        <h2 className="font-body text-base font-semibold text-foreground">
           {property.title}
         </h3>
 
