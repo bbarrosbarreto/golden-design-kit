@@ -39,6 +39,10 @@
   --color-destructive: hsl(0 72% 51%);
   --color-destructive-foreground: hsl(0 0% 100%);
 
+  --color-warning: hsl(var(--warning));
+  --color-warning-foreground: hsl(var(--warning-foreground));
+  --color-warning-muted: hsl(var(--warning-muted));
+
   --color-badge-green: hsl(var(--badge-green));
   --color-badge-blue: hsl(var(--badge-blue));
 
