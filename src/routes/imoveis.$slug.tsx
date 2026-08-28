@@ -15,9 +15,37 @@ import {
 import { optimizedImageUrl } from "@/lib/image-url";
 import { SubmittedState } from "@/components/contact/SubmittedState";
 
+function titleFromSlug(slug: string) {
+  return slug
+    .split("-")
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
 export const Route = createFileRoute("/imoveis/$slug")({
+  head: ({ params }) => {
+    const name = titleFromSlug(params.slug);
+    const title = `${name} | Imóvel em Brasília/DF`.slice(0, 70);
+    const description = `Detalhes do imóvel ${name}: fotos, área, quartos, vagas e valor. Fale com Bruno Barreto, corretor em Brasília/DF, CRECI-DF 34.060.`;
+    const url = `https://brunobarretoimoveis.com.br/imoveis/${params.slug}`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:url", content: url },
+        { property: "og:type", content: "article" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: description },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   component: PropertyDetailPage,
 });
+
 
 type PropertyDetail = {
   id: string;

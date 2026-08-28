@@ -15,9 +15,37 @@ import { pickPropCover } from "@/lib/property-images";
 import { optimizedImageUrl } from "@/lib/image-url";
 import { SubmittedState } from "@/components/contact/SubmittedState";
 
+function titleFromSlug(slug: string) {
+  return slug
+    .split("-")
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
 export const Route = createFileRoute("/empreendimentos/$slug")({
+  head: ({ params }) => {
+    const name = titleFromSlug(params.slug);
+    const title = `${name} | Empreendimento em Brasília/DF`.slice(0, 70);
+    const description = `Conheça o empreendimento ${name}: tipologias, plantas, lazer, previsão de entrega e valores. Atendimento de Bruno Barreto, CRECI-DF 34.060.`;
+    const url = `https://brunobarretoimoveis.com.br/empreendimentos/${params.slug}`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:url", content: url },
+        { property: "og:type", content: "article" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: description },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   component: DevelopmentDetailPage,
 });
+
 
 type DevDetail = {
   id: string;
