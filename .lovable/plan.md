@@ -2,6 +2,12 @@
 
 Etapa só de painel: criar o editor de FAQ e ligá-lo aos formulários de imóvel e empreendimento. Páginas públicas e JSON-LD ficam intocados.
 
+## 0. Tokens de aviso no design system
+
+Em `src/styles.css` adicionar, no `:root` e no `@theme inline`, as variáveis e tokens de cor `warning` no mesmo padrão das existentes:
+- `:root`: `--warning: 38 75% 42%`, `--warning-foreground: 0 0% 100%`, `--warning-muted: 38 70% 94%`
+- `@theme inline`: `--color-warning: hsl(var(--warning))`, `--color-warning-foreground: hsl(var(--warning-foreground))`, `--color-warning-muted: hsl(var(--warning-muted))`
+
 ## 1. Tipo e componente
 
 Novo `src/lib/faq.ts`: tipo `FaqItem = { q: string; a: string }`, `normalizeFaq(value: unknown): FaqItem[]` (lê o jsonb, descarta lixo) e helpers de comparação sem acento/case e de preposição por região (`no Lago Sul`, `na Asa Norte`, padrão `em`).
