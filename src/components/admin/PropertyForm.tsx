@@ -92,6 +92,7 @@ interface FormValues {
   virtual_tour_url: string;
   images: PropImage[];
   image_category_order: string[];
+  faq: FaqItem[];
 }
 
 const empty: FormValues = {
