@@ -60,9 +60,9 @@ Numeração consistente: quando a categoria tem 2+ fotos, TODAS recebem `"(foto 
 ```
 
 2. Aplicar em todos os `<img>` da página:
-   - Hero/capa: `imageAlt(cover, prop.title, prop.type)`
-   - Cards do `CategorySection`: receber `propertyTitle`/`type` por props e usar `imageAlt(img, ...)`
-   - Lightbox: `imageAlt(lightbox.list[lightbox.index], prop.title, prop.type)`
+   - Hero/capa: `imageAlt(cover, prop.title, <nº de fotos na categoria da capa>, prop.type)`
+   - Cards do `CategorySection`: `imageAlt(img, propertyTitle, group.images.length, type)`
+   - Lightbox: `imageAlt(lightbox.list[lightbox.index], prop.title, lightbox.list.length, prop.type)`
 3. Garantir que não sobra nenhum `alt=""` no arquivo.
 
 ## Verificação
