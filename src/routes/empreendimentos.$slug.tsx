@@ -503,6 +503,7 @@ function DevelopmentDetail({ dev }: { dev: DevDetail }) {
             title={sec.label}
             images={list}
             bg={bg}
+            developmentTitle={dev.title}
             onOpen={(i) => setLightbox({ list, index: i })}
           />
         );
@@ -654,7 +655,15 @@ function DevelopmentDetail({ dev }: { dev: DevDetail }) {
           </button>
           <img
             src={optimizedImageUrl(lightbox.list[lightbox.index].url, { width: 1920, quality: 82 })}
-            alt=""
+            alt={imageAlt(
+              lightbox.list[lightbox.index],
+              dev.title,
+              lightbox.list
+                .slice(0, lightbox.index + 1)
+                .filter((x) => x.category === lightbox.list[lightbox.index].category).length,
+              lightbox.list.filter((x) => x.category === lightbox.list[lightbox.index].category)
+                .length,
+            )}
             className="max-h-[90vh] max-w-[92vw] object-contain"
             onClick={(e) => e.stopPropagation()}
           />
@@ -707,11 +716,13 @@ function CategorySection({
   title,
   images,
   bg,
+  developmentTitle,
   onOpen,
 }: {
   title: string;
   images: DevImage[];
   bg: string;
+  developmentTitle: string;
   onOpen: (index: number) => void;
 }) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -734,7 +745,11 @@ function CategorySection({
               scrollbarWidth: "none",
             }}
           >
-            {images.map((img, i) => (
+            {images.map((img, i) => {
+              const catCount = images.filter((x) => x.category === img.category).length;
+              const catPos =
+                images.slice(0, i + 1).filter((x) => x.category === img.category).length;
+              return (
               <button
                 key={i}
                 type="button"
@@ -749,11 +764,12 @@ function CategorySection({
               >
                 <img
                   src={optimizedImageUrl(img.url, { width: 700, quality: 75 })}
-                  alt=""
+                  alt={imageAlt(img, developmentTitle, catPos, catCount)}
                   className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
                 />
               </button>
-            ))}
+              );
+            })}
           </div>
           {images.length > 1 && (
             <>
