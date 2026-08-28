@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useParams, Link } from "@tanstack/react-router";
+import { createFileRoute, notFound, useRouter, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -7,12 +7,14 @@ import { toast } from "sonner";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import {
+  imageAlt,
   normalizeImages,
   pickCoverImage,
   type DevImage,
 } from "@/lib/development-images";
 import { pickPropCover } from "@/lib/property-images";
 import { optimizedImageUrl } from "@/lib/image-url";
+import { buildSeoTitle } from "@/lib/seo-title";
 import { SubmittedState } from "@/components/contact/SubmittedState";
 
 function titleFromSlug(slug: string) {
