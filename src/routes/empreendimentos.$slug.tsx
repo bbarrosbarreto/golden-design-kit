@@ -41,6 +41,25 @@ export const Route = createFileRoute("/empreendimentos/$slug")({
         { name: "twitter:description", content: description },
       ],
       links: [{ rel: "canonical", href: url }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "RealEstateListing",
+            name,
+            description,
+            url,
+            category: "Empreendimento",
+            broker: {
+              "@type": "RealEstateAgent",
+              name: "Bruno Barreto Imóveis",
+              telephone: "+5561999350888",
+              areaServed: "Distrito Federal, Brasil",
+            },
+          }),
+        },
+      ],
     };
   },
   component: DevelopmentDetailPage,
