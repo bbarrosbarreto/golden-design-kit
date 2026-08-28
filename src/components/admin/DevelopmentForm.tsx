@@ -212,7 +212,6 @@ export function DevelopmentForm({ open, onOpenChange, initialData }: Props) {
     price_from: price_from ? Number(price_from) : null,
     area_from: area_from ? Number(area_from) : null,
     area_to: area_to ? Number(area_to) : null,
-    description,
     region_name: regionName,
   });
 
