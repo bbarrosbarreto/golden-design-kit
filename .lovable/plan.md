@@ -14,7 +14,8 @@ Apenas `src/lib/property-images.ts` e `src/routes/imoveis.$slug.tsx` serão alte
    export function sectionLabel(category: string, type?: PropertyType | string | null): string
    ```
    - Retorna `SECTION_LABELS[category]` quando existir.
-   - Fallback para `categoryLabel(category, type)` quando não existir no mapa.
+   - Fallback para o label da categoria em `categoriesFor(type)` quando não existir no mapa.
+   - Fallback final: `"Galeria"`.
 
 ## Tarefa 2 — Página pública em `src/routes/imoveis.$slug.tsx`
 
