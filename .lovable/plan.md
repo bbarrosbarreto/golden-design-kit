@@ -19,7 +19,7 @@ export function buildSeoTitle(input: {
 
 Regras preservadas exatamente: limite de 65 caracteres, região omitida quando já aparece no título (comparação sem acentos/case via `normalizeText`), sufixo `" | Bruno Barreto"`, remoção do segmento de região antes de truncar o título, corte na última palavra inteira, limpeza de pontuação solta (`/[\s+\-,;:/&]+$/`) antes de "…".
 
-**Não alterar `imoveis.$slug.tsx`** (regra do escopo): a cópia local dele permanece; a migração dele para o helper fica como débito técnico opcional futuro.
+**Alterar também `src/routes/imoveis.$slug.tsx`**: importar `buildSeoTitle` do helper e remover a função `buildTitle` local (extração pura, comportamento idêntico — sem duplicação de lógica).
 
 ## 2. `imageAlt` em `src/lib/development-images.ts`
 
@@ -50,8 +50,10 @@ Retorna `"{Categoria} — {título}"`, acrescentando `" (foto N)"` a todas as im
 - Remover `titleFromSlug` (fica sem uso).
 - **Título**: `buildSeoTitle({ title: dev.title, region: dev.regions?.name })`.
 - **Descrição** (≤155 chars, só fragmentos não nulos, sem buracos):
-  `{Título}: {tipologias}, de {area_from} a {area_to} m², a partir de R$ {price_from}. {Pronta entrega | Entrega prevista para {MM/AAAA}}. Bruno Barreto, CRECI-DF 34.060.`
-  (tipologias do array; área só quando ambos os extremos existem — ou o único existente; preço formatado pt-BR; status derivado de `delivery_status`/data de entrega conforme colunas reais — verificar nomes exatos das colunas durante a implementação.)
+  `{Título}: {tipologias}, de {area_from} a {area_to} m², a partir de R$ {price_from}. {entrega}. Bruno Barreto, CRECI-DF 34.060.`
+  Colunas reais de `developments`: `status` (`'pronta_entrega'` | `'previsao'`), `delivery_date` (date, nulável), `price_from` (numeric, nulável), `area_from`/`area_to` (numeric, nuláveis), `typology` (text[], nulável).
+  Fragmento de entrega: `pronta_entrega` → "Pronta entrega"; `previsao` + `delivery_date` → "Entrega prevista para MM/AAAA"; `previsao` sem data → omitir. Área só quando os extremos existem; preço formatado pt-BR.
+  **Nunca usar `price_to`** — o type `DevDetail` declara esse campo, mas ele NÃO existe na tabela.
 - **og:image**: `pickCoverImage(dev.images)?.url` com fallback para a imagem padrão do site (mesma usada na home, se houver — verificar; se não houver padrão definido, omitir quando não houver capa); adicionar `og:image:width` 1200, `og:image:height` 630, `og:image:alt` = título, e `twitter:image` + `twitter:card: summary_large_image` quando houver imagem.
 - Manter `og:url` e canonical absolutos como hoje.
 - **JSON-LD inalterado.**
@@ -61,7 +63,7 @@ Retorna `"{Categoria} — {título}"`, acrescentando `" (foto N)"` a todas as im
 - Nenhum `alt=""` restante no arquivo.
 
 ## Não muda
-Layout, design, formulário de contato, lightbox, carrossel, `imoveis.$slug.tsx`, JSON-LD, demais rotas.
+Layout, design, formulário de contato, lightbox, carrossel, JSON-LD, demais rotas. Em `imoveis.$slug.tsx`, apenas a troca de `buildTitle` local por `buildSeoTitle` (sem mudança de regra).
 
 ## Verificação
 - `bun run build:dev` passa.
