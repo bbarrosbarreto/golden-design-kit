@@ -12,7 +12,8 @@ Escopo: apenas `src/routes/imoveis.$slug.tsx` e `src/lib/property-images.ts`. N�
 3. No `PropertyDetailPage`, trocar `useQuery` por `Route.useLoaderData()` e passar direto para `<PropertyDetail prop={...} />`.
 4. Remover `isLoading`/`error` (skeleton de carregamento e o `throw redirect({ to: "/imoveis" })`), e o import de `useQuery`/`redirect` se não sobrar uso.
 5. Adicionar `notFoundComponent` à rota: uma tela simples de "Imóvel não encontrado" com link para `/imoveis`, e um `errorComponent` com `router.invalidate()` no retry (sem mexer no visual das seções da página).
-6. Manter `QueryClientProvider` e o resto do app intactos.
+6. Feedback na navegação interna: reaproveitar o skeleton atual do estado `isLoading` como `pendingComponent` da rota, com `pendingMs: 300` (só aparece se o loader demorar mais que 300 ms) e `pendingMinMs: 400` (evita flash). Assim o SSR entrega a página pronta no acesso direto e a navegação a partir da listagem mantém resposta visual.
+7. Manter `QueryClientProvider` e o resto do app intactos.
 
 Observação técnica: o loader usa o client Supabase existente (leitura pública via RLS), que funciona tanto no SSR quanto no cliente — mesma abordagem dos loaders atuais do projeto.
 
@@ -42,16 +43,20 @@ const SINGULAR_LABELS: Record<string, string> = { /* quarto→Quarto, banheiro�
 export function imageAlt(
   img: PropImage,
   propertyTitle: string,
+  categoryCount: number, // total de fotos na categoria de `img`
   type?: PropertyType | string | null,
 ): string {
   const label =
     SINGULAR_LABELS[img.category] ??
     categoriesFor(type).find((c) => c.value === img.category)?.label ??
     "Foto";
-  return img.order > 1
+  return categoryCount > 1
     ? `${label} — ${propertyTitle} (foto ${img.order})`
     : `${label} — ${propertyTitle}`;
 }
+```
+
+Numeração consistente: quando a categoria tem 2+ fotos, TODAS recebem `"(foto N)"`, incluindo a primeira (ex.: "Quarto — Casa no Lago Sul (foto 1)", "(foto 2)"). Categoria com uma única foto não recebe número. O chamador passa `categoryCount` (ex.: `group.images.length` nos cards, `lightbox.list.length` no lightbox; capa/hero usa a contagem da própria categoria de capa).
 ```
 
 2. Aplicar em todos os `<img>` da página:
