@@ -114,7 +114,7 @@ function getSectionsFor(type: PropertyType): {
   }
   if (type === "casa") {
     base[0].label = "A Casa";
-    base.push({ key: "externa", match: ["area_externa", "quintal"], label: "Área Externa" });
+    base.push({ key: "externa", match: ["area_externa", "jardim"], label: "Área Externa" });
   }
   if (type === "terreno") {
     return [
