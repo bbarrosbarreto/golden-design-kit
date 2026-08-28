@@ -87,6 +87,10 @@
   --badge-green: 120 18% 35%;
   --badge-blue: 204 27% 33%;
 
+  --warning: 38 75% 42%;
+  --warning-foreground: 0 0% 100%;
+  --warning-muted: 38 70% 94%;
+
   --radius: 0.375rem;
 
   --shadow-sm: 0 1px 3px hsl(0 0% 0% / 0.06);
