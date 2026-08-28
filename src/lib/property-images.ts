@@ -80,6 +80,28 @@ const SECTION_LABELS: Record<string, string> = {
   outros: "Galeria",
 };
 
+const SINGULAR_LABELS: Record<string, string> = {
+  capa: "Capa",
+  fachada: "Fachada",
+  sala: "Sala",
+  cozinha: "Cozinha",
+  quarto: "Quarto",
+  banheiro: "Banheiro",
+  area_comum: "Área Comum",
+  area_externa: "Área Externa",
+  jardim: "Jardim",
+  area_servico: "Área de Serviço",
+  espacos_lazer: "Espaço de Lazer",
+  demais_espacos: "Demais Espaços",
+  frente: "Frente",
+  fundo: "Fundo",
+  lateral: "Lateral",
+  vista_aerea: "Vista Aérea",
+  entorno: "Entorno",
+  planta: "Planta",
+  outros: "Foto",
+};
+
 export function sectionLabel(
   category: string,
   type?: PropertyType | string | null,
@@ -89,6 +111,21 @@ export function sectionLabel(
     categoriesFor(type).find((c) => c.value === category)?.label ??
     "Galeria"
   );
+}
+
+export function imageAlt(
+  img: PropImage,
+  propertyTitle: string,
+  categoryCount: number,
+  type?: PropertyType | string | null,
+): string {
+  const label =
+    SINGULAR_LABELS[img.category] ??
+    categoriesFor(type).find((c) => c.value === img.category)?.label ??
+    "Foto";
+  return categoryCount > 1
+    ? `${label} — ${propertyTitle} (foto ${img.order})`
+    : `${label} — ${propertyTitle}`;
 }
 
 const LEGACY_CATEGORY_MAP: Record<string, string> = {
