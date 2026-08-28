@@ -33,6 +33,9 @@ import { cn } from "@/lib/utils";
 import { pickCoverImage } from "@/lib/development-images";
 
 export const Route = createFileRoute("/admin/empreendimentos")({
+  head: () => ({
+    meta: [{ name: "robots", content: "noindex, nofollow" }],
+  }),
   component: EmpreendimentosAdminPage,
 });
 

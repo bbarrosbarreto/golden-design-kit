@@ -20,6 +20,7 @@ import { Route as EmpreendimentosIndexRouteImport } from './routes/empreendiment
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as ImoveisSlugRouteImport } from './routes/imoveis.$slug'
 import { Route as EmpreendimentosSlugRouteImport } from './routes/empreendimentos.$slug'
+import { Route as AdminRedefinirSenhaRouteImport } from './routes/admin/redefinir-senha'
 import { Route as AdminParceirosRouteImport } from './routes/admin/parceiros'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as AdminLeadsRouteImport } from './routes/admin/leads'
@@ -82,6 +83,11 @@ const EmpreendimentosSlugRoute = EmpreendimentosSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => EmpreendimentosRoute,
 } as any)
+const AdminRedefinirSenhaRoute = AdminRedefinirSenhaRouteImport.update({
+  id: '/admin/redefinir-senha',
+  path: '/admin/redefinir-senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminParceirosRoute = AdminParceirosRouteImport.update({
   id: '/admin/parceiros',
   path: '/admin/parceiros',
@@ -125,6 +131,7 @@ export interface FileRoutesByFullPath {
   '/admin/leads': typeof AdminLeadsRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/parceiros': typeof AdminParceirosRoute
+  '/admin/redefinir-senha': typeof AdminRedefinirSenhaRoute
   '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
   '/admin/': typeof AdminIndexRoute
@@ -142,6 +149,7 @@ export interface FileRoutesByTo {
   '/admin/leads': typeof AdminLeadsRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/parceiros': typeof AdminParceirosRoute
+  '/admin/redefinir-senha': typeof AdminRedefinirSenhaRoute
   '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
   '/admin': typeof AdminIndexRoute
@@ -162,6 +170,7 @@ export interface FileRoutesById {
   '/admin/leads': typeof AdminLeadsRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/parceiros': typeof AdminParceirosRoute
+  '/admin/redefinir-senha': typeof AdminRedefinirSenhaRoute
   '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
   '/admin/': typeof AdminIndexRoute
@@ -183,6 +192,7 @@ export interface FileRouteTypes {
     | '/admin/leads'
     | '/admin/login'
     | '/admin/parceiros'
+    | '/admin/redefinir-senha'
     | '/empreendimentos/$slug'
     | '/imoveis/$slug'
     | '/admin/'
@@ -200,6 +210,7 @@ export interface FileRouteTypes {
     | '/admin/leads'
     | '/admin/login'
     | '/admin/parceiros'
+    | '/admin/redefinir-senha'
     | '/empreendimentos/$slug'
     | '/imoveis/$slug'
     | '/admin'
@@ -219,6 +230,7 @@ export interface FileRouteTypes {
     | '/admin/leads'
     | '/admin/login'
     | '/admin/parceiros'
+    | '/admin/redefinir-senha'
     | '/empreendimentos/$slug'
     | '/imoveis/$slug'
     | '/admin/'
@@ -239,6 +251,7 @@ export interface RootRouteChildren {
   AdminLeadsRoute: typeof AdminLeadsRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminParceirosRoute: typeof AdminParceirosRoute
+  AdminRedefinirSenhaRoute: typeof AdminRedefinirSenhaRoute
   AdminIndexRoute: typeof AdminIndexRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
 }
@@ -321,6 +334,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/empreendimentos/$slug'
       preLoaderRoute: typeof EmpreendimentosSlugRouteImport
       parentRoute: typeof EmpreendimentosRoute
+    }
+    '/admin/redefinir-senha': {
+      id: '/admin/redefinir-senha'
+      path: '/admin/redefinir-senha'
+      fullPath: '/admin/redefinir-senha'
+      preLoaderRoute: typeof AdminRedefinirSenhaRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/admin/parceiros': {
       id: '/admin/parceiros'
@@ -406,6 +426,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminLeadsRoute: AdminLeadsRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminParceirosRoute: AdminParceirosRoute,
+  AdminRedefinirSenhaRoute: AdminRedefinirSenhaRoute,
   AdminIndexRoute: AdminIndexRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,
 }
