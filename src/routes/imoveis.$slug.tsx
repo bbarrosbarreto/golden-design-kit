@@ -84,13 +84,6 @@ interface ContactFormValues {
   message: string;
 }
 
-function normalizeText(value: string): string {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
-}
-
 function buildPropertyDescription(prop: PropertyDetail): string {
   const type = TYPE_LABEL[prop.type];
   const purpose = prop.purpose === "aluguel" ? "para alugar" : "à venda";
