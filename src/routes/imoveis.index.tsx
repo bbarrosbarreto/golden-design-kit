@@ -221,7 +221,7 @@ function Card({ property }: { property: PropertyRow }) {
         )}
         <h2 className="font-body text-base font-semibold text-foreground">
           {property.title}
-        </h3>
+        </h2>
 
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-body text-sm text-muted-foreground">
           {!isTerreno && property.bedrooms ? (
