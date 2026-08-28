@@ -80,6 +80,28 @@ const SECTION_LABELS: Record<string, string> = {
   outros: "Galeria",
 };
 
+const SINGULAR_LABELS: Record<string, string> = {
+  capa: "Capa",
+  fachada: "Fachada",
+  sala: "Sala",
+  cozinha: "Cozinha",
+  quarto: "Quarto",
+  banheiro: "Banheiro",
+  area_comum: "Área Comum",
+  area_externa: "Área Externa",
+  jardim: "Jardim",
+  area_servico: "Área de Serviço",
+  espacos_lazer: "Espaço de Lazer",
+  demais_espacos: "Demais Espaços",
+  frente: "Frente",
+  fundo: "Fundo",
+  lateral: "Lateral",
+  vista_aerea: "Vista Aérea",
+  entorno: "Entorno",
+  planta: "Planta",
+  outros: "Foto",
+};
+
 export function sectionLabel(
   category: string,
   type?: PropertyType | string | null,
