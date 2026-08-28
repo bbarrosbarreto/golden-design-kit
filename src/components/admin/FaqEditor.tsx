@@ -87,25 +87,9 @@ export function FaqEditor({ value, onChange, suggestions = [] }: FaqEditorProps)
   };
 
   const addSuggestions = () => {
-    const existing = new Set(
-      items.map((item) =>
-        item.q
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .trim()
-          .toLowerCase(),
-      ),
+    const toAdd = suggestions.filter((s) =>
+      items.every((item) => !sameQuestion(item.q, s.q)),
     );
-    const toAdd = suggestions.filter((s) => {
-      const key = sameQuestion(s.q, "");
-      return !existing.has(
-        s.q
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .trim()
-          .toLowerCase(),
-      );
-    });
     if (toAdd.length === 0) return;
     const next = [...items, ...toAdd.map((s) => ({ q: s.q, a: s.a }))];
     setItems(next);
