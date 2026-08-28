@@ -7,8 +7,10 @@ import { toast } from "sonner";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import {
+  groupImagesByCategory,
   normalizePropImages,
   pickPropCover,
+  sectionLabel,
   type PropImage,
   type PropertyType,
 } from "@/lib/property-images";
