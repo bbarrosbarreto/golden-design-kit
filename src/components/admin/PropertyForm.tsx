@@ -239,6 +239,9 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
   const featured = watch("featured");
   const images = watch("images");
   const categoryOrder = watch("image_category_order");
+  const faq = watch("faq");
+  const region_id = watch("region_id");
+  const regionName = regionsQuery.data?.find((r) => r.id === region_id)?.name ?? null;
   const isTerreno = type === "terreno";
 
   useEffect(() => {
