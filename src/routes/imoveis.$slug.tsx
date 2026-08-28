@@ -518,6 +518,8 @@ function PropertyDetail({ prop }: { prop: PropertyDetail }) {
             title={sectionLabel(group.category, prop.type)}
             images={group.images}
             bg={bg}
+            propertyTitle={prop.title}
+            propertyType={prop.type}
             onOpen={(i) => setLightbox({ list: group.images, index: i })}
           />
         );
