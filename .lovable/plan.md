@@ -50,8 +50,10 @@ Retorna `"{Categoria} — {título}"`, acrescentando `" (foto N)"` a todas as im
 - Remover `titleFromSlug` (fica sem uso).
 - **Título**: `buildSeoTitle({ title: dev.title, region: dev.regions?.name })`.
 - **Descrição** (≤155 chars, só fragmentos não nulos, sem buracos):
-  `{Título}: {tipologias}, de {area_from} a {area_to} m², a partir de R$ {price_from}. {Pronta entrega | Entrega prevista para {MM/AAAA}}. Bruno Barreto, CRECI-DF 34.060.`
-  (tipologias do array; área só quando ambos os extremos existem — ou o único existente; preço formatado pt-BR; status derivado de `delivery_status`/data de entrega conforme colunas reais — verificar nomes exatos das colunas durante a implementação.)
+  `{Título}: {tipologias}, de {area_from} a {area_to} m², a partir de R$ {price_from}. {entrega}. Bruno Barreto, CRECI-DF 34.060.`
+  Colunas reais de `developments`: `status` (`'pronta_entrega'` | `'previsao'`), `delivery_date` (date, nulável), `price_from` (numeric, nulável), `area_from`/`area_to` (numeric, nuláveis), `typology` (text[], nulável).
+  Fragmento de entrega: `pronta_entrega` → "Pronta entrega"; `previsao` + `delivery_date` → "Entrega prevista para MM/AAAA"; `previsao` sem data → omitir. Área só quando os extremos existem; preço formatado pt-BR.
+  **Nunca usar `price_to`** — o type `DevDetail` declara esse campo, mas ele NÃO existe na tabela.
 - **og:image**: `pickCoverImage(dev.images)?.url` com fallback para a imagem padrão do site (mesma usada na home, se houver — verificar; se não houver padrão definido, omitir quando não houver capa); adicionar `og:image:width` 1200, `og:image:height` 630, `og:image:alt` = título, e `twitter:image` + `twitter:card: summary_large_image` quando houver imagem.
 - Manter `og:url` e canonical absolutos como hoje.
 - **JSON-LD inalterado.**
