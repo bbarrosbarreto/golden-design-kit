@@ -16,6 +16,7 @@ import {
 } from "@/lib/property-images";
 import { optimizedImageUrl } from "@/lib/image-url";
 import { buildSeoTitle } from "@/lib/seo-title";
+import { buildBreadcrumbSchema, buildListingSchema } from "@/lib/property-schema";
 import { SubmittedState } from "@/components/contact/SubmittedState";
 
 const WHATSAPP_NUMBER = "5561999350888";
