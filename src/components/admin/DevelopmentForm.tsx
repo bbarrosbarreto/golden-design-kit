@@ -172,6 +172,14 @@ export function DevelopmentForm({ open, onOpenChange, initialData }: Props) {
   const active = watch("active");
   const images = watch("images");
   const typology = watch("typology");
+  const faq = watch("faq");
+  const region_id = watch("region_id");
+  const price_from = watch("price_from");
+  const area_from = watch("area_from");
+  const area_to = watch("area_to");
+  const builder = watch("builder");
+  const delivery_date = watch("delivery_date");
+  const description = watch("description");
 
   useEffect(() => {
     if (!slugDirty) setValue("slug", slugify(title));
