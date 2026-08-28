@@ -32,7 +32,7 @@ export const PROPERTY_CATEGORIES: Record<PropertyType, { value: string; label: s
     { value: "quarto", label: "Quarto" },
     { value: "banheiro", label: "Banheiro" },
     { value: "area_externa", label: "Área Externa" },
-    { value: "quintal", label: "Quintal" },
+    { value: "jardim", label: "Jardim" },
     ...EXTRA_CATEGORIES,
     ...COMMON_END,
   ],
@@ -52,6 +52,10 @@ export function categoriesFor(type: PropertyType | string | null | undefined) {
   return PROPERTY_CATEGORIES[t] ?? PROPERTY_CATEGORIES.apartamento;
 }
 
+const LEGACY_CATEGORY_MAP: Record<string, string> = {
+  quintal: "jardim",
+};
+
 export function normalizePropImages(input: unknown, type?: PropertyType | string | null): PropImage[] {
   if (!Array.isArray(input)) return [];
   const valid = new Set(categoriesFor(type as PropertyType).map((c) => c.value));
@@ -63,7 +67,8 @@ export function normalizePropImages(input: unknown, type?: PropertyType | string
       const url = (item as { url: unknown }).url;
       const cat = (item as { category?: unknown }).category;
       if (typeof url === "string") {
-        const c = typeof cat === "string" ? cat : "";
+        const raw = typeof cat === "string" ? cat : "";
+        const c = LEGACY_CATEGORY_MAP[raw] ?? raw;
         out.push({ url, category: valid.has(c) ? c : "outros" });
       }
     }
