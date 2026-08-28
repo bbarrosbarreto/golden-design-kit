@@ -12,6 +12,7 @@ Escopo: apenas `src/routes/imoveis.$slug.tsx` e `src/lib/property-images.ts`. N�
 3. No `PropertyDetailPage`, trocar `useQuery` por `Route.useLoaderData()` e passar direto para `<PropertyDetail prop={...} />`.
 4. Remover `isLoading`/`error` (skeleton de carregamento e o `throw redirect({ to: "/imoveis" })`), e o import de `useQuery`/`redirect` se não sobrar uso.
 5. Adicionar `notFoundComponent` à rota: uma tela simples de "Imóvel não encontrado" com link para `/imoveis`, e um `errorComponent` com `router.invalidate()` no retry (sem mexer no visual das seções da página).
+6. Feedback na navegação interna: reaproveitar o skeleton atual do estado `isLoading` como `pendingComponent` da rota, com `pendingMs: 300` (só aparece se o loader demorar mais que 300 ms) e `pendingMinMs: 400` (evita flash). Assim o SSR entrega a página pronta no acesso direto e a navegação a partir da listagem mantém resposta visual.
 6. Manter `QueryClientProvider` e o resto do app intactos.
 
 Observação técnica: o loader usa o client Supabase existente (leitura pública via RLS), que funciona tanto no SSR quanto no cliente — mesma abordagem dos loaders atuais do projeto.
