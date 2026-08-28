@@ -59,6 +59,38 @@ export function categoryLabel(
   return categoriesFor(type).find((c) => c.value === category)?.label ?? category;
 }
 
+const SECTION_LABELS: Record<string, string> = {
+  fachada: "Fachada",
+  sala: "Salas",
+  cozinha: "Cozinha",
+  quarto: "Quartos",
+  banheiro: "Banheiros",
+  area_comum: "Lazer e Áreas Comuns",
+  area_externa: "Área Externa",
+  jardim: "Jardim",
+  area_servico: "Área de Serviço",
+  espacos_lazer: "Espaços de Lazer",
+  demais_espacos: "Demais Espaços",
+  frente: "Frente",
+  fundo: "Fundo",
+  lateral: "Lateral",
+  vista_aerea: "Vista Aérea",
+  entorno: "Entorno",
+  planta: "Plantas",
+  outros: "Galeria",
+};
+
+export function sectionLabel(
+  category: string,
+  type?: PropertyType | string | null,
+): string {
+  return (
+    SECTION_LABELS[category] ??
+    categoriesFor(type).find((c) => c.value === category)?.label ??
+    "Galeria"
+  );
+}
+
 const LEGACY_CATEGORY_MAP: Record<string, string> = {
   quintal: "jardim",
 };
