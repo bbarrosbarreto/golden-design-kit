@@ -244,6 +244,8 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
   const categoryOrder = watch("image_category_order");
   const faq = watch("faq");
   const region_id = watch("region_id");
+  const price = watch("price");
+  const address = watch("address");
   const isTerreno = type === "terreno";
 
   useEffect(() => {
