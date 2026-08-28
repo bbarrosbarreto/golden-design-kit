@@ -68,6 +68,9 @@ type PropertyDetail = {
   parking_spots: number | null;
   images: unknown;
   image_category_order: unknown;
+  features: unknown;
+  status: string | null;
+  published_at: string | null;
   video_url: string | null;
   regions: { name: string } | null;
   developments: { id: string; title: string; slug: string } | null;
