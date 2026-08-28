@@ -91,30 +91,6 @@ function normalizeText(value: string): string {
     .toLowerCase();
 }
 
-function buildTitle(prop: PropertyDetail, slug: string): string {
-  const region = prop.regions?.name;
-  const suffix = " | Bruno Barreto";
-
-  const regionSegment =
-    region && !normalizeText(prop.title).includes(normalizeText(region))
-      ? ` | ${region}`
-      : "";
-
-  const full = `${prop.title}${regionSegment}${suffix}`;
-  if (full.length <= 65) return full;
-
-  const withoutRegion = `${prop.title}${suffix}`;
-  if (withoutRegion.length <= 65) return withoutRegion;
-
-  const maxTitle = 65 - suffix.length - 1; // reserve 1 char for ellipsis
-  let truncated = prop.title.slice(0, Math.max(0, maxTitle)).trimEnd();
-  const lastSpace = truncated.lastIndexOf(" ");
-  if (lastSpace > 0) truncated = truncated.slice(0, lastSpace);
-  truncated = truncated.replace(/[\s+\-,;:/&]+$/, "");
-
-  return `${truncated}…${suffix}`;
-}
-
 function buildPropertyDescription(prop: PropertyDetail): string {
   const type = TYPE_LABEL[prop.type];
   const purpose = prop.purpose === "aluguel" ? "para alugar" : "à venda";
