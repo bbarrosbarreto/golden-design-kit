@@ -260,6 +260,25 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
     },
   });
 
+  const regionName = regionsQuery.data?.find((r) => r.id === region_id)?.name ?? null;
+
+  const propertyFaqSuggestions = suggestPropertyFaq({
+    title,
+    type,
+    purpose,
+    price: numOrNull(price),
+    address,
+    bedrooms: intOrNull(watch("bedrooms")),
+    suites: intOrNull(watch("suites")),
+    bathrooms: intOrNull(watch("bathrooms")),
+    parking_spots: intOrNull(watch("parking_spots")),
+    area: numOrNull(watch("area")),
+    built_area: numOrNull(watch("built_area")),
+    useful_area: numOrNull(watch("useful_area")),
+    green_area: numOrNull(watch("green_area")),
+    region_name: regionName,
+  });
+
   const developmentsQuery = useQuery({
     queryKey: ["admin", "developments-min"],
     queryFn: async () => {
