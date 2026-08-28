@@ -765,7 +765,7 @@ function CategorySection({
               >
                 <img
                   src={optimizedImageUrl(img.url, { width: 700, quality: 75 })}
-                  alt=""
+                  alt={imageAlt(img, propertyTitle, images.length, propertyType)}
                   className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
                 />
               </button>
