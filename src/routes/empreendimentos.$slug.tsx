@@ -157,7 +157,7 @@ function buildDevelopmentDescription(dev: DevDetail): string {
   const frags: string[] = [];
 
   if (dev.typology && dev.typology.length > 0) {
-    frags.push(`${dev.typology.join(" e ")} quartos`);
+    frags.push(dev.typology.join(" e "));
   }
   if (dev.area_from != null && dev.area_to != null) {
     frags.push(
