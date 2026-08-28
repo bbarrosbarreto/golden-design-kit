@@ -63,7 +63,7 @@ Retorna `"{Categoria} — {título}"`, acrescentando `" (foto N)"` a todas as im
 - Nenhum `alt=""` restante no arquivo.
 
 ## Não muda
-Layout, design, formulário de contato, lightbox, carrossel, `imoveis.$slug.tsx`, JSON-LD, demais rotas.
+Layout, design, formulário de contato, lightbox, carrossel, JSON-LD, demais rotas. Em `imoveis.$slug.tsx`, apenas a troca de `buildTitle` local por `buildSeoTitle` (sem mudança de regra).
 
 ## Verificação
 - `bun run build:dev` passa.
