@@ -155,24 +155,27 @@ function toForm(p: PropertyRow): FormValues {
   };
 }
 
+function numOrNull(s: string | number | undefined | null): number | null {
+  if (s === undefined || s === null) return null;
+  const str = typeof s === "string" ? s.trim() : String(s);
+  if (str === "") return null;
+  const n = Number(str);
+  return Number.isNaN(n) ? null : n;
+}
+
+function intOrNull(s: string | number | undefined | null): number | null {
+  const n = numOrNull(s);
+  return n === null ? null : Math.trunc(n);
+}
+
+function uuidOrNull(s: string | undefined | null): string | null {
+  if (!s) return null;
+  const t = s.trim();
+  if (t === "" || t === "none") return null;
+  return t;
+}
+
 function toPayload(v: FormValues) {
-  const numOrNull = (s: string | number | undefined | null): number | null => {
-    if (s === undefined || s === null) return null;
-    const str = typeof s === "string" ? s.trim() : String(s);
-    if (str === "") return null;
-    const n = Number(str);
-    return Number.isNaN(n) ? null : n;
-  };
-  const intOrNull = (s: string | number | undefined | null): number | null => {
-    const n = numOrNull(s);
-    return n === null ? null : Math.trunc(n);
-  };
-  const uuidOrNull = (s: string | undefined | null): string | null => {
-    if (!s) return null;
-    const t = s.trim();
-    if (t === "" || t === "none") return null;
-    return t;
-  };
   const isTerreno = v.type === "terreno";
   const isApto = v.type === "apartamento";
   const isCasa = v.type === "casa";
