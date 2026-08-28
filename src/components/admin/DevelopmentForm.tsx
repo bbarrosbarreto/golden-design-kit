@@ -113,6 +113,7 @@ function toForm(d: DevelopmentRow): FormValues {
     featured: d.featured ?? false,
     featured_order: d.featured_order?.toString() ?? "",
     active: d.active ?? true,
+    faq: normalizeFaq(d.faq),
   };
 }
 
