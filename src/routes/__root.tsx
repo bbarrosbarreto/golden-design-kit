@@ -86,11 +86,43 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/hDMZqNlfVCTnpJfR1dLYHlq8TAh2/social-images/social-1779562685212-IMG_1318.webp" },
     ],
     links: [
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500&display=swap",
+      },
       {
         rel: "stylesheet",
         href: appCss,
       },
     ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "RealEstateAgent",
+          name: "Bruno Barreto Imóveis",
+          slogan: "Onde a arquitetura encontra oportunidade",
+          description:
+            "Corretor de imóveis em Brasília/DF com curadoria de alto padrão. CRECI-DF 34.060.",
+          url: "https://brunobarretoimoveis.com.br",
+          telephone: "+5561999350888",
+          email: "brunobarreto.corretor@gmail.com",
+          areaServed: "Distrito Federal, Brasil",
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: "Brasília",
+            addressRegion: "DF",
+            addressCountry: "BR",
+          },
+          identifier: "CRECI-DF 34060",
+          sameAs: ["https://instagram.com/brunobarreto.corretor"],
+        }),
+      },
+    ],
+
   }),
   shellComponent: RootShell,
   component: RootComponent,
