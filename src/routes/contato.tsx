@@ -10,9 +10,28 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { SubmittedState } from "@/components/contact/SubmittedState";
 
+const TITLE = "Contato | Bruno Barreto Imóveis em Brasília/DF";
+const DESCRIPTION =
+  "Fale com Bruno Barreto por WhatsApp, email ou formulário para encontrar imóveis e lançamentos de alto padrão no Distrito Federal.";
+const PAGE_URL = "https://brunobarretoimoveis.com.br/contato";
+
 export const Route = createFileRoute("/contato")({
+  head: () => ({
+    meta: [
+      { title: TITLE },
+      { name: "description", content: DESCRIPTION },
+      { property: "og:title", content: TITLE },
+      { property: "og:description", content: DESCRIPTION },
+      { property: "og:url", content: PAGE_URL },
+      { property: "og:type", content: "website" },
+      { name: "twitter:title", content: TITLE },
+      { name: "twitter:description", content: DESCRIPTION },
+    ],
+    links: [{ rel: "canonical", href: PAGE_URL }],
+  }),
   component: ContatoPage,
 });
+
 
 const GOLD = "#C9A84C";
 const DARK = "#1a1a1a";

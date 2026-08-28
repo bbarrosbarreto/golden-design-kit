@@ -2,9 +2,28 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 
+const TITLE = "Sobre Bruno Barreto | Corretor com visão de arquiteto";
+const DESCRIPTION =
+  "Conheça Bruno Barreto, corretor de imóveis em Brasília/DF que une olhar de arquiteto e curadoria de alto padrão para orientar cada negociação.";
+const URL = "https://brunobarretoimoveis.com.br/sobre";
+
 export const Route = createFileRoute("/sobre")({
+  head: () => ({
+    meta: [
+      { title: TITLE },
+      { name: "description", content: DESCRIPTION },
+      { property: "og:title", content: TITLE },
+      { property: "og:description", content: DESCRIPTION },
+      { property: "og:url", content: URL },
+      { property: "og:type", content: "profile" },
+      { name: "twitter:title", content: TITLE },
+      { name: "twitter:description", content: DESCRIPTION },
+    ],
+    links: [{ rel: "canonical", href: URL }],
+  }),
   component: SobrePage,
 });
+
 
 function useInViewFade<T extends HTMLElement>() {
   const ref = useRef<T | null>(null);

@@ -6,9 +6,28 @@ import { supabase } from "@/integrations/supabase/client";
 import { pickCoverImage } from "@/lib/development-images";
 import { optimizedImageUrl } from "@/lib/image-url";
 
+const TITLE = "Empreendimentos e lançamentos em Brasília/DF";
+const DESCRIPTION =
+  "Lançamentos e empreendimentos selecionados no Distrito Federal: tipologias, faixas de preço e previsão de entrega com curadoria de Bruno Barreto.";
+const PAGE_URL = "https://brunobarretoimoveis.com.br/empreendimentos";
+
 export const Route = createFileRoute("/empreendimentos/")({
+  head: () => ({
+    meta: [
+      { title: TITLE },
+      { name: "description", content: DESCRIPTION },
+      { property: "og:title", content: TITLE },
+      { property: "og:description", content: DESCRIPTION },
+      { property: "og:url", content: PAGE_URL },
+      { property: "og:type", content: "website" },
+      { name: "twitter:title", content: TITLE },
+      { name: "twitter:description", content: DESCRIPTION },
+    ],
+    links: [{ rel: "canonical", href: PAGE_URL }],
+  }),
   component: EmpreendimentosPage,
 });
+
 
 type DevRow = {
   id: string;

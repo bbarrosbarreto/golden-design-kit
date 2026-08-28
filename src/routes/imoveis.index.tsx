@@ -14,9 +14,28 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+const TITLE = "Imóveis à venda em Brasília/DF | Bruno Barreto";
+const DESCRIPTION =
+  "Apartamentos, casas e terrenos disponíveis no Distrito Federal, com filtros por tipo, região e quartos. Curadoria de alto padrão de Bruno Barreto.";
+const PAGE_URL = "https://brunobarretoimoveis.com.br/imoveis";
+
 export const Route = createFileRoute("/imoveis/")({
+  head: () => ({
+    meta: [
+      { title: TITLE },
+      { name: "description", content: DESCRIPTION },
+      { property: "og:title", content: TITLE },
+      { property: "og:description", content: DESCRIPTION },
+      { property: "og:url", content: PAGE_URL },
+      { property: "og:type", content: "website" },
+      { name: "twitter:title", content: TITLE },
+      { name: "twitter:description", content: DESCRIPTION },
+    ],
+    links: [{ rel: "canonical", href: PAGE_URL }],
+  }),
   component: ImoveisIndexPage,
 });
+
 
 type PropertyRow = {
   id: string;
