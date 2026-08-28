@@ -64,6 +64,7 @@ export type PropertyRow = {
   virtual_tour_url: string | null;
   images: PropImage[] | string[] | null;
   image_category_order?: string[] | null;
+  faq?: unknown;
 };
 
 interface FormValues {
