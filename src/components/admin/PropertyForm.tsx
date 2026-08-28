@@ -120,6 +120,7 @@ const empty: FormValues = {
   virtual_tour_url: "",
   images: [],
   image_category_order: [],
+  faq: [],
 };
 
 function toForm(p: PropertyRow): FormValues {
