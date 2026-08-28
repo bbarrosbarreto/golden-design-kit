@@ -202,6 +202,7 @@ function toPayload(v: FormValues) {
     virtual_tour_url: v.virtual_tour_url.trim() || null,
     images: v.images,
     image_category_order: v.image_category_order,
+    faq: v.faq,
   };
 }
 
