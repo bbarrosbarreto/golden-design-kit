@@ -1,7 +1,7 @@
 function normalizeText(value: string): string {
   return value
     .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "") // combining diacritical marks U+0300–U+036F
+    .replace(/[̀-ͯ]/g, "")
     .toLowerCase();
 }
 
