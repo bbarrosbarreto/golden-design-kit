@@ -109,6 +109,7 @@ function buildTitle(prop: PropertyDetail, slug: string): string {
   let truncated = prop.title.slice(0, Math.max(0, maxTitle)).trimEnd();
   const lastSpace = truncated.lastIndexOf(" ");
   if (lastSpace > 0) truncated = truncated.slice(0, lastSpace);
+  truncated = truncated.replace(/[\s+\-,;:/&]+$/, "");
 
   return `${truncated}…${suffix}`;
 }
