@@ -267,7 +267,8 @@ function PropertyDetail({ prop }: { prop: PropertyDetail }) {
       ),
     });
 
-  const sections = getSectionsFor(prop.type);
+  const groups = groupImagesByCategory(allImages, prop.type, prop.image_category_order);
+
 
   const fade1 = useInViewFade<HTMLDivElement>();
   const fade2 = useInViewFade<HTMLDivElement>();
