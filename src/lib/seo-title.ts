@@ -1,7 +1,7 @@
 function normalizeText(value: string): string {
   return value
     .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "") // U+0300–U+036F combining marks
+    .replace(/[\u0300-\u036f]/g, "") // U+0300–U+036F combining marks
     .toLowerCase();
 }
 
