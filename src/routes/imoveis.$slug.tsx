@@ -7,8 +7,10 @@ import { toast } from "sonner";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import {
+  groupImagesByCategory,
   normalizePropImages,
   pickPropCover,
+  sectionLabel,
   type PropImage,
   type PropertyType,
 } from "@/lib/property-images";
@@ -84,6 +86,7 @@ type PropertyDetail = {
   bathrooms: number | null;
   parking_spots: number | null;
   images: unknown;
+  image_category_order: unknown;
   video_url: string | null;
   regions: { name: string } | null;
   developments: { id: string; title: string; slug: string } | null;
@@ -101,32 +104,6 @@ const TYPE_LABEL: Record<PropertyType, string> = {
   terreno: "Terreno",
 };
 
-function getSectionsFor(type: PropertyType): {
-  key: string;
-  match: string[];
-  label: string;
-}[] {
-  const base = [
-    { key: "imovel", match: ["fachada", "sala", "cozinha", "quarto", "banheiro"], label: "O Imóvel" },
-  ];
-  if (type === "apartamento") {
-    base.push({ key: "area_comum", match: ["area_comum"], label: "Áreas Comuns" });
-  }
-  if (type === "casa") {
-    base[0].label = "A Casa";
-    base.push({ key: "externa", match: ["area_externa", "jardim"], label: "Área Externa" });
-  }
-  if (type === "terreno") {
-    return [
-      { key: "terreno", match: ["frente", "fundo", "lateral", "vista_aerea", "entorno"], label: "O Terreno" },
-      { key: "planta", match: ["planta"], label: "Plantas" },
-      { key: "outros", match: ["outros"], label: "Galeria" },
-    ];
-  }
-  base.push({ key: "planta", match: ["planta"], label: "Plantas" });
-  base.push({ key: "outros", match: ["outros"], label: "Galeria" });
-  return base;
-}
 
 function formatPrice(value: number) {
   return new Intl.NumberFormat("pt-BR", {
@@ -290,7 +267,8 @@ function PropertyDetail({ prop }: { prop: PropertyDetail }) {
       ),
     });
 
-  const sections = getSectionsFor(prop.type);
+  const groups = groupImagesByCategory(allImages, prop.type, prop.image_category_order);
+
 
   const fade1 = useInViewFade<HTMLDivElement>();
   const fade2 = useInViewFade<HTMLDivElement>();
@@ -429,17 +407,15 @@ function PropertyDetail({ prop }: { prop: PropertyDetail }) {
       </section>
 
       {/* 3. GALERIAS POR CATEGORIA */}
-      {sections.map((sec, idx) => {
-        const list = allImages.filter((img) => sec.match.includes(img.category));
-        if (list.length === 0) return null;
+      {groups.map((group, idx) => {
         const bg = idx % 2 === 0 ? BG : "#fff";
         return (
           <CategorySection
-            key={sec.key}
-            title={sec.label}
-            images={list}
+            key={group.category}
+            title={sectionLabel(group.category, prop.type)}
+            images={group.images}
             bg={bg}
-            onOpen={(i) => setLightbox({ list, index: i })}
+            onOpen={(i) => setLightbox({ list: group.images, index: i })}
           />
         );
       })}
