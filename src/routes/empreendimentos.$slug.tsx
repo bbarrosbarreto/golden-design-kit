@@ -26,22 +26,53 @@ function titleFromSlug(slug: string) {
 }
 
 export const Route = createFileRoute("/empreendimentos/$slug")({
-  head: ({ params }) => {
-    const name = titleFromSlug(params.slug);
-    const title = `${name} | Empreendimento em Brasília/DF`.slice(0, 70);
-    const description = `Conheça o empreendimento ${name}: tipologias, plantas, lazer, previsão de entrega e valores. Atendimento de Bruno Barreto, CRECI-DF 34.060.`;
+  loader: async ({ params }) => {
+    const { data, error } = await supabase
+      .from("developments")
+      .select("*, regions(name)")
+      .eq("slug", params.slug)
+      .eq("active", true)
+      .maybeSingle();
+    if (error || !data) throw notFound();
+    return data as DevDetail;
+  },
+  head: ({ loaderData, params }) => {
     const url = `https://brunobarretoimoveis.com.br/empreendimentos/${params.slug}`;
+    const cover = loaderData ? pickCoverImage(loaderData.images) : null;
+    const ogImage = cover?.url ?? null;
+    const title = loaderData
+      ? buildSeoTitle({ title: loaderData.title, region: loaderData.regions?.name })
+      : "Empreendimento | Bruno Barreto";
+    const description = loaderData
+      ? buildDevelopmentDescription(loaderData)
+      : "Lançamentos e empreendimentos de alto padrão em Brasília/DF com a curadoria de Bruno Barreto, corretor imobiliário CRECI-DF 34.060.";
+
+    const meta: { title?: string; name?: string; content?: string; property?: string }[] = [
+      { title },
+      { name: "description", content: description },
+      { property: "og:title", content: title },
+      { property: "og:description", content: description },
+      { property: "og:url", content: url },
+      { property: "og:type", content: "article" },
+      { property: "og:site_name", content: "Bruno Barreto Imóveis" },
+      { property: "og:locale", content: "pt_BR" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: title },
+      { name: "twitter:description", content: description },
+    ];
+
+    if (ogImage) {
+      meta.push(
+        { property: "og:image", content: ogImage },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "630" },
+        { property: "og:image:alt", content: title },
+        { name: "twitter:image", content: ogImage },
+      );
+    }
+
     return {
-      meta: [
-        { title },
-        { name: "description", content: description },
-        { property: "og:title", content: title },
-        { property: "og:description", content: description },
-        { property: "og:url", content: url },
-        { property: "og:type", content: "article" },
-        { name: "twitter:title", content: title },
-        { name: "twitter:description", content: description },
-      ],
+      meta,
       links: [{ rel: "canonical", href: url }],
       scripts: [
         {
@@ -49,7 +80,7 @@ export const Route = createFileRoute("/empreendimentos/$slug")({
           children: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "RealEstateListing",
-            name,
+            name: loaderData?.title ?? titleFromSlug(params.slug),
             description,
             url,
             category: "Empreendimento",
@@ -64,6 +95,11 @@ export const Route = createFileRoute("/empreendimentos/$slug")({
       ],
     };
   },
+  pendingMs: 300,
+  pendingMinMs: 400,
+  pendingComponent: DevelopmentDetailPending,
+  notFoundComponent: DevelopmentDetailNotFound,
+  errorComponent: DevelopmentDetailError,
   component: DevelopmentDetailPage,
 });
 
