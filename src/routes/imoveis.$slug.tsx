@@ -131,7 +131,7 @@ export const Route = createFileRoute("/imoveis/$slug")({
     const cover = loaderData ? pickPropCover(loaderData.images, loaderData.type) : null;
     const ogImage = cover?.url ? cover.url : null;
     const title = loaderData
-      ? buildTitle(loaderData, params.slug)
+      ? buildSeoTitle({ title: loaderData.title, region: loaderData.regions?.name })
       : "Imóvel | Bruno Barreto Imóveis";
     const description = loaderData
       ? buildPropertyDescription(loaderData)
