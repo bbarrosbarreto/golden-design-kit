@@ -166,37 +166,60 @@ interface ContactForm {
   message: string;
 }
 
+function DevelopmentDetailPending() {
+  return (
+    <Layout>
+      <div className="mx-auto max-w-6xl px-6 py-16">
+        <div className="aspect-[16/10] w-full animate-pulse rounded-lg bg-muted" />
+      </div>
+    </Layout>
+  );
+}
+
+function DevelopmentDetailNotFound() {
+  return (
+    <Layout>
+      <div className="mx-auto max-w-2xl px-6 py-24 text-center">
+        <h1 className="font-heading text-3xl font-bold text-foreground">Empreendimento não encontrado</h1>
+        <p className="mt-4 text-muted-foreground">
+          O empreendimento que você procurou não está mais disponível ou o endereço está incorreto.
+        </p>
+        <Link
+          to="/empreendimentos"
+          className="mt-8 inline-block rounded-sm bg-primary px-6 py-3 text-sm font-medium text-primary-foreground"
+        >
+          Ver empreendimentos
+        </Link>
+      </div>
+    </Layout>
+  );
+}
+
+function DevelopmentDetailError({ error, reset }: { error: Error; reset: () => void }) {
+  const router = useRouter();
+  return (
+    <Layout>
+      <div className="mx-auto max-w-2xl px-6 py-24 text-center">
+        <h1 className="font-heading text-3xl font-bold text-foreground">Erro ao carregar o empreendimento</h1>
+        <p className="mt-4 text-muted-foreground">{error.message}</p>
+        <button
+          type="button"
+          onClick={() => {
+            router.invalidate();
+            reset();
+          }}
+          className="mt-8 inline-block rounded-sm bg-primary px-6 py-3 text-sm font-medium text-primary-foreground"
+        >
+          Tentar novamente
+        </button>
+      </div>
+    </Layout>
+  );
+}
+
 function DevelopmentDetailPage() {
-  const { slug } = useParams({ from: "/empreendimentos/$slug" });
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["development", slug],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("developments")
-        .select("*, regions(name)")
-        .eq("slug", slug)
-        .eq("active", true)
-        .maybeSingle();
-      if (error) throw error;
-      return data as DevDetail | null;
-    },
-  });
-
-  if (isLoading) {
-    return (
-      <Layout>
-        <div className="mx-auto max-w-6xl px-6 py-16">
-          <div className="aspect-[16/10] w-full animate-pulse rounded-lg bg-muted" />
-        </div>
-      </Layout>
-    );
-  }
-
-  if (error || !data) {
-    throw redirect({ to: "/empreendimentos" });
-  }
-
-  return <DevelopmentDetail dev={data} />;
+  const dev = Route.useLoaderData();
+  return <DevelopmentDetail dev={dev} />;
 }
 
 function useInViewFade<T extends HTMLElement>() {
