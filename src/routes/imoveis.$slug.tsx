@@ -18,6 +18,8 @@ import { optimizedImageUrl } from "@/lib/image-url";
 import { buildSeoTitle } from "@/lib/seo-title";
 import { buildBreadcrumbSchema, buildListingSchema } from "@/lib/property-schema";
 import { SubmittedState } from "@/components/contact/SubmittedState";
+import { FaqSection } from "@/components/FaqSection";
+import { normalizeFaq, visibleFaqItems } from "@/lib/faq";
 
 const WHATSAPP_NUMBER = "5561999350888";
 
@@ -70,6 +72,7 @@ type PropertyDetail = {
   images: unknown;
   image_category_order: unknown;
   features: unknown;
+  faq: unknown;
   status: string | null;
   published_at: string | null;
   video_url: string | null;
@@ -165,31 +168,51 @@ export const Route = createFileRoute("/imoveis/$slug")({
       );
     }
 
+    const scripts: { type: string; children: string }[] = loaderData
+      ? [
+          {
+            type: "application/ld+json",
+            children: JSON.stringify(buildListingSchema(loaderData, description)),
+          },
+          {
+            type: "application/ld+json",
+            children: JSON.stringify(buildBreadcrumbSchema(loaderData)),
+          },
+        ]
+      : [
+          {
+            type: "application/ld+json",
+            children: JSON.stringify(
+              buildBreadcrumbSchema({
+                title: titleFromSlug(params.slug),
+                slug: params.slug,
+              }),
+            ),
+          },
+        ];
+
+    if (loaderData) {
+      const faqItems = visibleFaqItems(normalizeFaq(loaderData.faq));
+      if (faqItems.length > 0) {
+        scripts.push({
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: faqItems.map((item) => ({
+              "@type": "Question",
+              name: item.q,
+              acceptedAnswer: { "@type": "Answer", text: item.a },
+            })),
+          }),
+        });
+      }
+    }
+
     return {
       meta,
       links: [{ rel: "canonical", href: url }],
-      scripts: loaderData
-        ? [
-            {
-              type: "application/ld+json",
-              children: JSON.stringify(buildListingSchema(loaderData, description)),
-            },
-            {
-              type: "application/ld+json",
-              children: JSON.stringify(buildBreadcrumbSchema(loaderData)),
-            },
-          ]
-        : [
-            {
-              type: "application/ld+json",
-              children: JSON.stringify(
-                buildBreadcrumbSchema({
-                  title: titleFromSlug(params.slug),
-                  slug: params.slug,
-                }),
-              ),
-            },
-          ],
+      scripts,
     };
   },
   pendingMs: 300,
@@ -544,7 +567,14 @@ function PropertyDetail({ prop }: { prop: PropertyDetail }) {
         </section>
       )}
 
-      {/* 5. VÍDEO */}
+      {/* 5. FAQ */}
+      <FaqSection
+        items={normalizeFaq(prop.faq)}
+        title="Perguntas frequentes sobre este imóvel"
+        bg="#fff"
+      />
+
+      {/* 6. VÍDEO */}
       {youtubeId && (
         <section style={{ backgroundColor: DARK, padding: "64px 5%" }}>
           <div ref={fade2.ref} style={fade2.style} className="mx-auto">
@@ -575,7 +605,7 @@ function PropertyDetail({ prop }: { prop: PropertyDetail }) {
         </section>
       )}
 
-      {/* 6. FORMULÁRIO */}
+      {/* 7. FORMULÁRIO */}
       <section style={{ backgroundColor: DARK, padding: "64px 5%" }}>
         <div
           ref={fade3.ref}
@@ -610,7 +640,7 @@ function PropertyDetail({ prop }: { prop: PropertyDetail }) {
         </div>
       </section>
 
-      {/* 7. WHATSAPP FIXO MOBILE */}
+      {/* 8. WHATSAPP FIXO MOBILE */}
       <a
         href={whatsappUrl}
         target="_blank"

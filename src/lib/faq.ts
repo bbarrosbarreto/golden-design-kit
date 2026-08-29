@@ -22,6 +22,20 @@ function stripAccents(text: string): string {
   return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
+/**
+ * Filtra os itens aptos a aparecer na página pública e no JSON-LD FAQPage:
+ * pergunta e resposta preenchidas e sem placeholder "[PREENCHER".
+ * Única fonte do filtro, usada pelo FaqSection e pelos schemas — divergência zero.
+ */
+export function visibleFaqItems(items: FaqItem[]): FaqItem[] {
+  return items.filter(
+    (item) =>
+      item.q.trim().length > 0 &&
+      item.a.trim().length > 0 &&
+      !item.a.includes("[PREENCHER"),
+  );
+}
+
 export function sameQuestion(a: string, b: string): boolean {
   return stripAccents(a).trim().toLowerCase() === stripAccents(b).trim().toLowerCase();
 }

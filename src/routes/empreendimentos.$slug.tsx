@@ -16,6 +16,8 @@ import { pickPropCover } from "@/lib/property-images";
 import { optimizedImageUrl } from "@/lib/image-url";
 import { buildSeoTitle } from "@/lib/seo-title";
 import { SubmittedState } from "@/components/contact/SubmittedState";
+import { FaqSection } from "@/components/FaqSection";
+import { normalizeFaq, visibleFaqItems } from "@/lib/faq";
 
 function titleFromSlug(slug: string) {
   return slug
@@ -71,28 +73,48 @@ export const Route = createFileRoute("/empreendimentos/$slug")({
       );
     }
 
-    return {
-      meta,
-      links: [{ rel: "canonical", href: url }],
-      scripts: [
-        {
+    const scripts: { type: string; children: string }[] = [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "RealEstateListing",
+          name: loaderData?.title ?? titleFromSlug(params.slug),
+          description,
+          url,
+          category: "Empreendimento",
+          broker: {
+            "@type": "RealEstateAgent",
+            name: "Bruno Barreto Imóveis",
+            telephone: "+5561999350888",
+            areaServed: "Distrito Federal, Brasil",
+          },
+        }),
+      },
+    ];
+
+    if (loaderData) {
+      const faqItems = visibleFaqItems(normalizeFaq(loaderData.faq));
+      if (faqItems.length > 0) {
+        scripts.push({
           type: "application/ld+json",
           children: JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "RealEstateListing",
-            name: loaderData?.title ?? titleFromSlug(params.slug),
-            description,
-            url,
-            category: "Empreendimento",
-            broker: {
-              "@type": "RealEstateAgent",
-              name: "Bruno Barreto Imóveis",
-              telephone: "+5561999350888",
-              areaServed: "Distrito Federal, Brasil",
-            },
+            "@type": "FAQPage",
+            mainEntity: faqItems.map((item) => ({
+              "@type": "Question",
+              name: item.q,
+              acceptedAnswer: { "@type": "Answer", text: item.a },
+            })),
           }),
-        },
-      ],
+        });
+      }
+    }
+
+    return {
+      meta,
+      links: [{ rel: "canonical", href: url }],
+      scripts,
     };
   },
   pendingMs: 300,
@@ -120,6 +142,7 @@ type DevDetail = {
   images: unknown;
   video_url: string | null;
   virtual_tour_url: string | null;
+  faq: unknown;
   regions: { name: string } | null;
 };
 
@@ -534,7 +557,14 @@ function DevelopmentDetail({ dev }: { dev: DevDetail }) {
       {/* 5. IMÓVEIS VINCULADOS */}
       <LinkedPropertiesCarousel developmentId={dev.id} />
 
-      {/* 6. VÍDEO */}
+      {/* 6. FAQ */}
+      <FaqSection
+        items={normalizeFaq(dev.faq)}
+        title={`Perguntas frequentes sobre o ${dev.title}`}
+        bg="#fff"
+      />
+
+      {/* 7. VÍDEO */}
       {youtubeId && (
         <section style={{ backgroundColor: DARK, padding: "64px 5%" }}>
           <div ref={fade2.ref} style={fade2.style} className="mx-auto" >
@@ -565,7 +595,7 @@ function DevelopmentDetail({ dev }: { dev: DevDetail }) {
         </section>
       )}
 
-      {/* 7. FORMULÁRIO */}
+      {/* 8. FORMULÁRIO */}
       <section style={{ backgroundColor: DARK, padding: "64px 5%" }}>
         <div
           ref={fade3.ref}
@@ -601,7 +631,7 @@ function DevelopmentDetail({ dev }: { dev: DevDetail }) {
         </div>
       </section>
 
-      {/* 8. WHATSAPP FIXO MOBILE */}
+      {/* 9. WHATSAPP FIXO MOBILE */}
       <a
         href={whatsappUrl}
         target="_blank"
