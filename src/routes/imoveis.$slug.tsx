@@ -567,7 +567,14 @@ function PropertyDetail({ prop }: { prop: PropertyDetail }) {
         </section>
       )}
 
-      {/* 5. VÍDEO */}
+      {/* 5. FAQ */}
+      <FaqSection
+        items={normalizeFaq(prop.faq)}
+        title="Perguntas frequentes sobre este imóvel"
+        bg="#fff"
+      />
+
+      {/* 6. VÍDEO */}
       {youtubeId && (
         <section style={{ backgroundColor: DARK, padding: "64px 5%" }}>
           <div ref={fade2.ref} style={fade2.style} className="mx-auto">
