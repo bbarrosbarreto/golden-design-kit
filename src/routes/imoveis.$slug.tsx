@@ -168,31 +168,51 @@ export const Route = createFileRoute("/imoveis/$slug")({
       );
     }
 
+    const scripts: { type: string; children: string }[] = loaderData
+      ? [
+          {
+            type: "application/ld+json",
+            children: JSON.stringify(buildListingSchema(loaderData, description)),
+          },
+          {
+            type: "application/ld+json",
+            children: JSON.stringify(buildBreadcrumbSchema(loaderData)),
+          },
+        ]
+      : [
+          {
+            type: "application/ld+json",
+            children: JSON.stringify(
+              buildBreadcrumbSchema({
+                title: titleFromSlug(params.slug),
+                slug: params.slug,
+              }),
+            ),
+          },
+        ];
+
+    if (loaderData) {
+      const faqItems = visibleFaqItems(normalizeFaq(loaderData.faq));
+      if (faqItems.length > 0) {
+        scripts.push({
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: faqItems.map((item) => ({
+              "@type": "Question",
+              name: item.q,
+              acceptedAnswer: { "@type": "Answer", text: item.a },
+            })),
+          }),
+        });
+      }
+    }
+
     return {
       meta,
       links: [{ rel: "canonical", href: url }],
-      scripts: loaderData
-        ? [
-            {
-              type: "application/ld+json",
-              children: JSON.stringify(buildListingSchema(loaderData, description)),
-            },
-            {
-              type: "application/ld+json",
-              children: JSON.stringify(buildBreadcrumbSchema(loaderData)),
-            },
-          ]
-        : [
-            {
-              type: "application/ld+json",
-              children: JSON.stringify(
-                buildBreadcrumbSchema({
-                  title: titleFromSlug(params.slug),
-                  slug: params.slug,
-                }),
-              ),
-            },
-          ],
+      scripts,
     };
   },
   pendingMs: 300,
