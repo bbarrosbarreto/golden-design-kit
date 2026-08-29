@@ -16,6 +16,8 @@ import { pickPropCover } from "@/lib/property-images";
 import { optimizedImageUrl } from "@/lib/image-url";
 import { buildSeoTitle } from "@/lib/seo-title";
 import { SubmittedState } from "@/components/contact/SubmittedState";
+import { FaqSection } from "@/components/FaqSection";
+import { normalizeFaq, visibleFaqItems } from "@/lib/faq";
 
 function titleFromSlug(slug: string) {
   return slug
@@ -120,6 +122,7 @@ type DevDetail = {
   images: unknown;
   video_url: string | null;
   virtual_tour_url: string | null;
+  faq: unknown;
   regions: { name: string } | null;
 };
 
