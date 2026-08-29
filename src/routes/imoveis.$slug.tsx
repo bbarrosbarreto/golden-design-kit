@@ -605,7 +605,7 @@ function PropertyDetail({ prop }: { prop: PropertyDetail }) {
         </section>
       )}
 
-      {/* 6. FORMULÁRIO */}
+      {/* 7. FORMULÁRIO */}
       <section style={{ backgroundColor: DARK, padding: "64px 5%" }}>
         <div
           ref={fade3.ref}
@@ -640,7 +640,7 @@ function PropertyDetail({ prop }: { prop: PropertyDetail }) {
         </div>
       </section>
 
-      {/* 7. WHATSAPP FIXO MOBILE */}
+      {/* 8. WHATSAPP FIXO MOBILE */}
       <a
         href={whatsappUrl}
         target="_blank"
