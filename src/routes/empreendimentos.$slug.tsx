@@ -73,28 +73,48 @@ export const Route = createFileRoute("/empreendimentos/$slug")({
       );
     }
 
-    return {
-      meta,
-      links: [{ rel: "canonical", href: url }],
-      scripts: [
-        {
+    const scripts: { type: string; children: string }[] = [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "RealEstateListing",
+          name: loaderData?.title ?? titleFromSlug(params.slug),
+          description,
+          url,
+          category: "Empreendimento",
+          broker: {
+            "@type": "RealEstateAgent",
+            name: "Bruno Barreto Imóveis",
+            telephone: "+5561999350888",
+            areaServed: "Distrito Federal, Brasil",
+          },
+        }),
+      },
+    ];
+
+    if (loaderData) {
+      const faqItems = visibleFaqItems(normalizeFaq(loaderData.faq));
+      if (faqItems.length > 0) {
+        scripts.push({
           type: "application/ld+json",
           children: JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "RealEstateListing",
-            name: loaderData?.title ?? titleFromSlug(params.slug),
-            description,
-            url,
-            category: "Empreendimento",
-            broker: {
-              "@type": "RealEstateAgent",
-              name: "Bruno Barreto Imóveis",
-              telephone: "+5561999350888",
-              areaServed: "Distrito Federal, Brasil",
-            },
+            "@type": "FAQPage",
+            mainEntity: faqItems.map((item) => ({
+              "@type": "Question",
+              name: item.q,
+              acceptedAnswer: { "@type": "Answer", text: item.a },
+            })),
           }),
-        },
-      ],
+        });
+      }
+    }
+
+    return {
+      meta,
+      links: [{ rel: "canonical", href: url }],
+      scripts,
     };
   },
   pendingMs: 300,
