@@ -18,6 +18,8 @@ import { optimizedImageUrl } from "@/lib/image-url";
 import { buildSeoTitle } from "@/lib/seo-title";
 import { buildBreadcrumbSchema, buildListingSchema } from "@/lib/property-schema";
 import { SubmittedState } from "@/components/contact/SubmittedState";
+import { FaqSection } from "@/components/FaqSection";
+import { normalizeFaq, visibleFaqItems } from "@/lib/faq";
 
 const WHATSAPP_NUMBER = "5561999350888";
 
@@ -70,6 +72,7 @@ type PropertyDetail = {
   images: unknown;
   image_category_order: unknown;
   features: unknown;
+  faq: unknown;
   status: string | null;
   published_at: string | null;
   video_url: string | null;
