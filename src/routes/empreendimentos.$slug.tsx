@@ -557,7 +557,14 @@ function DevelopmentDetail({ dev }: { dev: DevDetail }) {
       {/* 5. IMÓVEIS VINCULADOS */}
       <LinkedPropertiesCarousel developmentId={dev.id} />
 
-      {/* 6. VÍDEO */}
+      {/* 6. FAQ */}
+      <FaqSection
+        items={normalizeFaq(dev.faq)}
+        title={`Perguntas frequentes sobre o ${dev.title}`}
+        bg="#fff"
+      />
+
+      {/* 7. VÍDEO */}
       {youtubeId && (
         <section style={{ backgroundColor: DARK, padding: "64px 5%" }}>
           <div ref={fade2.ref} style={fade2.style} className="mx-auto" >
