@@ -44,7 +44,7 @@ Sem FAQ preenchido ou tudo filtrado → a seção não renderiza e a página fic
 
 ## 3. JSON-LD FAQPage
 
-Em cada rota, terceiro bloco `<script type="application/ld+json">` (imóvel) / segundo bloco (empreendimento, que hoje não tem JSON-LD — confirmação: empreendimentos não tem ld+json, então será o primeiro nessa página):
+Em cada rota, bloco `<script type="application/ld+json">` ADICIONAL via `head().scripts` (confirmado no arquivo): `empreendimentos.$slug.tsx` já emite um `RealEstateListing` genérico no `head()` — o FAQPage será o SEGUNDO bloco nessa página, sem remover, substituir ou alterar o existente (tratado em etapa futura); no imóvel, será o terceiro bloco, após `RealEstateListing` e `BreadcrumbList`:
 
 ```json
 { "@context": "https://schema.org", "@type": "FAQPage",
