@@ -595,7 +595,7 @@ function DevelopmentDetail({ dev }: { dev: DevDetail }) {
         </section>
       )}
 
-      {/* 7. FORMULÁRIO */}
+      {/* 8. FORMULÁRIO */}
       <section style={{ backgroundColor: DARK, padding: "64px 5%" }}>
         <div
           ref={fade3.ref}
@@ -631,7 +631,7 @@ function DevelopmentDetail({ dev }: { dev: DevDetail }) {
         </div>
       </section>
 
-      {/* 8. WHATSAPP FIXO MOBILE */}
+      {/* 9. WHATSAPP FIXO MOBILE */}
       <a
         href={whatsappUrl}
         target="_blank"
