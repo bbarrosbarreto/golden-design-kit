@@ -626,13 +626,70 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
             <Input id="address" {...register("address")} />
           </div>
 
+          <div className="space-y-4 rounded-lg border border-border bg-surface p-4">
+            <div className="space-y-1">
+              <h3 className="font-heading text-lg">Endereço</h3>
+              <p className="text-sm text-muted-foreground">
+                Bairro e CEP são obrigatórios para exportar o anúncio aos portais.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="street">Logradouro</Label>
+                <Input id="street" {...register("street")} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="street_number">Número</Label>
+                  <Input id="street_number" {...register("street_number")} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="complement">Complemento</Label>
+                  <Input id="complement" {...register("complement")} />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="neighborhood">Bairro *</Label>
+                <Input id="neighborhood" {...register("neighborhood")} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="postal_code">CEP *</Label>
+                <Input
+                  id="postal_code"
+                  inputMode="numeric"
+                  placeholder="00000-000"
+                  value={formatPostalCode(postalCode)}
+                  onChange={(e) => setValue("postal_code", digitsOnly(e.target.value))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="city">Cidade</Label>
+                <Input id="city" {...register("city")} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="state">Estado</Label>
+                <Input id="state" {...register("state")} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="latitude">Latitude (opcional)</Label>
+                <Input id="latitude" type="number" step="any" {...register("latitude")} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="longitude">Longitude (opcional)</Label>
+                <Input id="longitude" type="number" step="any" {...register("longitude")} />
+              </div>
+            </div>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="description">Descrição</Label>
             <Textarea id="description" rows={4} {...register("description")} />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="price">Preço</Label>
+            <Label htmlFor="price">
+              {isVenda ? "Valor de venda" : "Valor do aluguel (mensal)"}
+            </Label>
             <Input id="price" type="number" step="0.01" {...register("price")} />
           </div>
 
