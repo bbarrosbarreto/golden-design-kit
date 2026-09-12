@@ -850,7 +850,7 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {type === "apartamento" && (
+            {isApartmentType(type) && (
               <div className="space-y-2">
                 <Label htmlFor="useful_area">
                   Área (m²){exportEnabled && " *"}
@@ -862,7 +862,7 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
               </div>
             )}
 
-            {type === "casa" && (
+            {isHouseType(type) && (
               <>
                 <div className="space-y-2">
                   <Label htmlFor="area">
