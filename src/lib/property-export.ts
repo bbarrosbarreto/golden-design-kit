@@ -107,6 +107,7 @@ export function formatPostalCode(value: string | null | undefined): string {
 export type ReadinessInput = {
   postal_code: string;
   neighborhood: string;
+  street: string;
   description: string;
   imageCount: number;
   title: string;
@@ -137,6 +138,11 @@ export function evaluateReadiness(input: ReadinessInput): ReadinessCheck[] {
       label: "Bairro preenchido",
       ok: input.neighborhood.trim() !== "",
       reason: input.neighborhood.trim() !== "" ? "Bairro informado" : "Informe o bairro",
+    },
+    {
+      label: "Logradouro preenchido",
+      ok: input.street.trim() !== "",
+      reason: input.street.trim() !== "" ? "Logradouro informado" : "Informe o logradouro",
     },
     {
       label: "Descrição entre 50 e 3000 caracteres",

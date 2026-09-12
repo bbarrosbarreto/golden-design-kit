@@ -15,5 +15,12 @@
 - [x] Checkbox Wimóveis em EXPORT_PORTALS (só dado, sem feed)
 - [ ] Feed Wimóveis (formato OpenNavent, gerador `feed-opennavent.ts` e rota própria)
 
+## Etapa 2.5 — Ajustes de qualidade do feed ZAP
+- [x] Nunca emitir tag vazia no XML
+- [x] Logradouro obrigatório para exportação (8 itens no painel de prontidão)
+- [x] Upload de imagens convertido para JPEG 1920px/85% antes do envio
+- [x] Campos obrigatórios no formulário quando exportação está ligada
+- [x] Número opcional (S/N se não houver) e omitido do feed quando vazio
+
 ## Etapa 3 — Integração e validação
 - [ ] Testar URLs de feed nos portais

@@ -342,7 +342,7 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
   const queryClient = useQueryClient();
   const isEdit = !!initialData;
 
-  const { register, handleSubmit, watch, setValue, reset, formState } =
+  const { register, handleSubmit, watch, setValue, reset, formState, setError, clearErrors } =
     useForm<FormValues>({ defaultValues: empty });
 
   const [slugDirty, setSlugDirty] = useState(false);
@@ -375,14 +375,24 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
   const description = watch("description");
   const postalCode = watch("postal_code");
   const neighborhood = watch("neighborhood");
+  const street = watch("street");
+  const city = watch("city");
+  const state = watch("state");
   const rentPrice = watch("rent_price");
   const category = watch("category");
   const exportEnabled = watch("export_enabled");
   const exportPortals = watch("export_portals");
+  const usefulArea = watch("useful_area");
+  const builtArea = watch("built_area");
+  const greenArea = watch("green_area");
+  const area = watch("area");
+  const bedrooms = watch("bedrooms");
+  const bathrooms = watch("bathrooms");
 
   const readinessChecks = evaluateReadiness({
     postal_code: postalCode,
     neighborhood,
+    street,
     description,
     imageCount: images.length,
     title,
@@ -412,6 +422,26 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
       : exportPortals.filter((p) => p !== value);
     setValue("export_portals", next);
   };
+
+  // Quando a exportação é desligada, limpa os erros de campos obrigatórios dela.
+  useEffect(() => {
+    if (!exportEnabled) {
+      clearErrors([
+        "title",
+        "description",
+        "neighborhood",
+        "postal_code",
+        "street",
+        "city",
+        "state",
+        "area",
+        "price",
+        "images",
+        "bedrooms",
+        "bathrooms",
+      ]);
+    }
+  }, [exportEnabled, clearErrors]);
 
   useEffect(() => {
     if (!slugDirty) setValue("slug", slugify(title));
@@ -476,6 +506,61 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
     return parts.join(" — ") || "Erro desconhecido do banco";
   };
 
+  function validateForExport(values: FormValues): Record<string, string> {
+    const errors: Record<string, string> = {};
+    const titleLen = values.title.trim().length;
+    if (titleLen < 10 || titleLen > 100) {
+      errors.title = "Título precisa ter entre 10 e 100 caracteres";
+    }
+    const descLen = values.description.trim().length;
+    if (descLen < 50 || descLen > 3000) {
+      errors.description = "Descrição precisa ter entre 50 e 3000 caracteres";
+    }
+    if (values.neighborhood.trim() === "") {
+      errors.neighborhood = "Informe o bairro";
+    }
+    if (digitsOnly(values.postal_code).length !== 8) {
+      errors.postal_code = "CEP precisa ter 8 dígitos";
+    }
+    if (values.street.trim() === "") {
+      errors.street = "Informe o logradouro";
+    }
+    if (values.city.trim() === "") {
+      errors.city = "Informe a cidade";
+    }
+    if (values.state.trim() === "") {
+      errors.state = "Informe o estado";
+    }
+    const hasArea =
+      numOrNull(values.area) != null ||
+      numOrNull(values.useful_area) != null ||
+      numOrNull(values.built_area) != null ||
+      numOrNull(values.green_area) != null;
+    if (!hasArea) {
+      errors.area = "Informe ao menos uma área";
+    }
+    if (numOrNull(values.price) == null) {
+      errors.price = "Informe um valor maior que zero";
+    }
+    if (values.images.length < 5) {
+      errors.images = "Adicione pelo menos 5 imagens";
+    }
+    const isResidential =
+      values.type === "apartamento" ||
+      values.type === "cobertura" ||
+      values.type === "casa" ||
+      values.type === "casa_condominio";
+    if (isResidential) {
+      if (numOrNull(values.bedrooms) == null) {
+        errors.bedrooms = "Informe a quantidade de quartos";
+      }
+      if (numOrNull(values.bathrooms) == null) {
+        errors.bathrooms = "Informe a quantidade de banheiros";
+      }
+    }
+    return errors;
+  }
+
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
       if (values.export_enabled && values.export_portals.length === 0) {
@@ -487,6 +572,15 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
         throw new Error(
           "A categoria selecionada não é válida para este tipo de imóvel.",
         );
+      }
+      if (values.export_enabled) {
+        const exportErrors = validateForExport(values);
+        if (Object.keys(exportErrors).length > 0) {
+          for (const [key, message] of Object.entries(exportErrors)) {
+            setError(key as keyof FormValues, { type: "manual", message });
+          }
+          throw new Error("Preencha os campos obrigatórios para exportação");
+        }
       }
       const payload = toPayload(values, ready);
       if (!payload.title) throw new Error("Título é obrigatório");
@@ -659,13 +753,22 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="street">Logradouro</Label>
+                <Label htmlFor="street">
+                  Logradouro{exportEnabled && " *"}
+                </Label>
                 <Input id="street" {...register("street")} />
+                {formState.errors.street?.message && (
+                  <p className="text-sm text-destructive">{formState.errors.street.message}</p>
+                )}
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="street_number">Número</Label>
-                  <Input id="street_number" {...register("street_number")} />
+                  <Input
+                    id="street_number"
+                    placeholder="S/N se não houver"
+                    {...register("street_number")}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="complement">Complemento</Label>
@@ -673,11 +776,18 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="neighborhood">Bairro *</Label>
+                <Label htmlFor="neighborhood">
+                  Bairro{exportEnabled && " *"}
+                </Label>
                 <Input id="neighborhood" {...register("neighborhood")} />
+                {formState.errors.neighborhood?.message && (
+                  <p className="text-sm text-destructive">{formState.errors.neighborhood.message}</p>
+                )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="postal_code">CEP *</Label>
+                <Label htmlFor="postal_code">
+                  CEP{exportEnabled && " *"}
+                </Label>
                 <Input
                   id="postal_code"
                   inputMode="numeric"
@@ -685,14 +795,27 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
                   value={formatPostalCode(postalCode)}
                   onChange={(e) => setValue("postal_code", digitsOnly(e.target.value))}
                 />
+                {formState.errors.postal_code?.message && (
+                  <p className="text-sm text-destructive">{formState.errors.postal_code.message}</p>
+                )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="city">Cidade</Label>
+                <Label htmlFor="city">
+                  Cidade{exportEnabled && " *"}
+                </Label>
                 <Input id="city" {...register("city")} />
+                {formState.errors.city?.message && (
+                  <p className="text-sm text-destructive">{formState.errors.city.message}</p>
+                )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="state">Estado</Label>
+                <Label htmlFor="state">
+                  Estado{exportEnabled && " *"}
+                </Label>
                 <Input id="state" {...register("state")} />
+                {formState.errors.state?.message && (
+                  <p className="text-sm text-destructive">{formState.errors.state.message}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="latitude">Latitude (opcional)</Label>
@@ -706,30 +829,49 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Descrição</Label>
+            <Label htmlFor="description">
+              Descrição{exportEnabled && " *"}
+            </Label>
             <Textarea id="description" rows={4} {...register("description")} />
+            {formState.errors.description?.message && (
+              <p className="text-sm text-destructive">{formState.errors.description.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="price">
               {isVenda ? "Valor de venda" : "Valor do aluguel (mensal)"}
+              {exportEnabled && " *"}
             </Label>
             <Input id="price" type="number" step="0.01" {...register("price")} />
+            {formState.errors.price?.message && (
+              <p className="text-sm text-destructive">{formState.errors.price.message}</p>
+            )}
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {type === "apartamento" && (
+            {isApartmentType(type) && (
               <div className="space-y-2">
-                <Label htmlFor="useful_area">Área (m²)</Label>
+                <Label htmlFor="useful_area">
+                  Área (m²){exportEnabled && " *"}
+                </Label>
                 <Input id="useful_area" type="number" step="0.01" {...register("useful_area")} />
+                {formState.errors.area?.message && (
+                  <p className="text-sm text-destructive">{formState.errors.area.message}</p>
+                )}
               </div>
             )}
 
-            {type === "casa" && (
+            {isHouseType(type) && (
               <>
                 <div className="space-y-2">
-                  <Label htmlFor="area">Área Total do Terreno (m²)</Label>
+                  <Label htmlFor="area">
+                    Área Total do Terreno (m²){exportEnabled && " *"}
+                  </Label>
                   <Input id="area" type="number" step="0.01" {...register("area")} />
+                  {formState.errors.area?.message && (
+                    <p className="text-sm text-destructive">{formState.errors.area.message}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="built_area">Área Construída (m²)</Label>
@@ -749,8 +891,13 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
             {type === "terreno" && (
               <>
                 <div className="space-y-2">
-                  <Label htmlFor="area">Área Total (m²)</Label>
+                  <Label htmlFor="area">
+                    Área Total (m²){exportEnabled && " *"}
+                  </Label>
                   <Input id="area" type="number" step="0.01" {...register("area")} />
+                  {formState.errors.area?.message && (
+                    <p className="text-sm text-destructive">{formState.errors.area.message}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="useful_area">Área Útil/Construível (m²)</Label>
@@ -767,16 +914,26 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
           {!isTerreno && (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
               <div className="space-y-2">
-                <Label htmlFor="bedrooms">Quartos</Label>
+                <Label htmlFor="bedrooms">
+                  Quartos{exportEnabled && " *"}
+                </Label>
                 <Input id="bedrooms" type="number" {...register("bedrooms")} />
+                {formState.errors.bedrooms?.message && (
+                  <p className="text-sm text-destructive">{formState.errors.bedrooms.message}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="suites">Suítes</Label>
                 <Input id="suites" type="number" {...register("suites")} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="bathrooms">Banheiros</Label>
+                <Label htmlFor="bathrooms">
+                  Banheiros{exportEnabled && " *"}
+                </Label>
                 <Input id="bathrooms" type="number" {...register("bathrooms")} />
+                {formState.errors.bathrooms?.message && (
+                  <p className="text-sm text-destructive">{formState.errors.bathrooms.message}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="parking_spots">Vagas</Label>
@@ -786,7 +943,9 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
           )}
 
           <div className="space-y-2">
-            <Label>Imagens</Label>
+            <Label>
+              Imagens{exportEnabled && " *"}
+            </Label>
             <ImageUploader
               value={images}
               onChange={(urls) => setValue("images", urls)}
@@ -794,6 +953,9 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
               categories={categoriesFor(type)}
               onValidityChange={setImagesValid}
             />
+            {formState.errors.images?.message && (
+              <p className="text-sm text-destructive">{formState.errors.images.message}</p>
+            )}
           </div>
 
           {sectionOrder.length > 0 && (

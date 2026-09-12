@@ -87,6 +87,41 @@ export function ImageUploader({
     onValidityChange?.(dupKey === "");
   }, [dupKey, onValidityChange]);
 
+  async function toJpeg(file: File): Promise<Blob> {
+    const bitmap = await createImageBitmap(file);
+    try {
+      const max = 1920;
+      const { width, height } = bitmap;
+      let w = width;
+      let h = height;
+      if (width > height && width > max) {
+        w = max;
+        h = Math.round((height * max) / width);
+      } else if (height > max) {
+        h = max;
+        w = Math.round((width * max) / height);
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("canvas context unavailable");
+      ctx.drawImage(bitmap, 0, 0, w, h);
+      return await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) reject(new Error("JPEG conversion failed"));
+            else resolve(blob);
+          },
+          "image/jpeg",
+          0.85,
+        );
+      });
+    } finally {
+      bitmap.close();
+    }
+  }
+
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
@@ -101,10 +136,20 @@ export function ImageUploader({
       const uploaded: UploaderImage[] = [];
       let next = nextOrderFor(images, "outros");
       for (const file of Array.from(files)) {
-        const path = `${crypto.randomUUID()}-${file.name}`;
+        let blob: Blob;
+        let baseName: string;
+        try {
+          blob = await toJpeg(file);
+          baseName = file.name.replace(/\.[^.]+$/, "");
+        } catch (err) {
+          console.error("[ImageUploader] JPEG conversion failed", err);
+          toast.error(`Não foi possível converter ${file.name}. Envie em JPG ou PNG.`);
+          continue;
+        }
+        const path = `${crypto.randomUUID()}-${baseName}.jpg`;
         const { data, error } = await supabase.storage
           .from(bucket)
-          .upload(path, file, { cacheControl: "3600", upsert: true });
+          .upload(path, blob, { contentType: "image/jpeg", cacheControl: "3600", upsert: true });
         if (error || !data) {
           console.error("[ImageUploader] upload failed", error);
           toast.error(`Falha ao enviar ${file.name}: ${error?.message ?? "erro desconhecido"}`);
