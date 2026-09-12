@@ -30,7 +30,7 @@ No topo do arquivo, em um único ponto fácil de trocar:
   - comercial → Comercial / Padrão
   - rural → Chácara / Padrão
 - `NAVENT_OPERATIONS = { venda: "Venda", aluguel: "Aluguel" }`
-- `NAVENT_CONTACT_EMAIL = "brunobarreto.corretor@gmail.com"`
+- `NAVENT_CONTACT_EMAIL = "SUBSTITUIR_PELO_EMAIL_REAL"` — placeholder, com comentário em português logo acima avisando que o feed do Wimóveis não deve ir ao ar antes da troca pelo email real, porque é o endereço para onde o portal envia os leads. Se a constante ainda estiver com o placeholder, o gerador lança um erro claro (a rota responde 500 com a mensagem), para nunca publicar feed com email inválido.
 
 Comentário em português deixando claro que os valores são PROVISÓRIOS: os oficiais vêm do endpoint `/v1/tipopropriedade` da API Navent (credencial ainda não obtida), e `operacao` pode acabar sendo "VENTA"/"ALQUILER".
 
