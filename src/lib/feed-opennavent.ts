@@ -37,7 +37,7 @@ const NAVENT_OPERATIONS = { venda: "Venda", aluguel: "Aluguel" } as const;
 
 // ATENÇÃO: o feed do Wimóveis NÃO deve ir ao ar antes de trocar o valor
 // abaixo pelo email real — é o endereço para onde o portal envia os leads.
-const NAVENT_CONTACT_EMAIL = "brunobarreto.corretor@gmail.com";
+const NAVENT_CONTACT_EMAIL: string = "brunobarreto.corretor@gmail.com";
 
 /** OpenNavent limita a 50 imagens por anúncio. */
 const NAVENT_MAX_IMAGES = 50;
