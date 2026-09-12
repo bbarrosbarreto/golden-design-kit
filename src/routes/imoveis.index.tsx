@@ -127,9 +127,11 @@ function ImoveisIndexPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos os tipos</SelectItem>
-              <SelectItem value="apartamento">Apartamento</SelectItem>
-              <SelectItem value="casa">Casa</SelectItem>
-              <SelectItem value="terreno">Terreno</SelectItem>
+              {availableTypes.map((t) => (
+                <SelectItem key={t.value} value={t.value}>
+                  {t.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
           <Select value={purposeFilter} onValueChange={setPurposeFilter}>
