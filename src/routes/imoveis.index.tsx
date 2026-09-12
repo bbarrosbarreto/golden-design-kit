@@ -4,7 +4,11 @@ import { useQuery } from "@tanstack/react-query";
 import { Bed, Home, MapPin, Maximize, Car } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
-import { pickPropCover } from "@/lib/property-images";
+import {
+  pickPropCover,
+  PROPERTY_TYPES,
+  PROPERTY_TYPE_LABELS,
+} from "@/lib/property-images";
 import { optimizedImageUrl } from "@/lib/image-url";
 import {
   Select,
@@ -54,11 +58,7 @@ type PropertyRow = {
   developments: { title: string } | null;
 };
 
-const TYPE_LABELS: Record<string, string> = {
-  apartamento: "Apartamento",
-  casa: "Casa",
-  terreno: "Terreno",
-};
+const TYPE_LABELS = PROPERTY_TYPE_LABELS;
 
 function formatPrice(value: number) {
   return new Intl.NumberFormat("pt-BR", {
