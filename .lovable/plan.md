@@ -35,7 +35,9 @@ Lugares que passam a conhecer os 7 tipos:
 
 - Formulário de cadastro (select de Tipo)
 - Lista do painel de imóveis (coluna Tipo)
-- Página pública de listagem: filtro de tipo e etiqueta do card
+- Página pública de listagem: etiqueta do card; o filtro de tipo lista apenas
+  os tipos que têm imóvel ativo no momento (o painel admin continua mostrando
+  os 7 sempre)
 - Página de detalhe do imóvel (etiqueta e textos)
 - Perguntas frequentes sugeridas automaticamente
 - Categorias de fotos e dados estruturados (Google)
