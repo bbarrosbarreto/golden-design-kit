@@ -852,16 +852,26 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {type === "apartamento" && (
               <div className="space-y-2">
-                <Label htmlFor="useful_area">Área (m²)</Label>
+                <Label htmlFor="useful_area">
+                  Área (m²){exportEnabled && " *"}
+                </Label>
                 <Input id="useful_area" type="number" step="0.01" {...register("useful_area")} />
+                {formState.errors.area?.message && (
+                  <p className="text-sm text-destructive">{formState.errors.area.message}</p>
+                )}
               </div>
             )}
 
             {type === "casa" && (
               <>
                 <div className="space-y-2">
-                  <Label htmlFor="area">Área Total do Terreno (m²)</Label>
+                  <Label htmlFor="area">
+                    Área Total do Terreno (m²){exportEnabled && " *"}
+                  </Label>
                   <Input id="area" type="number" step="0.01" {...register("area")} />
+                  {formState.errors.area?.message && (
+                    <p className="text-sm text-destructive">{formState.errors.area.message}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="built_area">Área Construída (m²)</Label>
@@ -881,8 +891,13 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
             {type === "terreno" && (
               <>
                 <div className="space-y-2">
-                  <Label htmlFor="area">Área Total (m²)</Label>
+                  <Label htmlFor="area">
+                    Área Total (m²){exportEnabled && " *"}
+                  </Label>
                   <Input id="area" type="number" step="0.01" {...register("area")} />
+                  {formState.errors.area?.message && (
+                    <p className="text-sm text-destructive">{formState.errors.area.message}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="useful_area">Área Útil/Construível (m²)</Label>
