@@ -181,18 +181,21 @@ function buildImovel(prop: FeedProperty, images: PropImage[]): string {
   const { tipo, subtipo, categoria } = zapPropertyType(prop.type, prop.category);
   const lines: (string | null)[] = [];
 
-  lines.push(tag("CodigoImovel", prop.listing_code ?? ""));
-  lines.push(tag("TituloImovel", prop.title ?? ""));
-  lines.push(tag("TipoImovel", tipo));
-  lines.push(tag("SubTipoImovel", subtipo));
-  lines.push(tag("CategoriaImovel", categoria));
-  lines.push(tag("Estado", prop.state ?? ""));
-  lines.push(tag("Cidade", prop.city ?? ""));
-  lines.push(`      <Bairro>${cdata(prop.neighborhood ?? "")}</Bairro>`);
-  lines.push(tag("Endereco", prop.street ?? ""));
-  lines.push(tag("Numero", prop.street_number ?? ""));
+  lines.push(tagOptional("CodigoImovel", prop.listing_code));
+  lines.push(tagOptional("TituloImovel", prop.title));
+  lines.push(tagOptional("TipoImovel", tipo));
+  lines.push(tagOptional("SubTipoImovel", subtipo));
+  lines.push(tagOptional("CategoriaImovel", categoria));
+  lines.push(tagOptional("Estado", prop.state));
+  lines.push(tagOptional("Cidade", prop.city));
+  if (prop.neighborhood) {
+    lines.push(`      <Bairro>${cdata(prop.neighborhood)}</Bairro>`);
+  }
+  lines.push(tagOptional("Endereco", prop.street));
+  lines.push(tagOptional("Numero", prop.street_number));
   lines.push(tagOptional("Complemento", prop.complement));
-  lines.push(tag("CEP", (prop.postal_code ?? "").replace(/\D/g, "")));
+  const cep = (prop.postal_code ?? "").replace(/\D/g, "");
+  lines.push(tagOptional("CEP", cep.length === 8 ? cep : null));
   lines.push(tagOptional("Latitude", prop.latitude));
   lines.push(tagOptional("Longitude", prop.longitude));
 

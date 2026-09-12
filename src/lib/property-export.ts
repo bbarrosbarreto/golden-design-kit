@@ -140,6 +140,11 @@ export function evaluateReadiness(input: ReadinessInput): ReadinessCheck[] {
       reason: input.neighborhood.trim() !== "" ? "Bairro informado" : "Informe o bairro",
     },
     {
+      label: "Logradouro preenchido",
+      ok: input.street.trim() !== "",
+      reason: input.street.trim() !== "" ? "Logradouro informado" : "Informe o logradouro",
+    },
+    {
       label: "Descrição entre 50 e 3000 caracteres",
       ok: desc >= 50 && desc <= 3000,
       reason:
