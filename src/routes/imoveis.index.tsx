@@ -95,6 +95,13 @@ function ImoveisIndexPage() {
     return Array.from(set).sort();
   }, [data]);
 
+  // Só mostramos no filtro os tipos que têm ao menos um imóvel ativo.
+  const availableTypes = useMemo(() => {
+    if (!data) return [];
+    const present = new Set(data.map((p) => p.type));
+    return PROPERTY_TYPES.filter((t) => present.has(t.value));
+  }, [data]);
+
   const filtered = useMemo(() => {
     if (!data) return [];
     return data.filter((p) => {
