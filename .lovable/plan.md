@@ -1,106 +1,95 @@
 # Etapa 1 — Banco de dados e formulário admin para exportação XML
 
 ## Objetivo
-Preparar a tabela `properties` e o formulário admin com todos os campos necessários para futura geração de XML para portais imobiliários (DF Imóveis, ZAP, VivaReal, OLX), sem criar rotas de feed nem gerar XML nesta etapa.
+Preparar a tabela `properties` e o formulário admin com todos os campos necessários para futura geração de XML para portais imobiliários (DF Imóveis, ZAP, VivaReal, OLX). Nesta etapa não há rotas de feed nem geração de XML.
 
 ## 1. Migration Supabase
 
-Aplicar a migration fornecida, que adiciona:
-
 ### Endereço estruturado
-- `street` (text)
-- `street_number` (text)
-- `complement` (text)
-- `neighborhood` (text)
-- `city` (text, not null default 'Brasília')
-- `state` (text, not null default 'DF')
-- `postal_code` (text)
-- `latitude` (numeric)
-- `longitude` (numeric)
+`street`, `street_number`, `complement`, `neighborhood`, `postal_code` (text), `city` (text not null default 'Brasília'), `state` (text not null default 'DF'), `latitude`, `longitude` (numeric).
 
-### Campos de valores separados
-- `rent_price` (numeric)
-- `condo_fee` (numeric)
-- `iptu` (numeric)
-- `year_built` (smallint)
-- `living_rooms` (integer)
+### Valores separados
+`rent_price`, `condo_fee`, `iptu` (numeric), `year_built` (smallint), `living_rooms` (integer).
 
 ### Categoria fina ZAP
-- `category` (text, not null default 'padrao', check constraint)
+`category` (text not null default 'padrao') com check constraint contendo **exatamente estes 7 valores, sem acréscimos**:
+`padrao`, `terrea`, `sobrado_duplex`, `sobrado_triplex`, `cobertura`, `cobertura_duplex`, `cobertura_triplex`.
 
 ### Controle de exportação
-- `export_enabled` (boolean, not null default false)
-- `export_portals` (text[], not null default '{}')
-- `listing_code` (text unique, default 'BB' || nextval('public.listing_code_seq'))
-- Sequência `public.listing_code_seq` iniciando em 1000
-- Backfill de `listing_code` para imóveis existentes
-- Índice `properties_export_idx` em `(export_enabled, active, status)`
+`export_enabled` (boolean not null default false), `export_portals` (text[] not null default '{}'), `listing_code` (text unique).
+Sequência `public.listing_code_seq` iniciando em 1000; default `'BB' || nextval(...)`; backfill dos registros existentes; índice `properties_export_idx` em `(export_enabled, active, status)`.
 
-## 2. Formulário admin (`src/components/admin/PropertyForm.tsx`)
+Nenhuma coluna existente é renomeada e o check constraint de `purpose` não é alterado.
 
-### Tipos e valores padrão
-- Adicionar os novos campos em `PropertyRow`.
-- Adicionar campos correspondentes em `FormValues` (todos como string, exceto `export_enabled` boolean, `export_portals` string[] e `category` string).
-- Preencher o objeto `empty` com defaults:
-  - `city`: "Brasília"
-  - `state`: "DF"
-  - `export_enabled`: false
-  - `export_portals`: []
-  - `category`: "padrao"
+## 2. Regra de preço (crítico)
 
-### Conversão
-- `toForm`: ler os novos campos do banco, convertendo numéricos para string vazia quando null.
-- `toPayload`: converter strings de volta para number/null, manter `export_enabled`, `export_portals`, `category`, e garantir `listing_code` não seja sobrescrito em updates.
+Regra a ser documentada em comentário no código, para uso do gerador de XML na Etapa 2:
 
-### Nova seção "Endereço"
-Campos em grid de 2 colunas (1 coluna no mobile):
-- Logradouro (`street`)
-- Número (`street_number`)
-- Complemento (`complement`)
-- Bairro (`neighborhood`) — marcado como obrigatório visualmente
-- CEP (`postal_code`) — obrigatório, máscara 00000-000
-- Cidade (`city`, default "Brasília")
-- Estado (`state`, default "DF")
-- Latitude (`latitude`)
-- Longitude (`longitude`)
+- `purpose = 'venda'` → `price` é o valor de **venda**
+- `purpose = 'aluguel'` → `price` é o valor do **aluguel mensal**
+- `rent_price` é usado **apenas** quando o imóvel é de venda e também está disponível para locação
 
-### Nova seção "Exportação para portais"
-- Switch "Exportar para portais" (`export_enabled`), default desligado.
-- Checkboxes de portais (`export_portals`):
-  - valor `'dfimoveis'` → rótulo "DF Imóveis"
-  - valor `'grupozap'` → rótulo "ZAP / VivaReal / OLX"
-- Select "Categoria" (`category`):
-  - Padrão, Térrea, Sobrado/Duplex, Sobrado/Triplex, Cobertura, Cobertura Duplex, Cobertura Triplex
-- Campos numéricos:
-  - Valor do aluguel (`rent_price`)
-  - Condomínio (`condo_fee`)
-  - IPTU (`iptu`)
-  - Ano de construção (`year_built`)
-  - Salas (`living_rooms`)
+No formulário:
+- O rótulo de `price` muda conforme `purpose`: "Valor de venda" ou "Valor do aluguel (mensal)"
+- `rent_price` só aparece quando `purpose = 'venda'`, com rótulo "Também aceita aluguel? Valor mensal (opcional)"
+- Quando `purpose = 'aluguel'`, `rent_price` não é exibido e é gravado como `null`
 
-### Painel de prontidão
-Dentro da seção "Exportação para portais", exibir checklist em tempo real com ✓ ou ✗:
-- CEP preenchido
+Dados existentes não são migrados e a exibição pública de preço não muda.
+
+## 3. Formulário admin (`src/components/admin/PropertyForm.tsx`)
+
+### Tipos e defaults
+Novos campos em `PropertyRow` e `FormValues`; `empty` com `city: "Brasília"`, `state: "DF"`, `category: "padrao"`, `export_enabled: false`, `export_portals: []`.
+
+### Seção "Endereço"
+Logradouro, Número, Complemento, Bairro (obrigatório visualmente), CEP (obrigatório), Cidade, Estado, Latitude, Longitude.
+
+**CEP:** a máscara `00000-000` existe apenas na exibição do input. No banco grava-se **somente os 8 dígitos, sem traço**, com validação de 8 dígitos antes de salvar.
+
+### Seção "Exportação para portais"
+- Switch "Exportar para portais" (`export_enabled`), default desligado
+- Checkboxes: `'dfimoveis'` → "DF Imóveis"; `'grupozap'` → "ZAP / VivaReal / OLX"
+- Select "Categoria" (`category`): Padrão, Térrea, Sobrado/Duplex, Sobrado/Triplex, Cobertura, Cobertura Duplex, Cobertura Triplex
+- Numéricos: Valor do aluguel (`rent_price`, condicional), Condomínio (`condo_fee`), IPTU (`iptu`), Ano de construção (`year_built`), Salas (`living_rooms`)
+
+### Código do anúncio
+Campo somente leitura rotulado "Código do anúncio nos portais". Em anúncio novo ainda não salvo, exibe "gerado ao salvar".
+`listing_code` **nunca** entra no payload — nem no insert nem no update. Quem gera é o default da sequência.
+
+## 4. Painel de prontidão
+
+Checklist em tempo real, com ✓ ou ✗ e motivo em cada item:
+- CEP preenchido (8 dígitos)
 - Bairro preenchido
 - Descrição entre 50 e 3000 caracteres
 - Pelo menos 5 imagens
 - Título entre 10 e 100 caracteres
 - Preço de venda OU de aluguel preenchido
+- Ao menos um portal selecionado
 
-Se qualquer item falhar:
-- Desabilitar o switch "Exportar para portais"
-- Mostrar mensagem "Complete os itens acima para exportar"
+Se algum item falhar, o switch "Exportar para portais" fica desabilitado com a mensagem "Complete os itens acima para exportar".
 
-## 3. Critérios de aceitação
+Com `export_enabled = true` e `export_portals` vazio, o save é bloqueado com mensagem clara.
 
-- A migration roda sem erro e os imóveis existentes recebem `listing_code`.
-- O formulário salva e recarrega todos os campos novos sem perda.
-- Nada no site público quebra.
-- `export_enabled` permanece `false` em todos os registros após a migration.
+## 5. Regras de `toPayload`
 
-## 4. Não mexer
+- Se o checklist de prontidão não passar por completo, força `export_enabled = false` e `export_portals = []`, independentemente do estado da tela
+- `city` em branco → grava "Brasília"; `state` em branco → grava "DF" (ambos not null no banco)
+- `postal_code` → apenas dígitos
+- `rent_price` → `null` quando `purpose = 'aluguel'`
+- `listing_code` → nunca incluído
 
-- Não alterar `src/routes/sitemap[.]xml.ts`
-- Não alterar o layout público de `/imoveis` nem `/imoveis/$slug`
-- Não renomear nenhuma coluna existente
-- Não criar rotas de feed nem gerar XML nesta etapa
+## 6. Critérios de aceitação
+
+- A migration roda sem erro e os imóveis existentes recebem `listing_code`
+- O formulário salva e recarrega todos os campos novos sem perda
+- Nada no site público quebra
+- `export_enabled` permanece `false` em todos os registros após a migration
+
+## 7. Não mexer
+
+- `src/routes/sitemap[.]xml.ts`
+- Layout público de `/imoveis` e `/imoveis/$slug`
+- Nomes de colunas existentes
+- Check constraint de `purpose`
+- Nenhuma rota de feed ou geração de XML nesta etapa
