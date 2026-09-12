@@ -55,6 +55,44 @@ export function isCategoryValidFor(
   return categoriesForType(type).some((c) => c.value === category);
 }
 
+/**
+ * Mapeamento tipo/categoria → campos TipoImovel/SubTipoImovel/CategoriaImovel
+ * do feed XML padrão ZAP.
+ */
+const ZAP_TYPE_MAP: Record<string, { tipo: string; subtipo: string }> = {
+  apartamento: { tipo: "Apartamento", subtipo: "Apartamento Padrão" },
+  cobertura: { tipo: "Apartamento", subtipo: "Apartamento Padrão" },
+  casa: { tipo: "Casa", subtipo: "Casa Padrão" },
+  casa_condominio: { tipo: "Casa", subtipo: "Casa de Condomínio" },
+  terreno: { tipo: "Terreno", subtipo: "Terreno Padrão" },
+  comercial: { tipo: "Comercial/Industrial", subtipo: "Conjunto Comercial/Sala" },
+  rural: { tipo: "Rural", subtipo: "Chácara" },
+};
+
+const ZAP_CATEGORY_LABELS: Record<string, string> = {
+  padrao: "Padrão",
+  terrea: "Térrea",
+  sobrado_duplex: "Sobrado/Duplex",
+  sobrado_triplex: "Sobrado/Triplex",
+  cobertura: "Cobertura",
+  cobertura_duplex: "Cobertura Duplex",
+  cobertura_triplex: "Cobertura Triplex",
+};
+
+/** Tipos cuja CategoriaImovel é sempre "Padrão" no feed ZAP. */
+const ZAP_FIXED_PADRAO = new Set(["terreno", "comercial", "rural"]);
+
+export function zapPropertyType(
+  type: string | null | undefined,
+  category: string | null | undefined,
+): { tipo: string; subtipo: string; categoria: string } {
+  const mapped = ZAP_TYPE_MAP[type ?? ""] ?? ZAP_TYPE_MAP.apartamento;
+  const categoria = ZAP_FIXED_PADRAO.has(type ?? "")
+    ? "Padrão"
+    : (ZAP_CATEGORY_LABELS[category ?? ""] ?? "Padrão");
+  return { ...mapped, categoria };
+}
+
 /** Mantém só os dígitos do CEP — no banco gravamos 8 dígitos, sem traço. */
 export function digitsOnly(value: string | null | undefined): string {
   return (value ?? "").replace(/\D/g, "").slice(0, 8);
