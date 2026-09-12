@@ -46,21 +46,10 @@ Campos por tipo: cobertura e casa em condomínio seguem as regras de
 apartamento e casa; comercial e rural seguem as regras de casa (área do
 terreno, área construída, área útil).
 
-## 3. Migration (você aplica)
+## 3. Banco — nada a fazer
 
-Vou gerar `supabase-migrations/2026-09-12b-tipo-rural.sql` com o conteúdo para
-você rodar no Supabase — não executo nada no banco. Ela só amplia a regra da
-coluna `type` para incluir `rural`, mantendo os 6 valores atuais, e apaga o
-imóvel de teste BB1005:
-
-```sql
-alter table public.properties drop constraint if exists properties_type_check;
-alter table public.properties add constraint properties_type_check
-  check (type in ('apartamento','cobertura','casa','casa_condominio',
-                  'terreno','comercial','rural'));
-
-delete from public.properties where listing_code = 'BB1005';
-```
+A regra do banco já aceita os 7 tipos e o imóvel de teste BB1005 já foi
+apagado. Nenhum SQL será gerado nem executado nesta etapa.
 
 Nenhum dos 5 imóveis existentes muda de tipo ou de preço.
 
