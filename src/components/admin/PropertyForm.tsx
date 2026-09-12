@@ -34,16 +34,21 @@ import {
   type PropertyType,
   categoriesFor,
   categoryLabel,
+  isApartmentType,
+  isHouseType,
   normalizePropImages,
+  PROPERTY_TYPES,
   resolveCategoryOrder,
 } from "@/lib/property-images";
 import { suggestPropertyFaq } from "@/lib/property-faq";
 import {
   EXPORT_PORTALS,
-  LISTING_CATEGORIES,
+  categoriesForType,
   digitsOnly,
   evaluateReadiness,
+  firstCategoryFor,
   formatPostalCode,
+  isCategoryValidFor,
   isReady,
 } from "@/lib/property-export";
 
