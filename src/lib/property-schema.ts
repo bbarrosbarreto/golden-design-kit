@@ -34,6 +34,9 @@ const MAIN_ENTITY_TYPE: Record<string, string> = {
   cobertura: "Apartment",
   casa: "SingleFamilyResidence",
   casa_condominio: "SingleFamilyResidence",
+  comercial: "Place",
+  terreno: "LandForm",
+  rural: "Place",
 };
 
 const AVAILABILITY: Record<string, string> = {

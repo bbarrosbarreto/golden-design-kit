@@ -322,7 +322,10 @@ function toPayload(v: FormValues, ready: boolean) {
     iptu: numOrNull(v.iptu),
     year_built: intOrNull(v.year_built),
     living_rooms: intOrNull(v.living_rooms),
-    category: v.category || "padrao",
+    // Nunca gravar categoria incompatível com o tipo.
+    category: isCategoryValidFor(v.type, v.category)
+      ? v.category
+      : firstCategoryFor(v.type),
     // Anúncio incompleto nunca é exportado, independentemente da tela.
     export_enabled: ready ? v.export_enabled : false,
     export_portals: ready && v.export_enabled ? v.export_portals : [],
