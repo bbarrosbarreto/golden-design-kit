@@ -107,6 +107,7 @@ export function formatPostalCode(value: string | null | undefined): string {
 export type ReadinessInput = {
   postal_code: string;
   neighborhood: string;
+  street: string;
   description: string;
   imageCount: number;
   title: string;

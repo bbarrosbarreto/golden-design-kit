@@ -166,6 +166,7 @@ function passesReadiness(prop: FeedProperty, imageCount: number): boolean {
   const checks = evaluateReadiness({
     postal_code: prop.postal_code ?? "",
     neighborhood: prop.neighborhood ?? "",
+    street: prop.street ?? "",
     description: prop.description ?? "",
     imageCount,
     title: prop.title ?? "",
