@@ -39,12 +39,11 @@ Nova função `zapPropertyType(type, category)` → `{ tipo, subtipo, categoria 
 
 `categoria` traduz a coluna `category` (padrao → Padrão, terrea → Térrea, sobrado_duplex → Sobrado/Duplex, sobrado_triplex → Sobrado/Triplex, cobertura → Cobertura, cobertura_duplex → Cobertura Duplex, cobertura_triplex → Cobertura Triplex). Para `terreno`, `comercial` e `rural`, a categoria é sempre "Padrão". Tipo desconhecido cai em Apartamento / Apartamento Padrão.
 
-## 5. Rotas de feed (casca fina)
+## 5. Rota de feed (casca fina)
 
 - `src/routes/feeds.zap[.]xml.ts` → `/feeds/zap.xml`, chama o gerador com `"dfimoveis"`
-- `src/routes/feeds.wimoveis[.]xml.ts` → `/feeds/wimoveis.xml`, chama o gerador com `"wimoveis"`
 
-Mesmo molde do sitemap: `createFileRoute` com `server.handlers.GET`, `Content-Type: application/xml; charset=utf-8`, `Cache-Control: public, max-age=900`. Sem código duplicado entre elas.
+Mesmo molde do sitemap: `createFileRoute` com `server.handlers.GET`, `Content-Type: application/xml; charset=utf-8`, `Cache-Control: public, max-age=900`. O feed do Wimóveis (formato OpenNavent) NÃO entra nesta etapa: será etapa própria, com gerador `feed-opennavent.ts` e rota separada. O checkbox "Wimóveis" permanece em `EXPORT_PORTALS` apenas como dado.
 
 ## 6. Estrutura do XML
 
