@@ -461,7 +461,12 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
 
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
-      const payload = toPayload(values);
+      if (values.export_enabled && values.export_portals.length === 0) {
+        throw new Error(
+          "Selecione ao menos um portal para exportar, ou desligue a exportação.",
+        );
+      }
+      const payload = toPayload(values, ready);
       if (!payload.title) throw new Error("Título é obrigatório");
       if (!payload.slug) throw new Error("Slug é obrigatório");
       if (isEdit && initialData) {
