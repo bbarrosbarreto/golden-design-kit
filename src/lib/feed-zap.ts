@@ -2,15 +2,22 @@
  * Gerador do feed XML padrão ZAP (Grupo OLX/ZAP), consumido hoje pelo
  * DF Imóveis. Recebe o código do portal para filtrar `export_portals`,
  * permitindo reaproveitar o mesmo gerador para outros portais ZAP.
+ *
+ * Helpers genéricos (escape, busca, imagens, elegibilidade) vivem em
+ * feed-common.ts e são compartilhados com o feed OpenNavent.
  */
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./supabase-public";
-import { evaluateReadiness, isReady, zapPropertyType } from "./property-export";
+import { zapPropertyType } from "./property-export";
+import type { PropImage } from "./property-images";
 import {
-  groupImagesByCategory,
-  normalizePropImages,
-  pickPropCover,
-  type PropImage,
-} from "./property-images";
+  cdata,
+  escapeXml,
+  fetchEligible,
+  intOrNull,
+  orderedImages,
+  passesReadiness,
+  tag,
+  tagOptional,
+} from "./feed-common";
 
 type FeedProperty = {
   listing_code: string | null;
@@ -82,100 +89,8 @@ const SELECT_COLUMNS = [
   "export_portals",
 ].join(",");
 
-function escapeXml(text: string): string {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
-}
-
-function cdata(text: string): string {
-  // CDATA não pode conter "]]>" — quebra em dois blocos.
-  return `<![CDATA[${text.replace(/\]\]>/g, "]]]]><![CDATA[>")}]]>`;
-}
-
-function tag(name: string, value: string | number): string {
-  return `      <${name}>${typeof value === "number" ? value : escapeXml(value)}</${name}>`;
-}
-
-function tagOptional(name: string, value: string | number | null | undefined): string | null {
-  if (value === null || value === undefined || value === "") return null;
-  if (typeof value === "string" && value.trim() === "") return null;
-  return tag(name, value);
-}
-
-function intOrNull(value: number | null): number | null {
-  if (value === null || value === undefined) return null;
-  const n = Math.floor(Number(value));
-  return Number.isFinite(n) ? n : null;
-}
-
-async function fetchEligible(portal: string): Promise<FeedProperty[]> {
-  const rows: FeedProperty[] = [];
-  const pageSize = 1000;
-  for (let offset = 0; ; offset += pageSize) {
-    const params = new URLSearchParams({
-      select: SELECT_COLUMNS,
-      active: "eq.true",
-      status: "eq.disponivel",
-      export_enabled: "eq.true",
-      export_portals: `cs.{${portal}}`,
-      offset: String(offset),
-      limit: String(pageSize),
-    });
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/properties?${params}`, {
-      headers: {
-        apikey: SUPABASE_ANON_KEY,
-        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-      },
-    });
-    if (!res.ok) break;
-    const data = (await res.json()) as FeedProperty[];
-    rows.push(...data);
-    if (data.length < pageSize) break;
-  }
-  return rows;
-}
-
-function orderedImages(prop: FeedProperty): PropImage[] {
-  const images = normalizePropImages(prop.images, prop.type);
-  const cover = pickPropCover(prop.images, prop.type);
-  const groups = groupImagesByCategory(images, prop.type, prop.image_category_order);
-  const rest = groups.flatMap((g) => g.images);
-  const out: PropImage[] = [];
-  const seen = new Set<string>();
-  if (cover) {
-    out.push(cover);
-    seen.add(cover.url);
-  }
-  for (const img of rest) {
-    if (!seen.has(img.url)) {
-      out.push(img);
-      seen.add(img.url);
-    }
-  }
-  return out;
-}
-
 function isYouTube(url: string): boolean {
   return /(?:youtube\.com|youtu\.be)/i.test(url);
-}
-
-function passesReadiness(prop: FeedProperty, imageCount: number): boolean {
-  const checks = evaluateReadiness({
-    postal_code: prop.postal_code ?? "",
-    neighborhood: prop.neighborhood ?? "",
-    street: prop.street ?? "",
-    description: prop.description ?? "",
-    imageCount,
-    title: prop.title ?? "",
-    price: prop.price != null ? String(prop.price) : "",
-    rent_price: prop.rent_price != null ? String(prop.rent_price) : "",
-    export_portals: prop.export_portals ?? [],
-  });
-  return isReady(checks);
 }
 
 function buildImovel(prop: FeedProperty, images: PropImage[]): string {
@@ -251,7 +166,7 @@ function buildImovel(prop: FeedProperty, images: PropImage[]): string {
 export async function generateZapFeed(portal: string): Promise<string> {
   let imoveisXml = "";
   try {
-    const rows = await fetchEligible(portal);
+    const rows = await fetchEligible<FeedProperty>(portal, SELECT_COLUMNS);
     const imoveis: string[] = [];
     for (const prop of rows) {
       const images = orderedImages(prop);

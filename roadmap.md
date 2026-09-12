@@ -13,7 +13,12 @@
 ## Etapa 2 — Rotas de feed XML
 - [x] Feed padrão ZAP em /feeds/zap.xml (gerador `feed-zap.ts`, portal dfimoveis)
 - [x] Checkbox Wimóveis em EXPORT_PORTALS (só dado, sem feed)
-- [ ] Feed Wimóveis (formato OpenNavent, gerador `feed-opennavent.ts` e rota própria)
+- [x] Feed Wimóveis (formato OpenNavent, gerador `feed-opennavent.ts` e rota /feeds/wimoveis.xml)
+
+## Etapa 2C — Características no feed OpenNavent
+- [ ] Bloco `<caracteristicas>` (quartos, banheiros, vagas, áreas) — depende do catálogo de códigos da API Navent autenticada (ex: CFT100), ainda não obtido
+- [ ] Trocar `NAVENT_CONTACT_EMAIL` (placeholder) pelo email real antes de o feed ir ao ar
+- [ ] Validar `NAVENT_TYPE_MAP`/`NAVENT_OPERATIONS` contra o endpoint /v1/tipopropriedade da Navent
 
 ## Etapa 2.5 — Ajustes de qualidade do feed ZAP
 - [x] Nunca emitir tag vazia no XML
