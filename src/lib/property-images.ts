@@ -1,5 +1,45 @@
 export type PropImage = { url: string; category: string; order: number };
-export type PropertyType = "apartamento" | "casa" | "terreno";
+export type PropertyType =
+  | "apartamento"
+  | "cobertura"
+  | "casa"
+  | "casa_condominio"
+  | "terreno"
+  | "comercial"
+  | "rural";
+
+export const PROPERTY_TYPES: { value: PropertyType; label: string }[] = [
+  { value: "apartamento", label: "Apartamento" },
+  { value: "cobertura", label: "Cobertura" },
+  { value: "casa", label: "Casa" },
+  { value: "casa_condominio", label: "Casa em Condomínio" },
+  { value: "terreno", label: "Terreno" },
+  { value: "comercial", label: "Comercial" },
+  { value: "rural", label: "Rural / Chácara" },
+];
+
+export const PROPERTY_TYPE_LABELS: Record<string, string> = Object.fromEntries(
+  PROPERTY_TYPES.map((t) => [t.value, t.label]),
+);
+
+export function propertyTypeLabel(type: string | null | undefined): string {
+  return PROPERTY_TYPE_LABELS[type ?? ""] ?? "Imóvel";
+}
+
+/** Tipos que se comportam como apartamento (só área útil). */
+export function isApartmentType(type: string | null | undefined): boolean {
+  return type === "apartamento" || type === "cobertura";
+}
+
+/** Tipos que se comportam como casa (área do terreno, construída e útil). */
+export function isHouseType(type: string | null | undefined): boolean {
+  return (
+    type === "casa" ||
+    type === "casa_condominio" ||
+    type === "comercial" ||
+    type === "rural"
+  );
+}
 
 const COMMON_END = [
   { value: "planta", label: "Planta" },
@@ -12,30 +52,38 @@ const EXTRA_CATEGORIES = [
   { value: "demais_espacos", label: "Demais Espaços" },
 ];
 
+const APARTAMENTO_CATEGORIES = [
+  { value: "capa", label: "Capa" },
+  { value: "fachada", label: "Fachada" },
+  { value: "sala", label: "Sala" },
+  { value: "cozinha", label: "Cozinha" },
+  { value: "quarto", label: "Quarto" },
+  { value: "banheiro", label: "Banheiro" },
+  { value: "area_comum", label: "Lazer e Áreas Comuns" },
+  ...EXTRA_CATEGORIES,
+  ...COMMON_END,
+];
+
+const CASA_CATEGORIES = [
+  { value: "capa", label: "Capa" },
+  { value: "fachada", label: "Fachada" },
+  { value: "sala", label: "Sala" },
+  { value: "cozinha", label: "Cozinha" },
+  { value: "quarto", label: "Quarto" },
+  { value: "banheiro", label: "Banheiro" },
+  { value: "area_externa", label: "Área Externa" },
+  { value: "jardim", label: "Jardim" },
+  ...EXTRA_CATEGORIES,
+  ...COMMON_END,
+];
+
 export const PROPERTY_CATEGORIES: Record<PropertyType, { value: string; label: string }[]> = {
-  apartamento: [
-    { value: "capa", label: "Capa" },
-    { value: "fachada", label: "Fachada" },
-    { value: "sala", label: "Sala" },
-    { value: "cozinha", label: "Cozinha" },
-    { value: "quarto", label: "Quarto" },
-    { value: "banheiro", label: "Banheiro" },
-    { value: "area_comum", label: "Lazer e Áreas Comuns" },
-    ...EXTRA_CATEGORIES,
-    ...COMMON_END,
-  ],
-  casa: [
-    { value: "capa", label: "Capa" },
-    { value: "fachada", label: "Fachada" },
-    { value: "sala", label: "Sala" },
-    { value: "cozinha", label: "Cozinha" },
-    { value: "quarto", label: "Quarto" },
-    { value: "banheiro", label: "Banheiro" },
-    { value: "area_externa", label: "Área Externa" },
-    { value: "jardim", label: "Jardim" },
-    ...EXTRA_CATEGORIES,
-    ...COMMON_END,
-  ],
+  apartamento: APARTAMENTO_CATEGORIES,
+  cobertura: APARTAMENTO_CATEGORIES,
+  casa: CASA_CATEGORIES,
+  casa_condominio: CASA_CATEGORIES,
+  comercial: CASA_CATEGORIES,
+  rural: CASA_CATEGORIES,
   terreno: [
     { value: "capa", label: "Capa" },
     { value: "frente", label: "Frente" },

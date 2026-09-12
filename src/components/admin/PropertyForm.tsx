@@ -34,16 +34,21 @@ import {
   type PropertyType,
   categoriesFor,
   categoryLabel,
+  isApartmentType,
+  isHouseType,
   normalizePropImages,
+  PROPERTY_TYPES,
   resolveCategoryOrder,
 } from "@/lib/property-images";
 import { suggestPropertyFaq } from "@/lib/property-faq";
 import {
   EXPORT_PORTALS,
-  LISTING_CATEGORIES,
+  categoriesForType,
   digitsOnly,
   evaluateReadiness,
+  firstCategoryFor,
   formatPostalCode,
+  isCategoryValidFor,
   isReady,
 } from "@/lib/property-export";
 
@@ -270,8 +275,8 @@ function uuidOrNull(s: string | undefined | null): string | null {
  */
 function toPayload(v: FormValues, ready: boolean) {
   const isTerreno = v.type === "terreno";
-  const isApto = v.type === "apartamento";
-  const isCasa = v.type === "casa";
+  const isApto = isApartmentType(v.type);
+  const isCasa = isHouseType(v.type);
   const isVenda = v.purpose === "venda";
   return {
     title: v.title.trim(),
@@ -317,7 +322,10 @@ function toPayload(v: FormValues, ready: boolean) {
     iptu: numOrNull(v.iptu),
     year_built: intOrNull(v.year_built),
     living_rooms: intOrNull(v.living_rooms),
-    category: v.category || "padrao",
+    // Nunca gravar categoria incompatível com o tipo.
+    category: isCategoryValidFor(v.type, v.category)
+      ? v.category
+      : firstCategoryFor(v.type),
     // Anúncio incompleto nunca é exportado, independentemente da tela.
     export_enabled: ready ? v.export_enabled : false,
     export_portals: ready && v.export_enabled ? v.export_portals : [],
@@ -388,6 +396,15 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
   useEffect(() => {
     if (!ready && exportEnabled) setValue("export_enabled", false);
   }, [ready, exportEnabled, setValue]);
+
+  // Categoria precisa ser válida para o tipo — os portais recusam combinações
+  // como apartamento + Sobrado/Duplex.
+  const typeCategories = categoriesForType(type);
+  useEffect(() => {
+    if (!isCategoryValidFor(type, category)) {
+      setValue("category", firstCategoryFor(type));
+    }
+  }, [type, category, setValue]);
 
   const togglePortal = (value: string, checked: boolean) => {
     const next = checked
@@ -464,6 +481,11 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
       if (values.export_enabled && values.export_portals.length === 0) {
         throw new Error(
           "Selecione ao menos um portal para exportar, ou desligue a exportação.",
+        );
+      }
+      if (!isCategoryValidFor(values.type, values.category)) {
+        throw new Error(
+          "A categoria selecionada não é válida para este tipo de imóvel.",
         );
       }
       const payload = toPayload(values, ready);
@@ -563,9 +585,11 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
               <Select value={type} onValueChange={(v) => setValue("type", v as PropertyType)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="apartamento">Apartamento</SelectItem>
-                  <SelectItem value="casa">Casa</SelectItem>
-                  <SelectItem value="terreno">Terreno</SelectItem>
+                  {PROPERTY_TYPES.map((t) => (
+                    <SelectItem key={t.value} value={t.value}>
+                      {t.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -918,7 +942,7 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
               <Select value={category} onValueChange={(v) => setValue("category", v)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {LISTING_CATEGORIES.map((c) => (
+                  {typeCategories.map((c) => (
                     <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
                   ))}
                 </SelectContent>

@@ -24,6 +24,36 @@ export const LISTING_CATEGORIES = [
   { value: "cobertura_triplex", label: "Cobertura Triplex" },
 ] as const;
 
+/**
+ * Categorias válidas por tipo de imóvel — os portais recusam combinações
+ * como apartamento + sobrado_duplex.
+ */
+const CATEGORIES_BY_TYPE: Record<string, string[]> = {
+  apartamento: ["padrao", "cobertura", "cobertura_duplex", "cobertura_triplex"],
+  cobertura: ["cobertura", "cobertura_duplex", "cobertura_triplex"],
+  casa: ["terrea", "sobrado_duplex", "sobrado_triplex"],
+  casa_condominio: ["terrea", "sobrado_duplex", "sobrado_triplex"],
+  terreno: ["padrao"],
+  comercial: ["padrao", "terrea", "sobrado_duplex"],
+  rural: ["padrao"],
+};
+
+export function categoriesForType(type: string | null | undefined) {
+  const allowed = CATEGORIES_BY_TYPE[type ?? ""] ?? CATEGORIES_BY_TYPE.apartamento;
+  return LISTING_CATEGORIES.filter((c) => allowed.includes(c.value));
+}
+
+export function firstCategoryFor(type: string | null | undefined): string {
+  return categoriesForType(type)[0]?.value ?? "padrao";
+}
+
+export function isCategoryValidFor(
+  type: string | null | undefined,
+  category: string | null | undefined,
+): boolean {
+  return categoriesForType(type).some((c) => c.value === category);
+}
+
 /** Mantém só os dígitos do CEP — no banco gravamos 8 dígitos, sem traço. */
 export function digitsOnly(value: string | null | undefined): string {
   return (value ?? "").replace(/\D/g, "").slice(0, 8);

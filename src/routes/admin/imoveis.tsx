@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-import { pickPropCover } from "@/lib/property-images";
+import { pickPropCover, PROPERTY_TYPE_LABELS } from "@/lib/property-images";
 
 export const Route = createFileRoute("/admin/imoveis")({
   head: () => ({
@@ -41,11 +41,7 @@ type Row = PropertyRow & {
   developments: { id: string; title: string } | null;
 };
 
-const TYPE_LABEL: Record<string, string> = {
-  apartamento: "Apartamento",
-  casa: "Casa",
-  terreno: "Terreno",
-};
+const TYPE_LABEL = PROPERTY_TYPE_LABELS;
 
 const STATUS_STYLE: Record<string, string> = {
   disponivel: "bg-badge-green text-white",

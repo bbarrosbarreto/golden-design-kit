@@ -3,7 +3,7 @@ import {
   formatCurrency,
   regionWithPreposition,
 } from "@/lib/faq";
-import type { PropertyType } from "@/lib/property-images";
+import { propertyTypeLabel, type PropertyType } from "@/lib/property-images";
 
 export interface PropertyFaqInput {
   title: string;
@@ -23,16 +23,7 @@ export interface PropertyFaqInput {
 }
 
 function typeLabel(type: PropertyType | string | null): string {
-  switch (type) {
-    case "apartamento":
-      return "Apartamento";
-    case "casa":
-      return "Casa";
-    case "terreno":
-      return "Terreno";
-    default:
-      return "Imóvel";
-  }
+  return propertyTypeLabel(type);
 }
 
 export function suggestPropertyFaq(prop: PropertyFaqInput): FaqItem[] {

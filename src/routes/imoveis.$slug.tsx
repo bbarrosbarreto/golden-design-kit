@@ -11,6 +11,8 @@ import {
   normalizePropImages,
   pickPropCover,
   sectionLabel,
+  PROPERTY_TYPE_LABELS,
+  isHouseType,
   type PropImage,
   type PropertyType,
 } from "@/lib/property-images";
@@ -23,11 +25,7 @@ import { normalizeFaq, visibleFaqItems } from "@/lib/faq";
 
 const WHATSAPP_NUMBER = "5561999350888";
 
-const TYPE_LABEL: Record<PropertyType, string> = {
-  apartamento: "Apartamento",
-  casa: "Casa",
-  terreno: "Terreno",
-};
+const TYPE_LABEL = PROPERTY_TYPE_LABELS;
 
 function titleFromSlug(slug: string) {
   return slug
@@ -317,7 +315,7 @@ function PropertyDetail({ prop }: { prop: PropertyDetail }) {
     : 0;
   const youtubeId = prop.video_url ? getYouTubeId(prop.video_url) : null;
   const isTerreno = prop.type === "terreno";
-  const isCasa = prop.type === "casa";
+  const isCasa = isHouseType(prop.type);
 
   const whatsappText = encodeURIComponent(`Olá! Tenho interesse no imóvel ${prop.title}`);
   const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappText}`;
