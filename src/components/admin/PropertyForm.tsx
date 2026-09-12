@@ -932,7 +932,7 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
               <Select value={category} onValueChange={(v) => setValue("category", v)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {LISTING_CATEGORIES.map((c) => (
+                  {typeCategories.map((c) => (
                     <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
                   ))}
                 </SelectContent>
