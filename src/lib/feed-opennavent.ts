@@ -263,15 +263,8 @@ function buildImovel(prop: FeedProperty, images: { url: string; category: string
 }
 
 export async function generateOpenNaventFeed(portal: string): Promise<string> {
-  if (NAVENT_CONTACT_EMAIL === "SUBSTITUIR_PELO_EMAIL_REAL") {
-    // Sem email real, o portal enviaria os leads para um endereço inválido.
-    throw new Error(
-      "feed-opennavent: NAVENT_CONTACT_EMAIL ainda é o placeholder. " +
-        "Troque pelo email real em src/lib/feed-opennavent.ts antes de publicar o feed.",
-    );
-  }
-
   let imoveisXml = "";
+  let total = 0;
   try {
     const rows = await fetchEligible<FeedProperty>(portal, SELECT_COLUMNS);
     const imoveis: string[] = [];
@@ -284,14 +277,29 @@ export async function generateOpenNaventFeed(portal: string): Promise<string> {
       imoveis.push(buildImovel(prop, images));
     }
     imoveisXml = imoveis.join("\n");
+    total = imoveis.length;
   } catch {
     // Falha de rede/parse: devolve feed vazio em vez de erro.
+  }
+
+  // Sem email real, o portal enviaria os leads para um endereço inválido.
+  // O bloqueio só vale quando há anúncios reais para publicar; feed vazio
+  // sai normal (com aviso em comentário XML) para não quebrar o preview.
+  const emailPendente = NAVENT_CONTACT_EMAIL === "SUBSTITUIR_PELO_EMAIL_REAL";
+  if (emailPendente && total > 0) {
+    throw new Error(
+      "feed-opennavent: NAVENT_CONTACT_EMAIL ainda é o placeholder. " +
+        "Troque pelo email real em src/lib/feed-opennavent.ts antes de publicar o feed.",
+    );
   }
 
   return [
     '<?xml version="1.0" encoding="UTF-8"?>',
     "<OpenNavent>",
     `  <dataModificacao>${cdata(String(Date.now()))}</dataModificacao>`,
+    ...(emailPendente
+      ? ["  <!-- ATENÇÃO: troque NAVENT_CONTACT_EMAIL pelo email real antes de publicar este feed. -->"]
+      : []),
     "  <Imoveis>",
     imoveisXml,
     "  </Imoveis>",
