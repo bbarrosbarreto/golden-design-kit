@@ -68,7 +68,7 @@ Helper de escape para `&`, `<`, `>`, `"` e `'` fora de CDATA; helper de CDATA qu
 
 ## 8. Verificação
 
-Build e requisições locais a `/feeds/zap.xml` e `/feeds/wimoveis.xml` conferindo status 200 e XML bem formado (hoje vazios, pois nenhum imóvel tem CEP/bairro); confirmação de que `/sitemap.xml` segue idêntico.
+Build e requisição local a `/feeds/zap.xml` conferindo status 200 e XML bem formado (hoje vazio, pois nenhum imóvel tem CEP/bairro); confirmação de que `/sitemap.xml` segue idêntico.
 
 ## 9. Não mexer
 
