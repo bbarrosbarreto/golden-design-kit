@@ -342,7 +342,7 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
   const queryClient = useQueryClient();
   const isEdit = !!initialData;
 
-  const { register, handleSubmit, watch, setValue, reset, formState } =
+  const { register, handleSubmit, watch, setValue, reset, formState, setError, clearErrors } =
     useForm<FormValues>({ defaultValues: empty });
 
   const [slugDirty, setSlugDirty] = useState(false);
