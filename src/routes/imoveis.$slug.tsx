@@ -23,11 +23,7 @@ import { normalizeFaq, visibleFaqItems } from "@/lib/faq";
 
 const WHATSAPP_NUMBER = "5561999350888";
 
-const TYPE_LABEL: Record<PropertyType, string> = {
-  apartamento: "Apartamento",
-  casa: "Casa",
-  terreno: "Terreno",
-};
+const TYPE_LABEL = PROPERTY_TYPE_LABELS;
 
 function titleFromSlug(slug: string) {
   return slug
