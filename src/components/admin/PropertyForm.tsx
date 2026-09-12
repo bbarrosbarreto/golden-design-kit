@@ -362,6 +362,39 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
   const price = watch("price");
   const address = watch("address");
   const isTerreno = type === "terreno";
+  const isVenda = purpose === "venda";
+
+  const description = watch("description");
+  const postalCode = watch("postal_code");
+  const neighborhood = watch("neighborhood");
+  const rentPrice = watch("rent_price");
+  const category = watch("category");
+  const exportEnabled = watch("export_enabled");
+  const exportPortals = watch("export_portals");
+
+  const readinessChecks = evaluateReadiness({
+    postal_code: postalCode,
+    neighborhood,
+    description,
+    imageCount: images.length,
+    title,
+    price,
+    rent_price: isVenda ? rentPrice : "",
+    export_portals: exportPortals,
+  });
+  const ready = isReady(readinessChecks);
+
+  // Anúncio que deixa de ser válido não pode continuar marcado para exportar.
+  useEffect(() => {
+    if (!ready && exportEnabled) setValue("export_enabled", false);
+  }, [ready, exportEnabled, setValue]);
+
+  const togglePortal = (value: string, checked: boolean) => {
+    const next = checked
+      ? [...exportPortals.filter((p) => p !== value), value]
+      : exportPortals.filter((p) => p !== value);
+    setValue("export_portals", next);
+  };
 
   useEffect(() => {
     if (!slugDirty) setValue("slug", slugify(title));
