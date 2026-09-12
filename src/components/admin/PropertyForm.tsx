@@ -270,8 +270,8 @@ function uuidOrNull(s: string | undefined | null): string | null {
  */
 function toPayload(v: FormValues, ready: boolean) {
   const isTerreno = v.type === "terreno";
-  const isApto = v.type === "apartamento";
-  const isCasa = v.type === "casa";
+  const isApto = isApartmentType(v.type);
+  const isCasa = isHouseType(v.type);
   const isVenda = v.purpose === "venda";
   return {
     title: v.title.trim(),
@@ -388,6 +388,15 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
   useEffect(() => {
     if (!ready && exportEnabled) setValue("export_enabled", false);
   }, [ready, exportEnabled, setValue]);
+
+  // Categoria precisa ser válida para o tipo — os portais recusam combinações
+  // como apartamento + Sobrado/Duplex.
+  const typeCategories = categoriesForType(type);
+  useEffect(() => {
+    if (!isCategoryValidFor(type, category)) {
+      setValue("category", firstCategoryFor(type));
+    }
+  }, [type, category, setValue]);
 
   const togglePortal = (value: string, checked: boolean) => {
     const next = checked
