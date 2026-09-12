@@ -753,13 +753,22 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="street">Logradouro</Label>
+                <Label htmlFor="street">
+                  Logradouro{exportEnabled && " *"}
+                </Label>
                 <Input id="street" {...register("street")} />
+                {formState.errors.street?.message && (
+                  <p className="text-sm text-destructive">{formState.errors.street.message}</p>
+                )}
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="street_number">Número</Label>
-                  <Input id="street_number" {...register("street_number")} />
+                  <Input
+                    id="street_number"
+                    placeholder="S/N se não houver"
+                    {...register("street_number")}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="complement">Complemento</Label>
@@ -767,11 +776,18 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="neighborhood">Bairro *</Label>
+                <Label htmlFor="neighborhood">
+                  Bairro{exportEnabled && " *"}
+                </Label>
                 <Input id="neighborhood" {...register("neighborhood")} />
+                {formState.errors.neighborhood?.message && (
+                  <p className="text-sm text-destructive">{formState.errors.neighborhood.message}</p>
+                )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="postal_code">CEP *</Label>
+                <Label htmlFor="postal_code">
+                  CEP{exportEnabled && " *"}
+                </Label>
                 <Input
                   id="postal_code"
                   inputMode="numeric"
@@ -779,14 +795,27 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
                   value={formatPostalCode(postalCode)}
                   onChange={(e) => setValue("postal_code", digitsOnly(e.target.value))}
                 />
+                {formState.errors.postal_code?.message && (
+                  <p className="text-sm text-destructive">{formState.errors.postal_code.message}</p>
+                )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="city">Cidade</Label>
+                <Label htmlFor="city">
+                  Cidade{exportEnabled && " *"}
+                </Label>
                 <Input id="city" {...register("city")} />
+                {formState.errors.city?.message && (
+                  <p className="text-sm text-destructive">{formState.errors.city.message}</p>
+                )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="state">Estado</Label>
+                <Label htmlFor="state">
+                  Estado{exportEnabled && " *"}
+                </Label>
                 <Input id="state" {...register("state")} />
+                {formState.errors.state?.message && (
+                  <p className="text-sm text-destructive">{formState.errors.state.message}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="latitude">Latitude (opcional)</Label>
