@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronDown, ChevronUp, Loader2 } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ImageUploader } from "@/components/admin/ImageUploader";
 import { FaqEditor } from "@/components/admin/FaqEditor";
 import { supabase } from "@/integrations/supabase/client";
@@ -37,6 +38,14 @@ import {
   resolveCategoryOrder,
 } from "@/lib/property-images";
 import { suggestPropertyFaq } from "@/lib/property-faq";
+import {
+  EXPORT_PORTALS,
+  LISTING_CATEGORIES,
+  digitsOnly,
+  evaluateReadiness,
+  formatPostalCode,
+  isReady,
+} from "@/lib/property-export";
 
 export type PropertyRow = {
   id: string;
