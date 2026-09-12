@@ -219,7 +219,9 @@ function buildImovel(prop: FeedProperty, images: PropImage[]): string {
   lines.push(tagOptional("AreaTotal", intOrNull(prop.area)));
   lines.push(tagOptional("AreaUtil", intOrNull(prop.useful_area ?? prop.built_area)));
   lines.push(tagOptional("AnoConstrucao", prop.year_built));
-  lines.push(`      <Observacao>${cdata(prop.description ?? "")}</Observacao>`);
+  if (prop.description) {
+    lines.push(`      <Observacao>${cdata(prop.description)}</Observacao>`);
+  }
   lines.push(tag("TipoOferta", 1));
 
   const fotos = images
