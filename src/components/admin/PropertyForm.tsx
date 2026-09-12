@@ -800,8 +800,13 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Descrição</Label>
+            <Label htmlFor="description">
+              Descrição{exportEnabled && " *"}
+            </Label>
             <Textarea id="description" rows={4} {...register("description")} />
+            {formState.errors.description?.message && (
+              <p className="text-sm text-destructive">{formState.errors.description.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
