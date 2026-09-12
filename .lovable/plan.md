@@ -35,7 +35,8 @@ Com o switch "Exportar para portais" **ligado**, o salvamento é bloqueado e o c
 
 - Título 10–100 caracteres
 - Descrição 50–3000 caracteres
-- Bairro, CEP (8 dígitos), Logradouro, Número, Cidade, Estado
+- Bairro, CEP (8 dígitos), Logradouro, Cidade, Estado
+- Número é opcional (placeholder "S/N se não houver"); no feed, número vazio omite a tag
 - Ao menos uma área (terreno / construída / útil, conforme o tipo)
 - Preço maior que zero (venda ou aluguel)
 - Mínimo 5 imagens
@@ -48,7 +49,7 @@ Implementação:
 - Função `validateForExport(values, imageCount)` retornando `{ campo: mensagem }`; chamada em `onSubmit` quando `export_enabled` é true; erros aplicados via `setError` do react-hook-form e o submit é interrompido com toast "Preencha os campos obrigatórios para exportação".
 - Cada campo da lista mostra `<p className="text-sm text-destructive">` com a mensagem abaixo do input, e o `Label` recebe " *" quando `exportEnabled` é true (título já tem asterisco fixo).
 - Erros são limpos ao editar o campo (`clearErrors`) e quando o switch é desligado.
-- O `evaluateReadiness` continua existindo e alimentando o painel; os itens novos (número, cidade, estado, área, quartos/banheiros) ficam apenas na validação do formulário, sem alterar o gerador do feed além do logradouro.
+- O `evaluateReadiness` continua existindo e alimentando o painel; os itens novos (cidade, estado, área, quartos/banheiros) ficam apenas na validação do formulário, sem alterar o gerador do feed além do logradouro.
 
 ## 6. Verificação
 
