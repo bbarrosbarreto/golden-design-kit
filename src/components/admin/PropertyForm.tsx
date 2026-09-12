@@ -486,6 +486,63 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
     return parts.join(" — ") || "Erro desconhecido do banco";
   };
 
+  function validateForExport(values: FormValues): Record<string, string> {
+    const errors: Record<string, string> = {};
+    const titleLen = values.title.trim().length;
+    if (titleLen < 10 || titleLen > 100) {
+      errors.title = "Título precisa ter entre 10 e 100 caracteres";
+    }
+    const descLen = values.description.trim().length;
+    if (descLen < 50 || descLen > 3000) {
+      errors.description = "Descrição precisa ter entre 50 e 3000 caracteres";
+    }
+    if (values.neighborhood.trim() === "") {
+      errors.neighborhood = "Informe o bairro";
+    }
+    if (digitsOnly(values.postal_code).length !== 8) {
+      errors.postal_code = "CEP precisa ter 8 dígitos";
+    }
+    if (values.street.trim() === "") {
+      errors.street = "Informe o logradouro";
+    }
+    if (values.city.trim() === "") {
+      errors.city = "Informe a cidade";
+    }
+    if (values.state.trim() === "") {
+      errors.state = "Informe o estado";
+    }
+    const hasArea =
+      numOrNull(values.area) != null ||
+      numOrNull(values.useful_area) != null ||
+      numOrNull(values.built_area) != null ||
+      numOrNull(values.green_area) != null;
+    if (!hasArea) {
+      errors.area = "Informe ao menos uma área";
+    }
+    const hasPrice = numOrNull(values.price) != null ||
+      (values.purpose === "venda" && numOrNull(values.rent_price) != null);
+    if (!hasPrice) {
+      errors.price = "Informe um valor maior que zero";
+    }
+    if (values.images.length < 5) {
+      errors.images = "Adicione pelo menos 5 imagens";
+    }
+    const isResidential =
+      values.type === "apartamento" ||
+      values.type === "cobertura" ||
+      values.type === "casa" ||
+      values.type === "casa_condominio";
+    if (isResidential) {
+      if (numOrNull(values.bedrooms) == null) {
+        errors.bedrooms = "Informe a quantidade de quartos";
+      }
+      if (numOrNull(values.bathrooms) == null) {
+        errors.bathrooms = "Informe a quantidade de banheiros";
+      }
+    }
+    return errors;
+  }
+
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
       if (values.export_enabled && values.export_portals.length === 0) {
@@ -497,6 +554,15 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
         throw new Error(
           "A categoria selecionada não é válida para este tipo de imóvel.",
         );
+      }
+      if (values.export_enabled) {
+        const exportErrors = validateForExport(values);
+        if (Object.keys(exportErrors).length > 0) {
+          for (const [key, message] of Object.entries(exportErrors)) {
+            setError(key as keyof FormValues, { type: "manual", message });
+          }
+          throw new Error("Preencha os campos obrigatórios para exportação");
+        }
       }
       const payload = toPayload(values, ready);
       if (!payload.title) throw new Error("Título é obrigatório");
