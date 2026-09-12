@@ -314,7 +314,7 @@ function PropertyDetail({ prop }: { prop: PropertyDetail }) {
     : 0;
   const youtubeId = prop.video_url ? getYouTubeId(prop.video_url) : null;
   const isTerreno = prop.type === "terreno";
-  const isCasa = prop.type === "casa";
+  const isCasa = isHouseType(prop.type);
 
   const whatsappText = encodeURIComponent(`Olá! Tenho interesse no imóvel ${prop.title}`);
   const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappText}`;
