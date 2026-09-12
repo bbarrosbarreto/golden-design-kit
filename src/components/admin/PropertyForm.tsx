@@ -375,14 +375,24 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
   const description = watch("description");
   const postalCode = watch("postal_code");
   const neighborhood = watch("neighborhood");
+  const street = watch("street");
+  const city = watch("city");
+  const state = watch("state");
   const rentPrice = watch("rent_price");
   const category = watch("category");
   const exportEnabled = watch("export_enabled");
   const exportPortals = watch("export_portals");
+  const usefulArea = watch("useful_area");
+  const builtArea = watch("built_area");
+  const greenArea = watch("green_area");
+  const area = watch("area");
+  const bedrooms = watch("bedrooms");
+  const bathrooms = watch("bathrooms");
 
   const readinessChecks = evaluateReadiness({
     postal_code: postalCode,
     neighborhood,
+    street,
     description,
     imageCount: images.length,
     title,
