@@ -853,6 +853,107 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
             </div>
           </div>
 
+          <div className="space-y-4 rounded-lg border border-border bg-surface p-4">
+            <div className="space-y-1">
+              <h3 className="font-heading text-lg">Exportação para portais</h3>
+              <p className="text-sm text-muted-foreground">
+                Código do anúncio nos portais:{" "}
+                <span className="font-medium text-foreground">
+                  {initialData?.listing_code ?? "gerado ao salvar"}
+                </span>
+              </p>
+            </div>
+
+            <div className="space-y-2 rounded-md border border-border bg-background p-3">
+              <p className="text-sm font-medium">Prontidão para exportação</p>
+              <ul className="space-y-1">
+                {readinessChecks.map((c) => (
+                  <li key={c.label} className="flex items-start gap-2 text-sm">
+                    {c.ok ? (
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
+                    ) : (
+                      <X className="mt-0.5 h-4 w-4 shrink-0 text-destructive" aria-hidden />
+                    )}
+                    <span className={c.ok ? "" : "text-muted-foreground"}>
+                      {c.label}{" "}
+                      <span className="text-xs text-muted-foreground">— {c.reason}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Portais</p>
+              {EXPORT_PORTALS.map((p) => (
+                <div key={p.value} className="flex items-center gap-3">
+                  <Checkbox
+                    id={`portal-${p.value}`}
+                    checked={exportPortals.includes(p.value)}
+                    onCheckedChange={(v) => togglePortal(p.value, v === true)}
+                  />
+                  <Label htmlFor={`portal-${p.value}`} className="cursor-pointer">
+                    {p.label}
+                  </Label>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Switch
+                checked={exportEnabled}
+                disabled={!ready}
+                onCheckedChange={(v) => setValue("export_enabled", v)}
+              />
+              <Label className="cursor-pointer">Exportar para portais</Label>
+            </div>
+            {!ready && (
+              <p className="text-sm text-muted-foreground">
+                Complete os itens acima para exportar
+              </p>
+            )}
+
+            <div className="space-y-2">
+              <Label>Categoria</Label>
+              <Select value={category} onValueChange={(v) => setValue("category", v)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {LISTING_CATEGORIES.map((c) => (
+                    <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {isVenda && (
+                <div className="space-y-2">
+                  <Label htmlFor="rent_price">
+                    Também aceita aluguel? Valor mensal (opcional)
+                  </Label>
+                  <Input id="rent_price" type="number" step="0.01" {...register("rent_price")} />
+                </div>
+              )}
+              <div className="space-y-2">
+                <Label htmlFor="condo_fee">Condomínio</Label>
+                <Input id="condo_fee" type="number" step="0.01" {...register("condo_fee")} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="iptu">IPTU</Label>
+                <Input id="iptu" type="number" step="0.01" {...register("iptu")} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="year_built">Ano de construção</Label>
+                <Input id="year_built" type="number" {...register("year_built")} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="living_rooms">Salas</Label>
+                <Input id="living_rooms" type="number" {...register("living_rooms")} />
+              </div>
+            </div>
+          </div>
+
+
           <div className="flex flex-wrap items-center gap-6 rounded-md border border-border bg-surface p-4">
             <div className="flex items-center gap-3">
               <Switch checked={featured} onCheckedChange={(v) => setValue("featured", v)} />
