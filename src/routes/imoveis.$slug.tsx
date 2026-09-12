@@ -11,6 +11,7 @@ import {
   normalizePropImages,
   pickPropCover,
   sectionLabel,
+  PROPERTY_TYPE_LABELS,
   type PropImage,
   type PropertyType,
 } from "@/lib/property-images";
