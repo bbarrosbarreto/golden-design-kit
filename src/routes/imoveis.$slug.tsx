@@ -12,6 +12,7 @@ import {
   pickPropCover,
   sectionLabel,
   PROPERTY_TYPE_LABELS,
+  isHouseType,
   type PropImage,
   type PropertyType,
 } from "@/lib/property-images";
