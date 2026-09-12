@@ -519,9 +519,7 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
     if (!hasArea) {
       errors.area = "Informe ao menos uma área";
     }
-    const hasPrice = numOrNull(values.price) != null ||
-      (values.purpose === "venda" && numOrNull(values.rent_price) != null);
-    if (!hasPrice) {
+    if (numOrNull(values.price) == null) {
       errors.price = "Informe um valor maior que zero";
     }
     if (values.images.length < 5) {
