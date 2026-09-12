@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronDown, ChevronUp, Loader2 } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ImageUploader } from "@/components/admin/ImageUploader";
 import { FaqEditor } from "@/components/admin/FaqEditor";
 import { supabase } from "@/integrations/supabase/client";
@@ -37,6 +38,14 @@ import {
   resolveCategoryOrder,
 } from "@/lib/property-images";
 import { suggestPropertyFaq } from "@/lib/property-faq";
+import {
+  EXPORT_PORTALS,
+  LISTING_CATEGORIES,
+  digitsOnly,
+  evaluateReadiness,
+  formatPostalCode,
+  isReady,
+} from "@/lib/property-export";
 
 export type PropertyRow = {
   id: string;
@@ -65,6 +74,27 @@ export type PropertyRow = {
   images: PropImage[] | string[] | null;
   image_category_order?: string[] | null;
   faq?: unknown;
+  // Endereço estruturado (exportação para portais)
+  street?: string | null;
+  street_number?: string | null;
+  complement?: string | null;
+  neighborhood?: string | null;
+  city?: string | null;
+  state?: string | null;
+  postal_code?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  // Valores lidos separadamente pelos portais
+  rent_price?: number | null;
+  condo_fee?: number | null;
+  iptu?: number | null;
+  year_built?: number | null;
+  living_rooms?: number | null;
+  // Controle de exportação
+  category?: string | null;
+  export_enabled?: boolean | null;
+  export_portals?: string[] | null;
+  listing_code?: string | null;
 };
 
 interface FormValues {
@@ -93,6 +123,23 @@ interface FormValues {
   images: PropImage[];
   image_category_order: string[];
   faq: FaqItem[];
+  street: string;
+  street_number: string;
+  complement: string;
+  neighborhood: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  latitude: string;
+  longitude: string;
+  rent_price: string;
+  condo_fee: string;
+  iptu: string;
+  year_built: string;
+  living_rooms: string;
+  category: string;
+  export_enabled: boolean;
+  export_portals: string[];
 }
 
 const empty: FormValues = {
@@ -121,6 +168,23 @@ const empty: FormValues = {
   images: [],
   image_category_order: [],
   faq: [],
+  street: "",
+  street_number: "",
+  complement: "",
+  neighborhood: "",
+  city: "Brasília",
+  state: "DF",
+  postal_code: "",
+  latitude: "",
+  longitude: "",
+  rent_price: "",
+  condo_fee: "",
+  iptu: "",
+  year_built: "",
+  living_rooms: "",
+  category: "padrao",
+  export_enabled: false,
+  export_portals: [],
 };
 
 function toForm(p: PropertyRow): FormValues {
@@ -152,6 +216,25 @@ function toForm(p: PropertyRow): FormValues {
       ? p.image_category_order.filter((c): c is string => typeof c === "string")
       : [],
     faq: normalizeFaq(p.faq),
+    street: p.street ?? "",
+    street_number: p.street_number ?? "",
+    complement: p.complement ?? "",
+    neighborhood: p.neighborhood ?? "",
+    city: p.city ?? "Brasília",
+    state: p.state ?? "DF",
+    postal_code: digitsOnly(p.postal_code),
+    latitude: p.latitude?.toString() ?? "",
+    longitude: p.longitude?.toString() ?? "",
+    rent_price: p.rent_price?.toString() ?? "",
+    condo_fee: p.condo_fee?.toString() ?? "",
+    iptu: p.iptu?.toString() ?? "",
+    year_built: p.year_built?.toString() ?? "",
+    living_rooms: p.living_rooms?.toString() ?? "",
+    category: p.category ?? "padrao",
+    export_enabled: p.export_enabled ?? false,
+    export_portals: Array.isArray(p.export_portals)
+      ? p.export_portals.filter((c): c is string => typeof c === "string")
+      : [],
   };
 }
 
@@ -175,10 +258,21 @@ function uuidOrNull(s: string | undefined | null): string | null {
   return t;
 }
 
-function toPayload(v: FormValues) {
+/**
+ * REGRA DE PREÇO (usada pelo gerador de XML na Etapa 2):
+ * - purpose = 'venda'   → `price` é o valor de VENDA.
+ * - purpose = 'aluguel' → `price` é o valor do ALUGUEL MENSAL.
+ * - `rent_price` só é preenchido quando o imóvel é de venda e também aceita
+ *   locação; com purpose = 'aluguel' ele é sempre gravado como null.
+ *
+ * `listing_code` NUNCA entra no payload — quem gera é o default da sequência
+ * `listing_code_seq` no banco.
+ */
+function toPayload(v: FormValues, ready: boolean) {
   const isTerreno = v.type === "terreno";
   const isApto = v.type === "apartamento";
   const isCasa = v.type === "casa";
+  const isVenda = v.purpose === "venda";
   return {
     title: v.title.trim(),
     slug: v.slug.trim() || slugify(v.title),
@@ -206,6 +300,27 @@ function toPayload(v: FormValues) {
     images: v.images,
     image_category_order: v.image_category_order,
     faq: v.faq,
+    // Endereço estruturado
+    street: v.street.trim() || null,
+    street_number: v.street_number.trim() || null,
+    complement: v.complement.trim() || null,
+    neighborhood: v.neighborhood.trim() || null,
+    // city e state são NOT NULL no banco — nunca gravar em branco.
+    city: v.city.trim() || "Brasília",
+    state: v.state.trim() || "DF",
+    postal_code: digitsOnly(v.postal_code) || null,
+    latitude: numOrNull(v.latitude),
+    longitude: numOrNull(v.longitude),
+    // Valores separados
+    rent_price: isVenda ? numOrNull(v.rent_price) : null,
+    condo_fee: numOrNull(v.condo_fee),
+    iptu: numOrNull(v.iptu),
+    year_built: intOrNull(v.year_built),
+    living_rooms: intOrNull(v.living_rooms),
+    category: v.category || "padrao",
+    // Anúncio incompleto nunca é exportado, independentemente da tela.
+    export_enabled: ready ? v.export_enabled : false,
+    export_portals: ready && v.export_enabled ? v.export_portals : [],
   };
 }
 
@@ -247,6 +362,39 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
   const price = watch("price");
   const address = watch("address");
   const isTerreno = type === "terreno";
+  const isVenda = purpose === "venda";
+
+  const description = watch("description");
+  const postalCode = watch("postal_code");
+  const neighborhood = watch("neighborhood");
+  const rentPrice = watch("rent_price");
+  const category = watch("category");
+  const exportEnabled = watch("export_enabled");
+  const exportPortals = watch("export_portals");
+
+  const readinessChecks = evaluateReadiness({
+    postal_code: postalCode,
+    neighborhood,
+    description,
+    imageCount: images.length,
+    title,
+    price,
+    rent_price: isVenda ? rentPrice : "",
+    export_portals: exportPortals,
+  });
+  const ready = isReady(readinessChecks);
+
+  // Anúncio que deixa de ser válido não pode continuar marcado para exportar.
+  useEffect(() => {
+    if (!ready && exportEnabled) setValue("export_enabled", false);
+  }, [ready, exportEnabled, setValue]);
+
+  const togglePortal = (value: string, checked: boolean) => {
+    const next = checked
+      ? [...exportPortals.filter((p) => p !== value), value]
+      : exportPortals.filter((p) => p !== value);
+    setValue("export_portals", next);
+  };
 
   useEffect(() => {
     if (!slugDirty) setValue("slug", slugify(title));
@@ -313,7 +461,12 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
 
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
-      const payload = toPayload(values);
+      if (values.export_enabled && values.export_portals.length === 0) {
+        throw new Error(
+          "Selecione ao menos um portal para exportar, ou desligue a exportação.",
+        );
+      }
+      const payload = toPayload(values, ready);
       if (!payload.title) throw new Error("Título é obrigatório");
       if (!payload.slug) throw new Error("Slug é obrigatório");
       if (isEdit && initialData) {
@@ -473,13 +626,70 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
             <Input id="address" {...register("address")} />
           </div>
 
+          <div className="space-y-4 rounded-lg border border-border bg-surface p-4">
+            <div className="space-y-1">
+              <h3 className="font-heading text-lg">Endereço</h3>
+              <p className="text-sm text-muted-foreground">
+                Bairro e CEP são obrigatórios para exportar o anúncio aos portais.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="street">Logradouro</Label>
+                <Input id="street" {...register("street")} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="street_number">Número</Label>
+                  <Input id="street_number" {...register("street_number")} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="complement">Complemento</Label>
+                  <Input id="complement" {...register("complement")} />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="neighborhood">Bairro *</Label>
+                <Input id="neighborhood" {...register("neighborhood")} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="postal_code">CEP *</Label>
+                <Input
+                  id="postal_code"
+                  inputMode="numeric"
+                  placeholder="00000-000"
+                  value={formatPostalCode(postalCode)}
+                  onChange={(e) => setValue("postal_code", digitsOnly(e.target.value))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="city">Cidade</Label>
+                <Input id="city" {...register("city")} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="state">Estado</Label>
+                <Input id="state" {...register("state")} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="latitude">Latitude (opcional)</Label>
+                <Input id="latitude" type="number" step="any" {...register("latitude")} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="longitude">Longitude (opcional)</Label>
+                <Input id="longitude" type="number" step="any" {...register("longitude")} />
+              </div>
+            </div>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="description">Descrição</Label>
             <Textarea id="description" rows={4} {...register("description")} />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="price">Preço</Label>
+            <Label htmlFor="price">
+              {isVenda ? "Valor de venda" : "Valor do aluguel (mensal)"}
+            </Label>
             <Input id="price" type="number" step="0.01" {...register("price")} />
           </div>
 
@@ -642,6 +852,107 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
               <Input id="virtual_tour_url" {...register("virtual_tour_url")} />
             </div>
           </div>
+
+          <div className="space-y-4 rounded-lg border border-border bg-surface p-4">
+            <div className="space-y-1">
+              <h3 className="font-heading text-lg">Exportação para portais</h3>
+              <p className="text-sm text-muted-foreground">
+                Código do anúncio nos portais:{" "}
+                <span className="font-medium text-foreground">
+                  {initialData?.listing_code ?? "gerado ao salvar"}
+                </span>
+              </p>
+            </div>
+
+            <div className="space-y-2 rounded-md border border-border bg-background p-3">
+              <p className="text-sm font-medium">Prontidão para exportação</p>
+              <ul className="space-y-1">
+                {readinessChecks.map((c) => (
+                  <li key={c.label} className="flex items-start gap-2 text-sm">
+                    {c.ok ? (
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
+                    ) : (
+                      <X className="mt-0.5 h-4 w-4 shrink-0 text-destructive" aria-hidden />
+                    )}
+                    <span className={c.ok ? "" : "text-muted-foreground"}>
+                      {c.label}{" "}
+                      <span className="text-xs text-muted-foreground">— {c.reason}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Portais</p>
+              {EXPORT_PORTALS.map((p) => (
+                <div key={p.value} className="flex items-center gap-3">
+                  <Checkbox
+                    id={`portal-${p.value}`}
+                    checked={exportPortals.includes(p.value)}
+                    onCheckedChange={(v) => togglePortal(p.value, v === true)}
+                  />
+                  <Label htmlFor={`portal-${p.value}`} className="cursor-pointer">
+                    {p.label}
+                  </Label>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Switch
+                checked={exportEnabled}
+                disabled={!ready}
+                onCheckedChange={(v) => setValue("export_enabled", v)}
+              />
+              <Label className="cursor-pointer">Exportar para portais</Label>
+            </div>
+            {!ready && (
+              <p className="text-sm text-muted-foreground">
+                Complete os itens acima para exportar
+              </p>
+            )}
+
+            <div className="space-y-2">
+              <Label>Categoria</Label>
+              <Select value={category} onValueChange={(v) => setValue("category", v)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {LISTING_CATEGORIES.map((c) => (
+                    <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {isVenda && (
+                <div className="space-y-2">
+                  <Label htmlFor="rent_price">
+                    Também aceita aluguel? Valor mensal (opcional)
+                  </Label>
+                  <Input id="rent_price" type="number" step="0.01" {...register("rent_price")} />
+                </div>
+              )}
+              <div className="space-y-2">
+                <Label htmlFor="condo_fee">Condomínio</Label>
+                <Input id="condo_fee" type="number" step="0.01" {...register("condo_fee")} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="iptu">IPTU</Label>
+                <Input id="iptu" type="number" step="0.01" {...register("iptu")} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="year_built">Ano de construção</Label>
+                <Input id="year_built" type="number" {...register("year_built")} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="living_rooms">Salas</Label>
+                <Input id="living_rooms" type="number" {...register("living_rooms")} />
+              </div>
+            </div>
+          </div>
+
 
           <div className="flex flex-wrap items-center gap-6 rounded-md border border-border bg-surface p-4">
             <div className="flex items-center gap-3">
