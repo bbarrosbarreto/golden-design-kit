@@ -35,7 +35,8 @@ Com o switch "Exportar para portais" **ligado**, o salvamento é bloqueado e o c
 
 - Título 10–100 caracteres
 - Descrição 50–3000 caracteres
-- Bairro, CEP (8 dígitos), Logradouro, Número, Cidade, Estado
+- Bairro, CEP (8 dígitos), Logradouro, Cidade, Estado
+- Número é opcional (placeholder "S/N se não houver"); no feed, número vazio omite a tag
 - Ao menos uma área (terreno / construída / útil, conforme o tipo)
 - Preço maior que zero (venda ou aluguel)
 - Mínimo 5 imagens
