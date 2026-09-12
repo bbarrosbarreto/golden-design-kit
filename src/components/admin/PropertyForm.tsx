@@ -914,16 +914,26 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
           {!isTerreno && (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
               <div className="space-y-2">
-                <Label htmlFor="bedrooms">Quartos</Label>
+                <Label htmlFor="bedrooms">
+                  Quartos{exportEnabled && " *"}
+                </Label>
                 <Input id="bedrooms" type="number" {...register("bedrooms")} />
+                {formState.errors.bedrooms?.message && (
+                  <p className="text-sm text-destructive">{formState.errors.bedrooms.message}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="suites">Suítes</Label>
                 <Input id="suites" type="number" {...register("suites")} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="bathrooms">Banheiros</Label>
+                <Label htmlFor="bathrooms">
+                  Banheiros{exportEnabled && " *"}
+                </Label>
                 <Input id="bathrooms" type="number" {...register("bathrooms")} />
+                {formState.errors.bathrooms?.message && (
+                  <p className="text-sm text-destructive">{formState.errors.bathrooms.message}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="parking_spots">Vagas</Label>
