@@ -423,6 +423,26 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
     setValue("export_portals", next);
   };
 
+  // Quando a exportação é desligada, limpa os erros de campos obrigatórios dela.
+  useEffect(() => {
+    if (!exportEnabled) {
+      clearErrors([
+        "title",
+        "description",
+        "neighborhood",
+        "postal_code",
+        "street",
+        "city",
+        "state",
+        "area",
+        "price",
+        "images",
+        "bedrooms",
+        "bathrooms",
+      ]);
+    }
+  }, [exportEnabled, clearErrors]);
+
   useEffect(() => {
     if (!slugDirty) setValue("slug", slugify(title));
   }, [title, slugDirty, setValue]);
