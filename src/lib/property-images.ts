@@ -26,6 +26,21 @@ export function propertyTypeLabel(type: string | null | undefined): string {
   return PROPERTY_TYPE_LABELS[type ?? ""] ?? "Imóvel";
 }
 
+/** Tipos que se comportam como apartamento (só área útil). */
+export function isApartmentType(type: string | null | undefined): boolean {
+  return type === "apartamento" || type === "cobertura";
+}
+
+/** Tipos que se comportam como casa (área do terreno, construída e útil). */
+export function isHouseType(type: string | null | undefined): boolean {
+  return (
+    type === "casa" ||
+    type === "casa_condominio" ||
+    type === "comercial" ||
+    type === "rural"
+  );
+}
+
 const COMMON_END = [
   { value: "planta", label: "Planta" },
   { value: "outros", label: "Outros" },
