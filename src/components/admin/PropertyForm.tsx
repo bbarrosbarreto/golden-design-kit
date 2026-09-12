@@ -943,7 +943,9 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
           )}
 
           <div className="space-y-2">
-            <Label>Imagens</Label>
+            <Label>
+              Imagens{exportEnabled && " *"}
+            </Label>
             <ImageUploader
               value={images}
               onChange={(urls) => setValue("images", urls)}
@@ -951,6 +953,9 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
               categories={categoriesFor(type)}
               onValidityChange={setImagesValid}
             />
+            {formState.errors.images?.message && (
+              <p className="text-sm text-destructive">{formState.errors.images.message}</p>
+            )}
           </div>
 
           {sectionOrder.length > 0 && (
