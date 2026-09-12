@@ -11,7 +11,9 @@
 - [x] Constraint de `type` com 7 valores e exclusão do BB1005 (aplicados pelo usuário)
 
 ## Etapa 2 — Rotas de feed XML
-- [ ] Gerar XML nos formatos DF Imóveis e ZAP/VivaReal/OLX
+- [x] Feed padrão ZAP em /feeds/zap.xml (gerador `feed-zap.ts`, portal dfimoveis)
+- [x] Checkbox Wimóveis em EXPORT_PORTALS (só dado, sem feed)
+- [ ] Feed Wimóveis (formato OpenNavent, gerador `feed-opennavent.ts` e rota própria)
 
 ## Etapa 3 — Integração e validação
 - [ ] Testar URLs de feed nos portais
