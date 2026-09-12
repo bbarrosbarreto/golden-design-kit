@@ -74,6 +74,27 @@ export type PropertyRow = {
   images: PropImage[] | string[] | null;
   image_category_order?: string[] | null;
   faq?: unknown;
+  // Endereço estruturado (exportação para portais)
+  street?: string | null;
+  street_number?: string | null;
+  complement?: string | null;
+  neighborhood?: string | null;
+  city?: string | null;
+  state?: string | null;
+  postal_code?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  // Valores lidos separadamente pelos portais
+  rent_price?: number | null;
+  condo_fee?: number | null;
+  iptu?: number | null;
+  year_built?: number | null;
+  living_rooms?: number | null;
+  // Controle de exportação
+  category?: string | null;
+  export_enabled?: boolean | null;
+  export_portals?: string[] | null;
+  listing_code?: string | null;
 };
 
 interface FormValues {
@@ -102,6 +123,23 @@ interface FormValues {
   images: PropImage[];
   image_category_order: string[];
   faq: FaqItem[];
+  street: string;
+  street_number: string;
+  complement: string;
+  neighborhood: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  latitude: string;
+  longitude: string;
+  rent_price: string;
+  condo_fee: string;
+  iptu: string;
+  year_built: string;
+  living_rooms: string;
+  category: string;
+  export_enabled: boolean;
+  export_portals: string[];
 }
 
 const empty: FormValues = {
@@ -130,6 +168,23 @@ const empty: FormValues = {
   images: [],
   image_category_order: [],
   faq: [],
+  street: "",
+  street_number: "",
+  complement: "",
+  neighborhood: "",
+  city: "Brasília",
+  state: "DF",
+  postal_code: "",
+  latitude: "",
+  longitude: "",
+  rent_price: "",
+  condo_fee: "",
+  iptu: "",
+  year_built: "",
+  living_rooms: "",
+  category: "padrao",
+  export_enabled: false,
+  export_portals: [],
 };
 
 function toForm(p: PropertyRow): FormValues {
@@ -161,6 +216,25 @@ function toForm(p: PropertyRow): FormValues {
       ? p.image_category_order.filter((c): c is string => typeof c === "string")
       : [],
     faq: normalizeFaq(p.faq),
+    street: p.street ?? "",
+    street_number: p.street_number ?? "",
+    complement: p.complement ?? "",
+    neighborhood: p.neighborhood ?? "",
+    city: p.city ?? "Brasília",
+    state: p.state ?? "DF",
+    postal_code: digitsOnly(p.postal_code),
+    latitude: p.latitude?.toString() ?? "",
+    longitude: p.longitude?.toString() ?? "",
+    rent_price: p.rent_price?.toString() ?? "",
+    condo_fee: p.condo_fee?.toString() ?? "",
+    iptu: p.iptu?.toString() ?? "",
+    year_built: p.year_built?.toString() ?? "",
+    living_rooms: p.living_rooms?.toString() ?? "",
+    category: p.category ?? "padrao",
+    export_enabled: p.export_enabled ?? false,
+    export_portals: Array.isArray(p.export_portals)
+      ? p.export_portals.filter((c): c is string => typeof c === "string")
+      : [],
   };
 }
 
@@ -184,10 +258,21 @@ function uuidOrNull(s: string | undefined | null): string | null {
   return t;
 }
 
-function toPayload(v: FormValues) {
+/**
+ * REGRA DE PREÇO (usada pelo gerador de XML na Etapa 2):
+ * - purpose = 'venda'   → `price` é o valor de VENDA.
+ * - purpose = 'aluguel' → `price` é o valor do ALUGUEL MENSAL.
+ * - `rent_price` só é preenchido quando o imóvel é de venda e também aceita
+ *   locação; com purpose = 'aluguel' ele é sempre gravado como null.
+ *
+ * `listing_code` NUNCA entra no payload — quem gera é o default da sequência
+ * `listing_code_seq` no banco.
+ */
+function toPayload(v: FormValues, ready: boolean) {
   const isTerreno = v.type === "terreno";
   const isApto = v.type === "apartamento";
   const isCasa = v.type === "casa";
+  const isVenda = v.purpose === "venda";
   return {
     title: v.title.trim(),
     slug: v.slug.trim() || slugify(v.title),
@@ -215,6 +300,27 @@ function toPayload(v: FormValues) {
     images: v.images,
     image_category_order: v.image_category_order,
     faq: v.faq,
+    // Endereço estruturado
+    street: v.street.trim() || null,
+    street_number: v.street_number.trim() || null,
+    complement: v.complement.trim() || null,
+    neighborhood: v.neighborhood.trim() || null,
+    // city e state são NOT NULL no banco — nunca gravar em branco.
+    city: v.city.trim() || "Brasília",
+    state: v.state.trim() || "DF",
+    postal_code: digitsOnly(v.postal_code) || null,
+    latitude: numOrNull(v.latitude),
+    longitude: numOrNull(v.longitude),
+    // Valores separados
+    rent_price: isVenda ? numOrNull(v.rent_price) : null,
+    condo_fee: numOrNull(v.condo_fee),
+    iptu: numOrNull(v.iptu),
+    year_built: intOrNull(v.year_built),
+    living_rooms: intOrNull(v.living_rooms),
+    category: v.category || "padrao",
+    // Anúncio incompleto nunca é exportado, independentemente da tela.
+    export_enabled: ready ? v.export_enabled : false,
+    export_portals: ready && v.export_enabled ? v.export_portals : [],
   };
 }
 
