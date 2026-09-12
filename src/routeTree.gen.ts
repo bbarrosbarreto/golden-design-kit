@@ -19,6 +19,7 @@ import { Route as ImoveisIndexRouteImport } from './routes/imoveis.index'
 import { Route as EmpreendimentosIndexRouteImport } from './routes/empreendimentos.index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as ImoveisSlugRouteImport } from './routes/imoveis.$slug'
+import { Route as FeedsZapDotxmlRouteImport } from './routes/feeds.zap[.]xml'
 import { Route as EmpreendimentosSlugRouteImport } from './routes/empreendimentos.$slug'
 import { Route as AdminRedefinirSenhaRouteImport } from './routes/admin/redefinir-senha'
 import { Route as AdminParceirosRouteImport } from './routes/admin/parceiros'
@@ -78,6 +79,11 @@ const ImoveisSlugRoute = ImoveisSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => ImoveisRoute,
 } as any)
+const FeedsZapDotxmlRoute = FeedsZapDotxmlRouteImport.update({
+  id: '/feeds/zap.xml',
+  path: '/feeds/zap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EmpreendimentosSlugRoute = EmpreendimentosSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -133,6 +139,7 @@ export interface FileRoutesByFullPath {
   '/admin/parceiros': typeof AdminParceirosRoute
   '/admin/redefinir-senha': typeof AdminRedefinirSenhaRoute
   '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
+  '/feeds/zap.xml': typeof FeedsZapDotxmlRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/empreendimentos/': typeof EmpreendimentosIndexRoute
@@ -151,6 +158,7 @@ export interface FileRoutesByTo {
   '/admin/parceiros': typeof AdminParceirosRoute
   '/admin/redefinir-senha': typeof AdminRedefinirSenhaRoute
   '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
+  '/feeds/zap.xml': typeof FeedsZapDotxmlRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
   '/admin': typeof AdminIndexRoute
   '/empreendimentos': typeof EmpreendimentosIndexRoute
@@ -172,6 +180,7 @@ export interface FileRoutesById {
   '/admin/parceiros': typeof AdminParceirosRoute
   '/admin/redefinir-senha': typeof AdminRedefinirSenhaRoute
   '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
+  '/feeds/zap.xml': typeof FeedsZapDotxmlRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/empreendimentos/': typeof EmpreendimentosIndexRoute
@@ -194,6 +203,7 @@ export interface FileRouteTypes {
     | '/admin/parceiros'
     | '/admin/redefinir-senha'
     | '/empreendimentos/$slug'
+    | '/feeds/zap.xml'
     | '/imoveis/$slug'
     | '/admin/'
     | '/empreendimentos/'
@@ -212,6 +222,7 @@ export interface FileRouteTypes {
     | '/admin/parceiros'
     | '/admin/redefinir-senha'
     | '/empreendimentos/$slug'
+    | '/feeds/zap.xml'
     | '/imoveis/$slug'
     | '/admin'
     | '/empreendimentos'
@@ -232,6 +243,7 @@ export interface FileRouteTypes {
     | '/admin/parceiros'
     | '/admin/redefinir-senha'
     | '/empreendimentos/$slug'
+    | '/feeds/zap.xml'
     | '/imoveis/$slug'
     | '/admin/'
     | '/empreendimentos/'
@@ -252,6 +264,7 @@ export interface RootRouteChildren {
   AdminLoginRoute: typeof AdminLoginRoute
   AdminParceirosRoute: typeof AdminParceirosRoute
   AdminRedefinirSenhaRoute: typeof AdminRedefinirSenhaRoute
+  FeedsZapDotxmlRoute: typeof FeedsZapDotxmlRoute
   AdminIndexRoute: typeof AdminIndexRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
 }
@@ -327,6 +340,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/imoveis/$slug'
       preLoaderRoute: typeof ImoveisSlugRouteImport
       parentRoute: typeof ImoveisRoute
+    }
+    '/feeds/zap.xml': {
+      id: '/feeds/zap.xml'
+      path: '/feeds/zap.xml'
+      fullPath: '/feeds/zap.xml'
+      preLoaderRoute: typeof FeedsZapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/empreendimentos/$slug': {
       id: '/empreendimentos/$slug'
@@ -427,6 +447,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminLoginRoute: AdminLoginRoute,
   AdminParceirosRoute: AdminParceirosRoute,
   AdminRedefinirSenhaRoute: AdminRedefinirSenhaRoute,
+  FeedsZapDotxmlRoute: FeedsZapDotxmlRoute,
   AdminIndexRoute: AdminIndexRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,
 }
