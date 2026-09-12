@@ -841,8 +841,12 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
           <div className="space-y-2">
             <Label htmlFor="price">
               {isVenda ? "Valor de venda" : "Valor do aluguel (mensal)"}
+              {exportEnabled && " *"}
             </Label>
             <Input id="price" type="number" step="0.01" {...register("price")} />
+            {formState.errors.price?.message && (
+              <p className="text-sm text-destructive">{formState.errors.price.message}</p>
+            )}
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
