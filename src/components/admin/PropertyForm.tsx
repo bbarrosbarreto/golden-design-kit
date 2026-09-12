@@ -480,6 +480,11 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
           "Selecione ao menos um portal para exportar, ou desligue a exportação.",
         );
       }
+      if (!isCategoryValidFor(values.type, values.category)) {
+        throw new Error(
+          "A categoria selecionada não é válida para este tipo de imóvel.",
+        );
+      }
       const payload = toPayload(values, ready);
       if (!payload.title) throw new Error("Título é obrigatório");
       if (!payload.slug) throw new Error("Slug é obrigatório");
@@ -577,9 +582,11 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
               <Select value={type} onValueChange={(v) => setValue("type", v as PropertyType)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="apartamento">Apartamento</SelectItem>
-                  <SelectItem value="casa">Casa</SelectItem>
-                  <SelectItem value="terreno">Terreno</SelectItem>
+                  {PROPERTY_TYPES.map((t) => (
+                    <SelectItem key={t.value} value={t.value}>
+                      {t.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
