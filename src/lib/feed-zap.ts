@@ -102,6 +102,7 @@ function tag(name: string, value: string | number): string {
 
 function tagOptional(name: string, value: string | number | null | undefined): string | null {
   if (value === null || value === undefined || value === "") return null;
+  if (typeof value === "string" && value.trim() === "") return null;
   return tag(name, value);
 }
 
