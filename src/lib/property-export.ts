@@ -10,6 +10,7 @@
 
 export const EXPORT_PORTALS = [
   { value: "dfimoveis", label: "DF Imóveis" },
+  { value: "wimoveis", label: "Wimóveis" },
   { value: "grupozap", label: "ZAP / VivaReal / OLX" },
 ] as const;
 
