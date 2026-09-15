@@ -301,7 +301,7 @@ function buildMultimidia(prop: FeedProperty, images: { url: string; category: st
 }
 
 function buildImovel(prop: FeedProperty, images: { url: string; category: string }[]): string {
-  const { idTipo, idSubTipo } = naventType(prop.type);
+  const { idTipo, idSubTipo } = naventType(prop.type, prop.category);
   const lines: (string | null)[] = [];
 
   const codigo = prop.listing_code ? stripAccents(prop.listing_code).slice(0, 100) : null;
