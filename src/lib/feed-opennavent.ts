@@ -76,6 +76,11 @@ type FeedProperty = {
   area: number | null;
   useful_area: number | null;
   built_area: number | null;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  suites: number | null;
+  parking_spots: number | null;
+  year_built: number | null;
   images: unknown;
   image_category_order: unknown;
   video_url: string | null;
@@ -102,6 +107,11 @@ const SELECT_COLUMNS = [
   "area",
   "useful_area",
   "built_area",
+  "bedrooms",
+  "bathrooms",
+  "suites",
+  "parking_spots",
+  "year_built",
   "images",
   "image_category_order",
   "video_url",
