@@ -21,10 +21,6 @@
 - [x] Bloco `<caracteristicas>` (quartos, banheiros, suítes, vagas, áreas, idade do imóvel)
 - [ ] Mapear `<idLocalidade>` do catálogo de localidades (etapa futura)
 
-## Etapa 2C — Características no feed OpenNavent
-- [ ] Bloco `<caracteristicas>` (quartos, banheiros, vagas, áreas) — depende do catálogo de códigos da API Navent autenticada (ex: CFT100), ainda não obtido
-- [ ] Trocar `NAVENT_CONTACT_EMAIL` (placeholder) pelo email real antes de o feed ir ao ar
-- [ ] Validar `NAVENT_TYPE_MAP`/`NAVENT_OPERATIONS` contra o endpoint /v1/tipopropriedade da Navent
 
 ## Etapa 2.5 — Ajustes de qualidade do feed ZAP
 - [x] Nunca emitir tag vazia no XML
