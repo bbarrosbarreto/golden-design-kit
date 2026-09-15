@@ -1,0 +1,14 @@
+[
+  {
+    "operacion": "ALQUILER"
+  },
+  {
+    "operacion": "ALQUILER_TEMPORAL"
+  },
+  {
+    "operacion": "TRASPASO"
+  },
+  {
+    "operacion": "VENTA"
+  }
+]

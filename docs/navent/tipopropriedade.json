@@ -1,0 +1,32 @@
+[
+  {
+    "id": "1005",
+    "categoria": "Comercial",
+    "idCategoria": "2",
+    "nombre": "Comercial"
+  },
+  {
+    "id": "2",
+    "categoria": "Residencial",
+    "idCategoria": "1",
+    "nombre": "Apartamento"
+  },
+  {
+    "id": "1",
+    "categoria": "Residencial",
+    "idCategoria": "1",
+    "nombre": "Casa"
+  },
+  {
+    "id": "1004",
+    "categoria": "Residencial",
+    "idCategoria": "1",
+    "nombre": "Rurais"
+  },
+  {
+    "id": "1003",
+    "categoria": "Residencial",
+    "idCategoria": "1",
+    "nombre": "Terreno"
+  }
+]

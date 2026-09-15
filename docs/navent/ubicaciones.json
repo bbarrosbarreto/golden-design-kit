@@ -1,0 +1,142 @@
+[
+  {
+    "id": "V1-B-241",
+    "nombre": "Acre",
+    "nombreCompleto": "Acre,Brasil"
+  },
+  {
+    "id": "V1-B-242",
+    "nombre": "Alagoas",
+    "nombreCompleto": "Alagoas,Brasil"
+  },
+  {
+    "id": "V1-B-243",
+    "nombre": "Amapá",
+    "nombreCompleto": "Amapá,Brasil"
+  },
+  {
+    "id": "V1-B-244",
+    "nombre": "Amazonas",
+    "nombreCompleto": "Amazonas,Brasil"
+  },
+  {
+    "id": "V1-B-245",
+    "nombre": "Bahia",
+    "nombreCompleto": "Bahia,Brasil"
+  },
+  {
+    "id": "V1-B-246",
+    "nombre": "Ceará",
+    "nombreCompleto": "Ceará,Brasil"
+  },
+  {
+    "id": "V1-B-247",
+    "nombre": "Distrito Federal",
+    "nombreCompleto": "Distrito Federal,Brasil"
+  },
+  {
+    "id": "V1-B-248",
+    "nombre": "Espírito Santo",
+    "nombreCompleto": "Espírito Santo,Brasil"
+  },
+  {
+    "id": "V1-B-249",
+    "nombre": "Goiás",
+    "nombreCompleto": "Goiás,Brasil"
+  },
+  {
+    "id": "V1-B-250",
+    "nombre": "Maranhão",
+    "nombreCompleto": "Maranhão,Brasil"
+  },
+  {
+    "id": "V1-B-251",
+    "nombre": "Mato Grosso",
+    "nombreCompleto": "Mato Grosso,Brasil"
+  },
+  {
+    "id": "V1-B-252",
+    "nombre": "Mato Grosso Do Sul",
+    "nombreCompleto": "Mato Grosso Do Sul,Brasil"
+  },
+  {
+    "id": "V1-B-253",
+    "nombre": "Minas Gerais",
+    "nombreCompleto": "Minas Gerais,Brasil"
+  },
+  {
+    "id": "V1-B-4000",
+    "nombre": "Outros Paises",
+    "nombreCompleto": "Outros Paises,Brasil"
+  },
+  {
+    "id": "V1-B-256",
+    "nombre": "Paraná",
+    "nombreCompleto": "Paraná,Brasil"
+  },
+  {
+    "id": "V1-B-255",
+    "nombre": "Paraíba",
+    "nombreCompleto": "Paraíba,Brasil"
+  },
+  {
+    "id": "V1-B-254",
+    "nombre": "Pará",
+    "nombreCompleto": "Pará,Brasil"
+  },
+  {
+    "id": "V1-B-257",
+    "nombre": "Pernambuco",
+    "nombreCompleto": "Pernambuco,Brasil"
+  },
+  {
+    "id": "V1-B-258",
+    "nombre": "Piauí",
+    "nombreCompleto": "Piauí,Brasil"
+  },
+  {
+    "id": "V1-B-259",
+    "nombre": "Rio De Janeiro",
+    "nombreCompleto": "Rio De Janeiro,Brasil"
+  },
+  {
+    "id": "V1-B-260",
+    "nombre": "Rio Grande Do Norte",
+    "nombreCompleto": "Rio Grande Do Norte,Brasil"
+  },
+  {
+    "id": "V1-B-261",
+    "nombre": "Rio Grande Do Sul",
+    "nombreCompleto": "Rio Grande Do Sul,Brasil"
+  },
+  {
+    "id": "V1-B-262",
+    "nombre": "Rondônia",
+    "nombreCompleto": "Rondônia,Brasil"
+  },
+  {
+    "id": "V1-B-263",
+    "nombre": "Roraima",
+    "nombreCompleto": "Roraima,Brasil"
+  },
+  {
+    "id": "V1-B-264",
+    "nombre": "Santa Catarina",
+    "nombreCompleto": "Santa Catarina,Brasil"
+  },
+  {
+    "id": "V1-B-266",
+    "nombre": "Sergipe",
+    "nombreCompleto": "Sergipe,Brasil"
+  },
+  {
+    "id": "V1-B-265",
+    "nombre": "São Paulo",
+    "nombreCompleto": "São Paulo,Brasil"
+  },
+  {
+    "id": "V1-B-267",
+    "nombre": "Tocantins",
+    "nombreCompleto": "Tocantins,Brasil"
+  }
+]

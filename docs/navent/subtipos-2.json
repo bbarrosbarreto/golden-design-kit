@@ -1,0 +1,38 @@
+[
+  {
+    "id": "26",
+    "nombre": "Cobertura"
+  },
+  {
+    "id": "34",
+    "nombre": "Duplex"
+  },
+  {
+    "id": "4",
+    "nombre": "Flat"
+  },
+  {
+    "id": "38",
+    "nombre": "Garden"
+  },
+  {
+    "id": "2",
+    "nombre": "Kitchenette/Studio"
+  },
+  {
+    "id": "3",
+    "nombre": "Loft"
+  },
+  {
+    "id": "1",
+    "nombre": "Padrão"
+  },
+  {
+    "id": "36",
+    "nombre": "Quarto"
+  },
+  {
+    "id": "35",
+    "nombre": "Triplex"
+  }
+]

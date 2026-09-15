@@ -1,0 +1,70 @@
+[
+  {
+    "id": "30",
+    "nombre": "Andar"
+  },
+  {
+    "id": "14",
+    "nombre": "Box/Garagem"
+  },
+  {
+    "id": "17",
+    "nombre": "Casa Comercial"
+  },
+  {
+    "id": "29",
+    "nombre": "Clínica"
+  },
+  {
+    "id": "16",
+    "nombre": "Conjunto Comercial/sala"
+  },
+  {
+    "id": "28",
+    "nombre": "Consultório"
+  },
+  {
+    "id": "20",
+    "nombre": "Galpão/Depósito/Barracão"
+  },
+  {
+    "id": "22",
+    "nombre": "Hotel"
+  },
+  {
+    "id": "25",
+    "nombre": "Indústria"
+  },
+  {
+    "id": "18",
+    "nombre": "Loja de Shopping/Centro Comercial"
+  },
+  {
+    "id": "19",
+    "nombre": "Loja/Salão"
+  },
+  {
+    "id": "23",
+    "nombre": "Motel"
+  },
+  {
+    "id": "31",
+    "nombre": "Ponto Comercial"
+  },
+  {
+    "id": "24",
+    "nombre": "Pousada/Chalé"
+  },
+  {
+    "id": "15",
+    "nombre": "Prédio Inteiro"
+  },
+  {
+    "id": "32",
+    "nombre": "Área Comercial"
+  },
+  {
+    "id": "27",
+    "nombre": "Área Industrial"
+  }
+]
