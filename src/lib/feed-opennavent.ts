@@ -34,6 +34,11 @@ const NAVENT_TYPE_MAP: Record<string, { idTipo: string; idSubTipo: string }> = {
   rural: { idTipo: "1004", idSubTipo: "10" }, // Rurais / Chácara
 };
 
+// Subtipos que dependem da categoria do anúncio (docs/navent/subtipos-*.json).
+const NAVENT_SUBTIPO_COBERTURA = "26"; // Apartamento / Cobertura
+const NAVENT_SUBTIPO_SOBRADO = "33"; // Casa / Sobrado
+// Não existe subtipo "Térrea" no catálogo: cai em Casa / Padrão (5).
+
 // /v1/operacoes devolve os nomes em espanhol mesmo no catálogo brasileiro.
 const NAVENT_OPERATIONS = { venda: "VENTA", aluguel: "ALQUILER" } as const;
 
