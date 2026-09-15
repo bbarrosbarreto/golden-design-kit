@@ -34,6 +34,11 @@ const NAVENT_TYPE_MAP: Record<string, { idTipo: string; idSubTipo: string }> = {
   rural: { idTipo: "1004", idSubTipo: "10" }, // Rurais / Chácara
 };
 
+// Subtipos que dependem da categoria do anúncio (docs/navent/subtipos-*.json).
+const NAVENT_SUBTIPO_COBERTURA = "26"; // Apartamento / Cobertura
+const NAVENT_SUBTIPO_SOBRADO = "33"; // Casa / Sobrado
+// Não existe subtipo "Térrea" no catálogo: cai em Casa / Padrão (5).
+
 // /v1/operacoes devolve os nomes em espanhol mesmo no catálogo brasileiro.
 const NAVENT_OPERATIONS = { venda: "VENTA", aluguel: "ALQUILER" } as const;
 
@@ -61,6 +66,7 @@ type FeedProperty = {
   slug: string | null;
   title: string | null;
   type: string | null;
+  category: string | null;
   state: string | null;
   city: string | null;
   neighborhood: string | null;
@@ -92,6 +98,7 @@ const SELECT_COLUMNS = [
   "slug",
   "title",
   "type",
+  "category",
   "state",
   "city",
   "neighborhood",
@@ -149,8 +156,19 @@ function extractYouTubeId(url: string): string | null {
   return null;
 }
 
-function naventType(type: string | null): { idTipo: string; idSubTipo: string } {
-  return NAVENT_TYPE_MAP[type ?? ""] ?? NAVENT_TYPE_MAP.apartamento;
+function naventType(
+  type: string | null,
+  category: string | null,
+): { idTipo: string; idSubTipo: string } {
+  const base = NAVENT_TYPE_MAP[type ?? ""] ?? NAVENT_TYPE_MAP.apartamento;
+  const cat = category ?? "";
+  if (type === "apartamento" && cat.startsWith("cobertura")) {
+    return { idTipo: base.idTipo, idSubTipo: NAVENT_SUBTIPO_COBERTURA };
+  }
+  if (type === "casa" && cat.startsWith("sobrado")) {
+    return { idTipo: base.idTipo, idSubTipo: NAVENT_SUBTIPO_SOBRADO };
+  }
+  return base;
 }
 
 /**
@@ -283,7 +301,7 @@ function buildMultimidia(prop: FeedProperty, images: { url: string; category: st
 }
 
 function buildImovel(prop: FeedProperty, images: { url: string; category: string }[]): string {
-  const { idTipo, idSubTipo } = naventType(prop.type);
+  const { idTipo, idSubTipo } = naventType(prop.type, prop.category);
   const lines: (string | null)[] = [];
 
   const codigo = prop.listing_code ? stripAccents(prop.listing_code).slice(0, 100) : null;
