@@ -154,8 +154,19 @@ function extractYouTubeId(url: string): string | null {
   return null;
 }
 
-function naventType(type: string | null): { idTipo: string; idSubTipo: string } {
-  return NAVENT_TYPE_MAP[type ?? ""] ?? NAVENT_TYPE_MAP.apartamento;
+function naventType(
+  type: string | null,
+  category: string | null,
+): { idTipo: string; idSubTipo: string } {
+  const base = NAVENT_TYPE_MAP[type ?? ""] ?? NAVENT_TYPE_MAP.apartamento;
+  const cat = category ?? "";
+  if (type === "apartamento" && cat.startsWith("cobertura")) {
+    return { idTipo: base.idTipo, idSubTipo: NAVENT_SUBTIPO_COBERTURA };
+  }
+  if (type === "casa" && cat.startsWith("sobrado")) {
+    return { idTipo: base.idTipo, idSubTipo: NAVENT_SUBTIPO_SOBRADO };
+  }
+  return base;
 }
 
 /**
