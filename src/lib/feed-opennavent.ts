@@ -15,25 +15,39 @@ import {
 } from "./feed-common";
 
 // ============================================================================
-// VALORES PROVISÓRIOS — ponto único de troca.
+// IDS OFICIAIS DO CATÁLOGO DA NAVENT — ponto único de troca.
 //
-// Os nomes oficiais de tipo/subTipo vêm do endpoint /v1/tipopropriedade da
-// API da Navent, que exige credencial ainda não obtida. A mesma pendência
-// vale para `operacao`, que pode ser "Venda"/"Aluguel" ou "VENTA"/"ALQUILER"
-// conforme o catálogo deles. Quando a credencial chegar, ajuste APENAS os
-// dois objetos abaixo — o restante do gerador não muda.
+// Fonte: GET /v1/tipopropriedade, /v1/tipopropriedade/{id}/subtipos e
+// /v1/operacoes, consultados em 15/09/2026. Os JSON estão em docs/navent/
+// e o de-para completo está em docs/navent/README.md.
+//
+// A documentação recomenda enviar os IDS numéricos (idTipo/idSubTipo) em vez
+// dos nomes, porque nome está sujeito a erro de ortografia.
 // ============================================================================
-const NAVENT_TYPE_MAP: Record<string, { tipo: string; subTipo: string }> = {
-  apartamento: { tipo: "Apartamento", subTipo: "Padrão" },
-  cobertura: { tipo: "Apartamento", subTipo: "Cobertura" },
-  casa: { tipo: "Casa", subTipo: "Padrão" },
-  casa_condominio: { tipo: "Casa", subTipo: "Condominio" },
-  terreno: { tipo: "Terreno", subTipo: "Padrão" },
-  comercial: { tipo: "Comercial", subTipo: "Padrão" },
-  rural: { tipo: "Chácara", subTipo: "Padrão" },
+const NAVENT_TYPE_MAP: Record<string, { idTipo: string; idSubTipo: string }> = {
+  apartamento: { idTipo: "2", idSubTipo: "1" }, // Apartamento / Padrão
+  cobertura: { idTipo: "2", idSubTipo: "26" }, // Apartamento / Cobertura
+  casa: { idTipo: "1", idSubTipo: "5" }, // Casa / Padrão
+  casa_condominio: { idTipo: "1", idSubTipo: "6" }, // Casa / Casa de Condomínio
+  terreno: { idTipo: "1003", idSubTipo: "8" }, // Terreno / Terreno Padrão
+  comercial: { idTipo: "1005", idSubTipo: "16" }, // Comercial / Conjunto Comercial/sala
+  rural: { idTipo: "1004", idSubTipo: "10" }, // Rurais / Chácara
 };
 
-const NAVENT_OPERATIONS = { venda: "Venda", aluguel: "Aluguel" } as const;
+// /v1/operacoes devolve os nomes em espanhol mesmo no catálogo brasileiro.
+const NAVENT_OPERATIONS = { venda: "VENTA", aluguel: "ALQUILER" } as const;
+
+// Características numéricas (todas "Campo numerico abierto" → usam <valor>).
+// Ver docs/navent/README.md para o nome oficial de cada id.
+const NAVENT_FEATURES = {
+  quartos: "CFT2", // PRINCIPALES|QUARTO
+  banheiros: "CFT3", // PRINCIPALES|BANHEIRO
+  suites: "CFT4", // PRINCIPALES|SUITE
+  vagas: "CFT7", // PRINCIPALES|VAGA
+  areaTotal: "CFT100", // MEDIDAS|AREA_TOTAL
+  areaUtil: "CFT101", // MEDIDAS|AREA_UTIL
+  idadeImovel: "CFT5", // PRINCIPALES|IDADE_DO_IMOVEL (idade em anos, não o ano)
+} as const;
 
 // ATENÇÃO: o feed do Wimóveis NÃO deve ir ao ar antes de trocar o valor
 // abaixo pelo email real — é o endereço para onde o portal envia os leads.
@@ -62,6 +76,11 @@ type FeedProperty = {
   area: number | null;
   useful_area: number | null;
   built_area: number | null;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  suites: number | null;
+  parking_spots: number | null;
+  year_built: number | null;
   images: unknown;
   image_category_order: unknown;
   video_url: string | null;
@@ -88,6 +107,11 @@ const SELECT_COLUMNS = [
   "area",
   "useful_area",
   "built_area",
+  "bedrooms",
+  "bathrooms",
+  "suites",
+  "parking_spots",
+  "year_built",
   "images",
   "image_category_order",
   "video_url",
@@ -125,8 +149,46 @@ function extractYouTubeId(url: string): string | null {
   return null;
 }
 
-function naventType(type: string | null): { tipo: string; subTipo: string } {
+function naventType(type: string | null): { idTipo: string; idSubTipo: string } {
   return NAVENT_TYPE_MAP[type ?? ""] ?? NAVENT_TYPE_MAP.apartamento;
+}
+
+/**
+ * Bloco <caracteristicas> com os ids oficiais do catálogo (docs/navent/).
+ * Cada valor nulo é omitido; nenhum id fora do catálogo é emitido.
+ */
+function buildCaracteristicas(prop: FeedProperty): string | null {
+  const itens: string[] = [];
+  const add = (id: string, value: number | null) => {
+    if (value === null || !Number.isFinite(value) || value < 0) return;
+    itens.push(
+      [
+        "        <caracteristica>",
+        `          <id>${id}</id>`,
+        `          <valor>${value}</valor>`,
+        "        </caracteristica>",
+      ].join("\n"),
+    );
+  };
+
+  add(NAVENT_FEATURES.quartos, intOrNull(prop.bedrooms));
+  add(NAVENT_FEATURES.banheiros, intOrNull(prop.bathrooms));
+  add(NAVENT_FEATURES.suites, intOrNull(prop.suites));
+  add(NAVENT_FEATURES.vagas, intOrNull(prop.parking_spots));
+  add(NAVENT_FEATURES.areaTotal, intOrNull(prop.area));
+  add(NAVENT_FEATURES.areaUtil, intOrNull(prop.useful_area ?? prop.built_area));
+
+  // CFT5 é IDADE_DO_IMOVEL (anos), não o ano de construção.
+  const ano = intOrNull(prop.year_built);
+  if (ano !== null && ano >= 1900) {
+    const idade = new Date().getFullYear() - ano;
+    if (idade >= 0) add(NAVENT_FEATURES.idadeImovel, idade);
+  }
+
+  // living_rooms não é enviado: não há característica equivalente no catálogo.
+
+  if (itens.length === 0) return null;
+  return ["      <caracteristicas>", ...itens, "      </caracteristicas>"].join("\n");
 }
 
 function buildPrecos(prop: FeedProperty): string | null {
@@ -221,7 +283,7 @@ function buildMultimidia(prop: FeedProperty, images: { url: string; category: st
 }
 
 function buildImovel(prop: FeedProperty, images: { url: string; category: string }[]): string {
-  const { tipo, subTipo } = naventType(prop.type);
+  const { idTipo, idSubTipo } = naventType(prop.type);
   const lines: (string | null)[] = [];
 
   const codigo = prop.listing_code ? stripAccents(prop.listing_code).slice(0, 100) : null;
@@ -236,12 +298,13 @@ function buildImovel(prop: FeedProperty, images: { url: string; category: string
   lines.push(
     [
       "      <tipoPropriedade>",
-      `        <tipo>${cdata(tipo)}</tipo>`,
-      `        <subTipo>${cdata(subTipo)}</subTipo>`,
+      `        <idTipo>${idTipo}</idTipo>`,
+      `        <idSubTipo>${idSubTipo}</idSubTipo>`,
       "      </tipoPropriedade>",
     ].join("\n"),
   );
   lines.push(buildPrecos(prop));
+  lines.push(buildCaracteristicas(prop));
   lines.push(buildLocalizacao(prop));
   lines.push(buildMultimidia(prop, images));
   lines.push(

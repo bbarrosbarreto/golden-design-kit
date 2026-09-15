@@ -1,0 +1,162 @@
+{
+  "id": "V1-B-247",
+  "nombre": "Distrito Federal",
+  "nombreCompleto": "Distrito Federal,Brasil",
+  "localidades": [
+    {
+      "id": "V1-C-356",
+      "nombre": "Abadiania",
+      "nombreCompleto": "Abadiania,Distrito Federal,Brasil"
+    },
+    {
+      "id": "V1-C-1112881",
+      "nombre": "Arapoanga",
+      "nombreCompleto": "Arapoanga,Distrito Federal,Brasil"
+    },
+    {
+      "id": "V1-C-1112877",
+      "nombre": "Arniqueira",
+      "nombreCompleto": "Arniqueira,Distrito Federal,Brasil"
+    },
+    {
+      "id": "V1-C-99998",
+      "nombre": "Brasília",
+      "nombreCompleto": "Brasília,Distrito Federal,Brasil"
+    },
+    {
+      "id": "V1-C-99997",
+      "nombre": "Brazlândia",
+      "nombreCompleto": "Brazlândia,Distrito Federal,Brasil"
+    },
+    {
+      "id": "V1-C-99996",
+      "nombre": "Candangolândia",
+      "nombreCompleto": "Candangolândia,Distrito Federal,Brasil"
+    },
+    {
+      "id": "V1-C-99995",
+      "nombre": "Ceilândia",
+      "nombreCompleto": "Ceilândia,Distrito Federal,Brasil"
+    },
+    {
+      "id": "V1-C-99994",
+      "nombre": "Cruzeiro",
+      "nombreCompleto": "Cruzeiro,Distrito Federal,Brasil"
+    },
+    {
+      "id": "V1-C-1112869",
+      "nombre": "Fercal",
+      "nombreCompleto": "Fercal,Distrito Federal,Brasil"
+    },
+    {
+      "id": "V1-C-99993",
+      "nombre": "Gama",
+      "nombreCompleto": "Gama,Distrito Federal,Brasil"
+    },
+    {
+      "id": "V1-C-99992",
+      "nombre": "Guará",
+      "nombreCompleto": "Guará,Distrito Federal,Brasil"
+    },
+    {
+      "id": "V1-C-1112875",
+      "nombre": "Itapoã",
+      "nombreCompleto": "Itapoã,Distrito Federal,Brasil"
+    },
+    {
+      "id": "V1-C-1112879",
+      "nombre": "Jardim Botânico",
+      "nombreCompleto": "Jardim Botânico,Distrito Federal,Brasil"
+    },
+    {
+      "id": "V1-C-3211",
+      "nombre": "Miami",
+      "nombreCompleto": "Miami,Distrito Federal,Brasil"
+    },
+    {
+      "id": "V1-C-99991",
+      "nombre": "Núcleo Bandeirante",
+      "nombreCompleto": "Núcleo Bandeirante,Distrito Federal,Brasil"
+    },
+    {
+      "id": "V1-C-99990",
+      "nombre": "Paranoá",
+      "nombreCompleto": "Paranoá,Distrito Federal,Brasil"
+    },
+    {
+      "id": "V1-C-112715",
+      "nombre": "Park",
+      "nombreCompleto": "Park,Distrito Federal,Brasil"
+    },
+    {
+      "id": "V1-C-99988",
+      "nombre": "Planaltina",
+      "nombreCompleto": "Planaltina,Distrito Federal,Brasil"
+    },
+    {
+      "id": "V1-C-99987",
+      "nombre": "Recanto das Emas",
+      "nombreCompleto": "Recanto das Emas,Distrito Federal,Brasil"
+    },
+    {
+      "id": "V1-C-99986",
+      "nombre": "Riacho Fundo",
+      "nombreCompleto": "Riacho Fundo,Distrito Federal,Brasil"
+    },
+    {
+      "id": "V1-C-99985",
+      "nombre": "Samambaia",
+      "nombreCompleto": "Samambaia,Distrito Federal,Brasil"
+    },
+    {
+      "id": "V1-C-99984",
+      "nombre": "Santa Maria",
+      "nombreCompleto": "Santa Maria,Distrito Federal,Brasil"
+    },
+    {
+      "id": "V1-C-833",
+      "nombre": "Setor Industrial",
+      "nombreCompleto": "Setor Industrial,Distrito Federal,Brasil"
+    },
+    {
+      "id": "V1-C-99982",
+      "nombre": "Sobradinho",
+      "nombreCompleto": "Sobradinho,Distrito Federal,Brasil"
+    },
+    {
+      "id": "V1-C-99983",
+      "nombre": "São Sebastião",
+      "nombreCompleto": "São Sebastião,Distrito Federal,Brasil"
+    },
+    {
+      "id": "V1-C-99981",
+      "nombre": "Taguatinga",
+      "nombreCompleto": "Taguatinga,Distrito Federal,Brasil"
+    },
+    {
+      "id": "V1-C-630",
+      "nombre": "Varjão",
+      "nombreCompleto": "Varjão,Distrito Federal,Brasil"
+    },
+    {
+      "id": "V1-C-99980",
+      "nombre": "Vicente Pires",
+      "nombreCompleto": "Vicente Pires,Distrito Federal,Brasil"
+    },
+    {
+      "id": "V1-C-2869",
+      "nombre": "Vila Estrutural",
+      "nombreCompleto": "Vila Estrutural,Distrito Federal,Brasil"
+    },
+    {
+      "id": "V1-C-2967",
+      "nombre": "Vila Planalto",
+      "nombreCompleto": "Vila Planalto,Distrito Federal,Brasil"
+    },
+    {
+      "id": "V1-C-99999",
+      "nombre": "Águas Claras",
+      "nombreCompleto": "Águas Claras,Distrito Federal,Brasil"
+    }
+  ]
+}

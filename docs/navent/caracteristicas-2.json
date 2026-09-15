@@ -1,0 +1,1715 @@
+[
+  {
+    "categoria": "Principales",
+    "id": "CFT5",
+    "alias": [
+      "ANTIGUEDAD",
+      "IDADE_DO_IMOVEL",
+      "PRINCIPALES|ANTIGUEDAD"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Campo numerico abierto",
+      "valoresAdmitidos": null
+    },
+    "nombre": "PRINCIPALES|IDADE_DO_IMOVEL"
+  },
+  {
+    "categoria": "Principales",
+    "id": "CFT4",
+    "alias": [
+      "MEDIOS_BANOS",
+      "SUITE",
+      "PRINCIPALES|MEDIOS_BANOS"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Campo numerico abierto",
+      "valoresAdmitidos": null
+    },
+    "nombre": "PRINCIPALES|SUITE"
+  },
+  {
+    "categoria": "Principales",
+    "id": "CFT3",
+    "alias": [
+      "BANOS",
+      "BANHEIRO",
+      "PRINCIPALES|BANOS"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Campo numerico abierto",
+      "valoresAdmitidos": null
+    },
+    "nombre": "PRINCIPALES|BANHEIRO"
+  },
+  {
+    "categoria": "Principales",
+    "id": "CFT2",
+    "alias": [
+      "HABITACIONES",
+      "QUARTO",
+      "PRINCIPALES|HABITACIONES"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Campo numerico abierto",
+      "valoresAdmitidos": null
+    },
+    "nombre": "PRINCIPALES|QUARTO"
+  },
+  {
+    "categoria": "Principales",
+    "id": "CFT400",
+    "alias": [
+      "IPTU"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Campo numerico abierto",
+      "valoresAdmitidos": null
+    },
+    "nombre": "PRINCIPALES|IPTU"
+  },
+  {
+    "categoria": "Principales",
+    "id": "CFT7",
+    "alias": [
+      "GARAGE",
+      "VAGA",
+      "PRINCIPALES|GARAGE"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Campo numerico abierto",
+      "valoresAdmitidos": null
+    },
+    "nombre": "PRINCIPALES|VAGA"
+  },
+  {
+    "categoria": "Principales",
+    "id": "CFT6",
+    "alias": [
+      "EXPENSAS",
+      "CONDOMINIO",
+      "PRINCIPALES|EXPENSAS"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Campo numerico abierto",
+      "valoresAdmitidos": null
+    },
+    "nombre": "PRINCIPALES|CONDOMINIO"
+  },
+  {
+    "categoria": "Generales",
+    "id": "10088",
+    "alias": [
+      "ESTUDA_PERMUTA",
+      "ACEITA_PERMUTA",
+      "GENERALES|ESTUDA_PERMUTA"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "GENERALES|ACEITA_PERMUTA"
+  },
+  {
+    "categoria": "Generales",
+    "id": "2000199",
+    "alias": [
+      "COMPLEMENTO"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Campo abierto",
+      "valoresAdmitidos": null
+    },
+    "nombre": "GENERALES|COMPLEMENTO"
+  },
+  {
+    "categoria": "Medidas",
+    "id": "CFT101",
+    "alias": [
+      "SUPERFICIE_CUBIERTA",
+      "AREA_UTIL",
+      "MEDIDAS|SUPERFICIE_CUBIERTA"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Campo numerico abierto",
+      "valoresAdmitidos": null
+    },
+    "nombre": "MEDIDAS|AREA_UTIL"
+  },
+  {
+    "categoria": "Medidas",
+    "id": "CFT100",
+    "alias": [
+      "SUPERFICIE_TOTAL",
+      "AREA_TOTAL",
+      "MEDIDAS|SUPERFICIE_TOTAL"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Campo numerico abierto",
+      "valoresAdmitidos": null
+    },
+    "nombre": "MEDIDAS|AREA_TOTAL"
+  },
+  {
+    "categoria": "Medidas",
+    "id": "CON1",
+    "alias": [
+      "UNIDAD_DE_MEDIDA"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Select",
+      "valoresAdmitidos": [
+        {
+          "idValor": "HA",
+          "nombre": "Hectáreas"
+        },
+        {
+          "idValor": "M2",
+          "nombre": "Metro Cuadrado"
+        }
+      ]
+    },
+    "nombre": "MEDIDAS|UNIDAD_DE_MEDIDA"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20010",
+    "alias": [
+      "AQUECEDOR"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|AQUECEDOR"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20011",
+    "alias": [
+      "AQUECIMENTO_CENTRAL"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|AQUECIMENTO_CENTRAL"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20012",
+    "alias": [
+      "AR_CONDICIONADO"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|AR_CONDICIONADO"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20017",
+    "alias": [
+      "AREA_DE_SERVIÇO"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|AREA_DE_SERVIÇO"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20026",
+    "alias": [
+      "BIBLIOTECA"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|BIBLIOTECA"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20048",
+    "alias": [
+      "CHURRASQUEIRA"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|CHURRASQUEIRA"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20050",
+    "alias": [
+      "CLOSET"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|CLOSET"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20056",
+    "alias": [
+      "COZINHA_AMERICANA"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|COZINHA_AMERICANA"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20057",
+    "alias": [
+      "COZINHA_GOURMET"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|COZINHA_GOURMET"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20058",
+    "alias": [
+      "COZINHA_INDEPENDENTE"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|COZINHA_INDEPENDENTE"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20062",
+    "alias": [
+      "DEPENDÊNCIA_DE_EMPREGADOS"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|DEPENDÊNCIA_DE_EMPREGADOS"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20065",
+    "alias": [
+      "DESPENSA"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|DESPENSA"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20074",
+    "alias": [
+      "ENTRADA_DE_SERVIÇO"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|ENTRADA_DE_SERVIÇO"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20077",
+    "alias": [
+      "ESCRITORIO"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|ESCRITORIO"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20080",
+    "alias": [
+      "ESPAÇO_GOURMET"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|ESPAÇO_GOURMET"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20212",
+    "alias": [
+      "FREEZER"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|FREEZER"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20213",
+    "alias": [
+      "GELADEIRA"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|GELADEIRA"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20106",
+    "alias": [
+      "HIDROMASSAGEM"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|HIDROMASSAGEM"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20109",
+    "alias": [
+      "INTERNET_WIRELESS"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|INTERNET_WIRELESS"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20114",
+    "alias": [
+      "LAREIRA"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|LAREIRA"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20116",
+    "alias": [
+      "LAVA-LOUÇA"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|LAVA-LOUÇA"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20117",
+    "alias": [
+      "LAVANDERIA"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|LAVANDERIA"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20124",
+    "alias": [
+      "MEZANINO"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|MEZANINO"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20125",
+    "alias": [
+      "MICROONDAS"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|MICROONDAS"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20126",
+    "alias": [
+      "MOBILIADO"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|MOBILIADO"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20135",
+    "alias": [
+      "PERMITE_ANIMAIS"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|PERMITE_ANIMAIS"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20140",
+    "alias": [
+      "PISCINA"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|PISCINA"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20152",
+    "alias": [
+      "PLAYGROUND"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|PLAYGROUND"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20214",
+    "alias": [
+      "ROUPA_DE_CAMA"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|ROUPA_DE_CAMA"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20177",
+    "alias": [
+      "SALA_DE_JANTAR"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|SALA_DE_JANTAR"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20184",
+    "alias": [
+      "SISTEMA_DE_ALARME"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|SISTEMA_DE_ALARME"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20230",
+    "alias": [
+      "SUITE",
+      "SUITES",
+      "AREA_PRIVATIVA|SUITE"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|SUITES"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20216",
+    "alias": [
+      "TELEFONE"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|TELEFONE"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20217",
+    "alias": [
+      "TV"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|TV"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20199",
+    "alias": [
+      "VARANDA"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|VARANDA"
+  },
+  {
+    "categoria": "Unidades de Desarrollo",
+    "id": "CFT300",
+    "alias": [
+      "UNIDADES_DISPONIBLES"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Campo numerico abierto",
+      "valoresAdmitidos": null
+    },
+    "nombre": "UNIDADES_DE_DESARROLLO|UNIDADES_DISPONIBLES"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10005",
+    "alias": [
+      "ACESSO_PARA_DEFICIENTES"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|ACESSO_PARA_DEFICIENTES"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10016",
+    "alias": [
+      "AREA_DE_LAZER"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|AREA_DE_LAZER"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10018",
+    "alias": [
+      "AREA_VERDE"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|AREA_VERDE"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10026",
+    "alias": [
+      "BIBLIOTECA"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|BIBLIOTECA"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10027",
+    "alias": [
+      "BICICLETARIO"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|BICICLETARIO"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10028",
+    "alias": [
+      "BRINQUEDOTECA"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|BRINQUEDOTECA"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10030",
+    "alias": [
+      "CAMERAS_DE_SEGURANÇA",
+      "CÂMERAS_DE_SEGURANÇA",
+      "AREAS_COMUNS|CAMERAS_DE_SEGURANÇA"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|CÂMERAS_DE_SEGURANÇA"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10031",
+    "alias": [
+      "CAMPO_DE_FUTEBOL"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|CAMPO_DE_FUTEBOL"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10032",
+    "alias": [
+      "CAMPO_DE_GOLFE"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|CAMPO_DE_GOLFE"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10048",
+    "alias": [
+      "CHURRASQUEIRA"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|CHURRASQUEIRA"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10071",
+    "alias": [
+      "ELEVADOR"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|ELEVADOR"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10080",
+    "alias": [
+      "ESPAÇO_GOURMET"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|ESPAÇO_GOURMET"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10084",
+    "alias": [
+      "ESTACIONAMENTO_PARA_VISITANTES"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|ESTACIONAMENTO_PARA_VISITANTES"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10090",
+    "alias": [
+      "FITNESS/SALA_DE_GINASTICA"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|FITNESS/SALA_DE_GINASTICA"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10103",
+    "alias": [
+      "GUARITA"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|GUARITA"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10117",
+    "alias": [
+      "LAVANDERIA"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|LAVANDERIA"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10140",
+    "alias": [
+      "PISCINA"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|PISCINA"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10152",
+    "alias": [
+      "PLAYGROUND"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|PLAYGROUND"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10158",
+    "alias": [
+      "PORTARIA_24_HORAS"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|PORTARIA_24_HORAS"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10165",
+    "alias": [
+      "QUADRA_POLIESPORTIVA"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|QUADRA_POLIESPORTIVA"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10181",
+    "alias": [
+      "SALÃO_DE_FESTAS"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|SALÃO_DE_FESTAS"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10182",
+    "alias": [
+      "SALÃO_DE_JOGOS"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|SALÃO_DE_JOGOS"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10183",
+    "alias": [
+      "SAUNA"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|SAUNA"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10184",
+    "alias": [
+      "SISTEMA_DE_ALARME"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|SISTEMA_DE_ALARME"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10187",
+    "alias": [
+      "SOLARIUM"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|SOLARIUM"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10189",
+    "alias": [
+      "SPA"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|SPA"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10206",
+    "alias": [
+      "VESTIARIO"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|VESTIARIO"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10208",
+    "alias": [
+      "VIGILÂNCIA_24H"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|VIGILÂNCIA_24H"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10161",
+    "alias": [
+      "PROXIMO_AO_METRO"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|PROXIMO_AO_METRO"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10164",
+    "alias": [
+      "QUADRA_DE_TÊNIS"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|QUADRA_DE_TÊNIS"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10095",
+    "alias": [
+      "FRENTE_PARA_O_MAR"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|FRENTE_PARA_O_MAR"
+  },
+  {
+    "categoria": "Agrupada",
+    "id": "30025",
+    "alias": [
+      "PISCINACOMUN",
+      "PISCINA_COMUN",
+      "AGRUPADA|PISCINACOMUN"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AGRUPADA|PISCINA_COMUN"
+  },
+  {
+    "categoria": "Agrupada",
+    "id": "30026",
+    "alias": [
+      "PISCINAPRIVADA",
+      "PISCINA_PRIVADA",
+      "AGRUPADA|PISCINAPRIVADA"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AGRUPADA|PISCINA_PRIVADA"
+  },
+  {
+    "categoria": "Agrupada",
+    "id": "30027",
+    "alias": [
+      "PISCINAS",
+      "PISCINA",
+      "AGRUPADA|PISCINAS"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AGRUPADA|PISCINA"
+  },
+  {
+    "categoria": "Otros",
+    "id": "30002",
+    "alias": [
+      "ACEITA_FGTS"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "OTROS|ACEITA_FGTS"
+  },
+  {
+    "categoria": "Otros",
+    "id": "30001",
+    "alias": [
+      "ANDARES"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Campo numerico abierto",
+      "valoresAdmitidos": null
+    },
+    "nombre": "OTROS|ANDARES"
+  },
+  {
+    "categoria": "Otros",
+    "id": "30004",
+    "alias": [
+      "POSIÇÃO_DO_APTO"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Select",
+      "valoresAdmitidos": [
+        {
+          "idValor": "300041",
+          "nombre": "Frente"
+        },
+        {
+          "idValor": "300042",
+          "nombre": "Fundos"
+        },
+        {
+          "idValor": "300043",
+          "nombre": "Lateral"
+        },
+        {
+          "idValor": "300044",
+          "nombre": "Meio"
+        }
+      ]
+    },
+    "nombre": "OTROS|POSIÇÃO_DO_APTO"
+  }
+]

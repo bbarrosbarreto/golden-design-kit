@@ -1,0 +1,370 @@
+[
+  {
+    "categoria": "Principales",
+    "id": "CFT5",
+    "alias": [
+      "ANTIGUEDAD",
+      "IDADE_DO_IMOVEL",
+      "PRINCIPALES|ANTIGUEDAD"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Campo numerico abierto",
+      "valoresAdmitidos": null
+    },
+    "nombre": "PRINCIPALES|IDADE_DO_IMOVEL"
+  },
+  {
+    "categoria": "Principales",
+    "id": "CFT4",
+    "alias": [
+      "MEDIOS_BANOS",
+      "SUITE",
+      "PRINCIPALES|MEDIOS_BANOS"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Campo numerico abierto",
+      "valoresAdmitidos": null
+    },
+    "nombre": "PRINCIPALES|SUITE"
+  },
+  {
+    "categoria": "Principales",
+    "id": "CFT3",
+    "alias": [
+      "BANOS",
+      "BANHEIRO",
+      "PRINCIPALES|BANOS"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Campo numerico abierto",
+      "valoresAdmitidos": null
+    },
+    "nombre": "PRINCIPALES|BANHEIRO"
+  },
+  {
+    "categoria": "Principales",
+    "id": "CFT2",
+    "alias": [
+      "HABITACIONES",
+      "QUARTO",
+      "PRINCIPALES|HABITACIONES"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Campo numerico abierto",
+      "valoresAdmitidos": null
+    },
+    "nombre": "PRINCIPALES|QUARTO"
+  },
+  {
+    "categoria": "Principales",
+    "id": "CFT400",
+    "alias": [
+      "IPTU"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Campo numerico abierto",
+      "valoresAdmitidos": null
+    },
+    "nombre": "PRINCIPALES|IPTU"
+  },
+  {
+    "categoria": "Principales",
+    "id": "CFT7",
+    "alias": [
+      "GARAGE",
+      "VAGA",
+      "PRINCIPALES|GARAGE"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Campo numerico abierto",
+      "valoresAdmitidos": null
+    },
+    "nombre": "PRINCIPALES|VAGA"
+  },
+  {
+    "categoria": "Principales",
+    "id": "CFT6",
+    "alias": [
+      "EXPENSAS",
+      "CONDOMINIO",
+      "PRINCIPALES|EXPENSAS"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Campo numerico abierto",
+      "valoresAdmitidos": null
+    },
+    "nombre": "PRINCIPALES|CONDOMINIO"
+  },
+  {
+    "categoria": "Generales",
+    "id": "2000199",
+    "alias": [
+      "COMPLEMENTO"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Campo abierto",
+      "valoresAdmitidos": null
+    },
+    "nombre": "GENERALES|COMPLEMENTO"
+  },
+  {
+    "categoria": "Generales",
+    "id": "10088",
+    "alias": [
+      "ESTUDA_PERMUTA",
+      "ACEITA_PERMUTA",
+      "GENERALES|ESTUDA_PERMUTA"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "GENERALES|ACEITA_PERMUTA"
+  },
+  {
+    "categoria": "Medidas",
+    "id": "CFT101",
+    "alias": [
+      "SUPERFICIE_CUBIERTA",
+      "AREA_UTIL",
+      "MEDIDAS|SUPERFICIE_CUBIERTA"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Campo numerico abierto",
+      "valoresAdmitidos": null
+    },
+    "nombre": "MEDIDAS|AREA_UTIL"
+  },
+  {
+    "categoria": "Medidas",
+    "id": "CFT100",
+    "alias": [
+      "SUPERFICIE_TOTAL",
+      "AREA_TOTAL",
+      "MEDIDAS|SUPERFICIE_TOTAL"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Campo numerico abierto",
+      "valoresAdmitidos": null
+    },
+    "nombre": "MEDIDAS|AREA_TOTAL"
+  },
+  {
+    "categoria": "Medidas",
+    "id": "CON1",
+    "alias": [
+      "UNIDAD_DE_MEDIDA"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Select",
+      "valoresAdmitidos": [
+        {
+          "idValor": "HA",
+          "nombre": "Hectáreas"
+        },
+        {
+          "idValor": "M2",
+          "nombre": "Metro Cuadrado"
+        }
+      ]
+    },
+    "nombre": "MEDIDAS|UNIDAD_DE_MEDIDA"
+  },
+  {
+    "categoria": "Área Privativa",
+    "id": "20184",
+    "alias": [
+      "SISTEMA_DE_ALARME"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREA_PRIVATIVA|SISTEMA_DE_ALARME"
+  },
+  {
+    "categoria": "Unidades de Desarrollo",
+    "id": "CFT300",
+    "alias": [
+      "UNIDADES_DISPONIBLES"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Campo numerico abierto",
+      "valoresAdmitidos": null
+    },
+    "nombre": "UNIDADES_DE_DESARROLLO|UNIDADES_DISPONIBLES"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10030",
+    "alias": [
+      "CAMERAS_DE_SEGURANÇA",
+      "CÂMERAS_DE_SEGURANÇA",
+      "AREAS_COMUNS|CAMERAS_DE_SEGURANÇA"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|CÂMERAS_DE_SEGURANÇA"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10103",
+    "alias": [
+      "GUARITA"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|GUARITA"
+  },
+  {
+    "categoria": "Áreas Comuns",
+    "id": "10208",
+    "alias": [
+      "VIGILÂNCIA_24H"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AREAS_COMUNS|VIGILÂNCIA_24H"
+  },
+  {
+    "categoria": "Agrupada",
+    "id": "30025",
+    "alias": [
+      "PISCINACOMUN",
+      "PISCINA_COMUN",
+      "AGRUPADA|PISCINACOMUN"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AGRUPADA|PISCINA_COMUN"
+  },
+  {
+    "categoria": "Agrupada",
+    "id": "30026",
+    "alias": [
+      "PISCINAPRIVADA",
+      "PISCINA_PRIVADA",
+      "AGRUPADA|PISCINAPRIVADA"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AGRUPADA|PISCINA_PRIVADA"
+  },
+  {
+    "categoria": "Agrupada",
+    "id": "30027",
+    "alias": [
+      "PISCINAS",
+      "PISCINA",
+      "AGRUPADA|PISCINAS"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "AGRUPADA|PISCINA"
+  },
+  {
+    "categoria": "Otros",
+    "id": "30002",
+    "alias": [
+      "ACEITA_FGTS"
+    ],
+    "tipoDeCaracteristica": {
+      "tipo": "Checkbox",
+      "valoresAdmitidos": [
+        {
+          "idValor": "1",
+          "nombre": "True"
+        },
+        {
+          "idValor": "0",
+          "nombre": "False"
+        }
+      ]
+    },
+    "nombre": "OTROS|ACEITA_FGTS"
+  }
+]
