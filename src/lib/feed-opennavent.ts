@@ -98,6 +98,7 @@ const SELECT_COLUMNS = [
   "slug",
   "title",
   "type",
+  "category",
   "state",
   "city",
   "neighborhood",
