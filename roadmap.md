@@ -15,6 +15,12 @@
 - [x] Checkbox Wimóveis em EXPORT_PORTALS (só dado, sem feed)
 - [x] Feed Wimóveis (formato OpenNavent, gerador `feed-opennavent.ts` e rota /feeds/wimoveis.xml)
 
+## Etapa 2C — Características e tipos oficiais (concluída)
+- [x] Catálogos da Navent salvos em `docs/navent/` com README de origem dos ids
+- [x] `NAVENT_TYPE_MAP` com idTipo/idSubTipo oficiais e operações VENTA/ALQUILER
+- [x] Bloco `<caracteristicas>` (quartos, banheiros, suítes, vagas, áreas, idade do imóvel)
+- [ ] Mapear `<idLocalidade>` do catálogo de localidades (etapa futura)
+
 ## Etapa 2C — Características no feed OpenNavent
 - [ ] Bloco `<caracteristicas>` (quartos, banheiros, vagas, áreas) — depende do catálogo de códigos da API Navent autenticada (ex: CFT100), ainda não obtido
 - [ ] Trocar `NAVENT_CONTACT_EMAIL` (placeholder) pelo email real antes de o feed ir ao ar
