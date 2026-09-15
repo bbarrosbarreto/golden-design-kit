@@ -15,25 +15,39 @@ import {
 } from "./feed-common";
 
 // ============================================================================
-// VALORES PROVISÓRIOS — ponto único de troca.
+// IDS OFICIAIS DO CATÁLOGO DA NAVENT — ponto único de troca.
 //
-// Os nomes oficiais de tipo/subTipo vêm do endpoint /v1/tipopropriedade da
-// API da Navent, que exige credencial ainda não obtida. A mesma pendência
-// vale para `operacao`, que pode ser "Venda"/"Aluguel" ou "VENTA"/"ALQUILER"
-// conforme o catálogo deles. Quando a credencial chegar, ajuste APENAS os
-// dois objetos abaixo — o restante do gerador não muda.
+// Fonte: GET /v1/tipopropriedade, /v1/tipopropriedade/{id}/subtipos e
+// /v1/operacoes, consultados em 15/09/2026. Os JSON estão em docs/navent/
+// e o de-para completo está em docs/navent/README.md.
+//
+// A documentação recomenda enviar os IDS numéricos (idTipo/idSubTipo) em vez
+// dos nomes, porque nome está sujeito a erro de ortografia.
 // ============================================================================
-const NAVENT_TYPE_MAP: Record<string, { tipo: string; subTipo: string }> = {
-  apartamento: { tipo: "Apartamento", subTipo: "Padrão" },
-  cobertura: { tipo: "Apartamento", subTipo: "Cobertura" },
-  casa: { tipo: "Casa", subTipo: "Padrão" },
-  casa_condominio: { tipo: "Casa", subTipo: "Condominio" },
-  terreno: { tipo: "Terreno", subTipo: "Padrão" },
-  comercial: { tipo: "Comercial", subTipo: "Padrão" },
-  rural: { tipo: "Chácara", subTipo: "Padrão" },
+const NAVENT_TYPE_MAP: Record<string, { idTipo: string; idSubTipo: string }> = {
+  apartamento: { idTipo: "2", idSubTipo: "1" }, // Apartamento / Padrão
+  cobertura: { idTipo: "2", idSubTipo: "26" }, // Apartamento / Cobertura
+  casa: { idTipo: "1", idSubTipo: "5" }, // Casa / Padrão
+  casa_condominio: { idTipo: "1", idSubTipo: "6" }, // Casa / Casa de Condomínio
+  terreno: { idTipo: "1003", idSubTipo: "8" }, // Terreno / Terreno Padrão
+  comercial: { idTipo: "1005", idSubTipo: "16" }, // Comercial / Conjunto Comercial/sala
+  rural: { idTipo: "1004", idSubTipo: "10" }, // Rurais / Chácara
 };
 
-const NAVENT_OPERATIONS = { venda: "Venda", aluguel: "Aluguel" } as const;
+// /v1/operacoes devolve os nomes em espanhol mesmo no catálogo brasileiro.
+const NAVENT_OPERATIONS = { venda: "VENTA", aluguel: "ALQUILER" } as const;
+
+// Características numéricas (todas "Campo numerico abierto" → usam <valor>).
+// Ver docs/navent/README.md para o nome oficial de cada id.
+const NAVENT_FEATURES = {
+  quartos: "CFT2", // PRINCIPALES|QUARTO
+  banheiros: "CFT3", // PRINCIPALES|BANHEIRO
+  suites: "CFT4", // PRINCIPALES|SUITE
+  vagas: "CFT7", // PRINCIPALES|VAGA
+  areaTotal: "CFT100", // MEDIDAS|AREA_TOTAL
+  areaUtil: "CFT101", // MEDIDAS|AREA_UTIL
+  idadeImovel: "CFT5", // PRINCIPALES|IDADE_DO_IMOVEL (idade em anos, não o ano)
+} as const;
 
 // ATENÇÃO: o feed do Wimóveis NÃO deve ir ao ar antes de trocar o valor
 // abaixo pelo email real — é o endereço para onde o portal envia os leads.
