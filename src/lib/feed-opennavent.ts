@@ -283,7 +283,7 @@ function buildMultimidia(prop: FeedProperty, images: { url: string; category: st
 }
 
 function buildImovel(prop: FeedProperty, images: { url: string; category: string }[]): string {
-  const { tipo, subTipo } = naventType(prop.type);
+  const { idTipo, idSubTipo } = naventType(prop.type);
   const lines: (string | null)[] = [];
 
   const codigo = prop.listing_code ? stripAccents(prop.listing_code).slice(0, 100) : null;
@@ -298,12 +298,13 @@ function buildImovel(prop: FeedProperty, images: { url: string; category: string
   lines.push(
     [
       "      <tipoPropriedade>",
-      `        <tipo>${cdata(tipo)}</tipo>`,
-      `        <subTipo>${cdata(subTipo)}</subTipo>`,
+      `        <idTipo>${idTipo}</idTipo>`,
+      `        <idSubTipo>${idSubTipo}</idSubTipo>`,
       "      </tipoPropriedade>",
     ].join("\n"),
   );
   lines.push(buildPrecos(prop));
+  lines.push(buildCaracteristicas(prop));
   lines.push(buildLocalizacao(prop));
   lines.push(buildMultimidia(prop, images));
   lines.push(
