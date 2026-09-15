@@ -1,23 +1,26 @@
 # Etapa 2C — Características e tipos oficiais no feed Wimóveis
 
-A API da Navent foi consultada agora com as credenciais fornecidas. Os catálogos reais já estão em mãos e substituem os valores provisórios que hoje estão em `feed-opennavent.ts`. As credenciais não entram em nenhum arquivo do projeto: só foram usadas nas chamadas desta investigação.
+A API da Navent foi consultada com as credenciais fornecidas. Os catálogos reais já estão em mãos e substituem os valores provisórios que hoje estão em `feed-opennavent.ts`. As credenciais não entram em nenhum arquivo do projeto.
 
-## Como a autenticação funciona (registrado apenas na documentação, sem credencial)
+## Autenticação (registrada só na documentação, sem credencial)
 
-`POST /v1/application/login?grant_type=client_credentials&client_id=…&client_secret=…` devolve um `access_token` do tipo bearer. As consultas de catálogo usam `Authorization: Bearer <token>`. O feed em produção não chama a API — só usa os ids salvos.
+`POST /v1/application/login?grant_type=client_credentials&client_id=…&client_secret=…` devolve `access_token` do tipo bearer, `scope: read write trust`, `expires_in: 315359999` (cerca de 10 anos). As consultas usam `Authorization: Bearer <token>`. O feed em produção não chama a API.
 
 ## 1. Catálogos salvos em `docs/navent/`
 
-- `tipopropriedade.json` — 5 tipos: Casa (1), Apartamento (2), Terreno (1003), Rurais (1004), Comercial (1005)
-- `subtipos-<id>.json` — um por tipo
-- `caracteristicas-<id>.json` — um por tipo
+- `tipopropriedade.json` — Casa (1), Apartamento (2), Terreno (1003), Rurais (1004), Comercial (1005)
+- `subtipos-<id>.json` e `caracteristicas-<id>.json` — um par por tipo
 - `operacoes.json` — `VENTA`, `ALQUILER`, `ALQUILER_TEMPORAL`, `TRASPASO`
+- `ubicaciones.json` — estados do Brasil
+- `ubicaciones-distrito-federal.json` — detalhamento do DF
 
-Nenhum desses arquivos contém credencial.
+Nenhum arquivo contém credencial.
 
-## 2. Correção do mapa de tipos (ids reais)
+## 2. Localidades do DF (só registro, sem mudar o gerador)
 
-Os nomes que eu havia inventado saem; entram `idTipo` e `idSubTipo` numéricos:
+O DF é `V1-B-247` e traz 31 localidades de nível C. Gama (`V1-C-99993`), Guará (`V1-C-99992`) e Jardim Botânico (`V1-C-1112879`) existem como localidades próprias. **Noroeste não existe** no catálogo — é tratado como bairro de Brasília (`V1-C-99998`). Isso vai para o README; o gerador continua enviando a string `bairro,cidade,estado,Brasil` nesta etapa.
+
+## 3. Mapa de tipos com ids reais
 
 | Nosso tipo | idTipo | idSubTipo |
 | --- | --- | --- |
@@ -29,48 +32,48 @@ Os nomes que eu havia inventado saem; entram `idTipo` e `idSubTipo` numéricos:
 | comercial | 1005 | 16 (Conjunto Comercial/sala) |
 | rural | 1004 | 10 (Chácara) |
 
-O XML passa a emitir `<idTipo>` e `<idSubTipo>` em vez de `<tipo>`/`<subTipo>` por nome.
+O XML passa a emitir `<idTipo>`/`<idSubTipo>` em vez dos nomes.
 
-## 3. Correção das operações
+## 4. Operações
 
 O catálogo brasileiro usa espanhol: venda = `VENTA`, aluguel = `ALQUILER`. O mapa atual (`Venda`/`Aluguel`) estava errado e será corrigido.
 
-## 4. Bloco `<caracteristicas>`
+## 5. Bloco `<caracteristicas>`
 
-Ids confirmados, iguais para os 5 tipos (todos "Campo numérico aberto", portanto usam `<valor>`):
+Ids iguais nos 5 tipos, todos "Campo numerico abierto" (usam `<valor>`). Nome oficial exatamente como vem do catálogo:
 
-| Dado nosso | id Navent |
-| --- | --- |
-| bedrooms | CFT2 |
-| bathrooms | CFT3 |
-| suites | CFT4 |
-| parking_spots | CFT7 |
-| area (total) | CFT100 |
-| useful_area, ou built_area quando útil for nula | CFT101 |
-| year_built | CFT5 (idade do imóvel) |
+| Dado nosso | id | nome oficial no catálogo |
+| --- | --- | --- |
+| bedrooms | CFT2 | `PRINCIPALES|QUARTO` |
+| bathrooms | CFT3 | `PRINCIPALES|BANHEIRO` |
+| suites | CFT4 | `PRINCIPALES|SUITE` |
+| parking_spots | CFT7 | `PRINCIPALES|VAGA` |
+| area | CFT100 | `MEDIDAS|AREA_TOTAL` |
+| useful_area (ou built_area) | CFT101 | `MEDIDAS|AREA_UTIL` |
+| year_built | CFT5 | `PRINCIPALES|IDADE_DO_IMOVEL` |
 
-Regras aplicadas:
+Regras:
 
-- característica omitida quando o dado é nulo no nosso banco
-- `CFT5` é **idade do imóvel**, não ano: será enviado `ano atual − year_built`, omitido se der negativo ou se `year_built` for implausível (< 1900)
-- **salas (`living_rooms`) não será enviado**: não existe característica correspondente em nenhum dos 5 catálogos. Enviar id inventado derrubaria o anúncio
-- o bloco inteiro é omitido quando nenhuma característica sobra
+- característica omitida quando o dado é nulo
+- `CFT5` é **idade**, não ano: envia `ano atual − year_built`; omitido se negativo ou se `year_built` < 1900
+- **salas (`living_rooms`) não é enviado** — não há característica equivalente em nenhum dos 5 catálogos
+- bloco inteiro omitido quando nada sobra
 
-## 5. Documentação
+## 6. `docs/navent/README.md`
 
-`docs/navent/README.md` com: endpoint de cada catálogo, data da consulta (15/09/2026), tabela de-para dos 7 tipos internos, tabela de ids de características, e a nota de que `living_rooms` não tem equivalente. Sem credenciais.
+Registra: como obter o token e sua validade (sem credenciais), endpoint e data de consulta de cada catálogo (15/09/2026), de-para dos 7 tipos internos com ids, tabela de características com **id + nome oficial do catálogo** (com destaque para CFT5 ser idade do imóvel), e o achado sobre localidades do DF, inclusive a ausência do Noroeste.
 
 ## Arquivos tocados
 
-- `src/lib/feed-opennavent.ts` (mapas, novo bloco de características, colunas extras no SELECT: bedrooms, bathrooms, suites, parking_spots, year_built)
+- `src/lib/feed-opennavent.ts` (mapas, bloco de características, colunas extras no SELECT: bedrooms, bathrooms, suites, parking_spots, year_built)
 - `docs/navent/*` (novos)
-- `roadmap.md` (Etapa 2C concluída)
+- `roadmap.md` (Etapa 2C concluída; localidade vira etapa futura)
 
 Não serão tocados: `feed-zap.ts`, `PropertyForm`, banco de dados.
 
 ## Verificação
 
-- `/feeds/wimoveis.xml` → 200, XML bem formado, com `<caracteristicas>` nos imóveis que têm os dados
+- `/feeds/wimoveis.xml` → 200, bem formado, com `<caracteristicas>` onde houver dados
 - todo id usado aparece nos JSON salvos
-- `/feeds/zap.xml` byte a byte idêntico ao atual
-- nenhuma credencial em nenhum arquivo do repositório
+- `/feeds/zap.xml` byte a byte idêntico
+- nenhuma credencial no repositório
