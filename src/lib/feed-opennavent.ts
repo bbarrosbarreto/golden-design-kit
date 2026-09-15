@@ -66,6 +66,7 @@ type FeedProperty = {
   slug: string | null;
   title: string | null;
   type: string | null;
+  category: string | null;
   state: string | null;
   city: string | null;
   neighborhood: string | null;
