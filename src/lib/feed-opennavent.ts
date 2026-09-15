@@ -139,8 +139,46 @@ function extractYouTubeId(url: string): string | null {
   return null;
 }
 
-function naventType(type: string | null): { tipo: string; subTipo: string } {
+function naventType(type: string | null): { idTipo: string; idSubTipo: string } {
   return NAVENT_TYPE_MAP[type ?? ""] ?? NAVENT_TYPE_MAP.apartamento;
+}
+
+/**
+ * Bloco <caracteristicas> com os ids oficiais do catálogo (docs/navent/).
+ * Cada valor nulo é omitido; nenhum id fora do catálogo é emitido.
+ */
+function buildCaracteristicas(prop: FeedProperty): string | null {
+  const itens: string[] = [];
+  const add = (id: string, value: number | null) => {
+    if (value === null || !Number.isFinite(value) || value < 0) return;
+    itens.push(
+      [
+        "        <caracteristica>",
+        `          <id>${id}</id>`,
+        `          <valor>${value}</valor>`,
+        "        </caracteristica>",
+      ].join("\n"),
+    );
+  };
+
+  add(NAVENT_FEATURES.quartos, intOrNull(prop.bedrooms));
+  add(NAVENT_FEATURES.banheiros, intOrNull(prop.bathrooms));
+  add(NAVENT_FEATURES.suites, intOrNull(prop.suites));
+  add(NAVENT_FEATURES.vagas, intOrNull(prop.parking_spots));
+  add(NAVENT_FEATURES.areaTotal, intOrNull(prop.area));
+  add(NAVENT_FEATURES.areaUtil, intOrNull(prop.useful_area ?? prop.built_area));
+
+  // CFT5 é IDADE_DO_IMOVEL (anos), não o ano de construção.
+  const ano = intOrNull(prop.year_built);
+  if (ano !== null && ano >= 1900) {
+    const idade = new Date().getFullYear() - ano;
+    if (idade >= 0) add(NAVENT_FEATURES.idadeImovel, idade);
+  }
+
+  // living_rooms não é enviado: não há característica equivalente no catálogo.
+
+  if (itens.length === 0) return null;
+  return ["      <caracteristicas>", ...itens, "      </caracteristicas>"].join("\n");
 }
 
 function buildPrecos(prop: FeedProperty): string | null {
