@@ -42,17 +42,29 @@ O feed XML em produção **não** chama esta API — usa apenas os ids registrad
 | 1004 | Rurais | Residencial |
 | 1005 | Comercial | Comercial |
 
-## De-para dos nossos 7 tipos internos
+## De-para dos nossos 7 tipos internos (tipo + categoria)
 
-| Tipo interno | idTipo | idSubTipo | nome oficial do subtipo |
-| --- | --- | --- | --- |
-| apartamento | 2 | 1 | Padrão |
-| cobertura | 2 | 26 | Cobertura |
-| casa | 1 | 5 | Padrão |
-| casa_condominio | 1 | 6 | Casa de Condomínio |
-| terreno | 1003 | 8 | Terreno Padrão |
-| comercial | 1005 | 16 | Conjunto Comercial/sala |
-| rural | 1004 | 10 | Chácara |
+O subtipo depende do **tipo e da categoria** do anúncio, não só do tipo.
+
+| Tipo interno | Categoria | idTipo | idSubTipo | nome oficial do subtipo |
+| --- | --- | --- | --- | --- |
+| apartamento | `cobertura*` (cobertura, cobertura_duplex, cobertura_triplex) | 2 | 26 | Cobertura |
+| apartamento | qualquer outra | 2 | 1 | Padrão |
+| cobertura | qualquer | 2 | 26 | Cobertura |
+| casa | `sobrado_duplex`, `sobrado_triplex` | 1 | 33 | Sobrado |
+| casa | `terrea` ou outra | 1 | 5 | Padrão |
+| casa_condominio | qualquer | 1 | 6 | Casa de Condomínio |
+| terreno | qualquer | 1003 | 8 | Terreno Padrão |
+| comercial | qualquer | 1005 | 16 | Conjunto Comercial/sala |
+| rural | qualquer | 1004 | 10 | Chácara |
+
+Notas sobre as categorias de casa (`subtipos-1.json`: 5 Padrão, 6 Casa de Condomínio,
+7 Casa de Vila, 33 Sobrado, 37 Quarto):
+
+- **Sobrado existe** no catálogo (33) e é usado para `sobrado_duplex` e `sobrado_triplex`.
+- **Não existe subtipo "Térrea"**; a categoria `terrea` continua indo como Padrão (5).
+- Em `casa_condominio`, o subtipo Casa de Condomínio (6) tem prioridade sobre Sobrado,
+  porque descreve melhor o produto anunciado.
 
 Fallback do gerador quando o tipo é desconhecido: Apartamento / Padrão (2 / 1).
 
