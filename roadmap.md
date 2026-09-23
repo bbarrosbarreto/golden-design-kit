@@ -22,6 +22,12 @@
 - [ ] Mapear `<idLocalidade>` do catálogo de localidades (etapa futura)
 
 
+## Etapa 2D — Feed próprio do DF Imóveis (concluída)
+- [x] Gerador `feed-dfimoveis.ts` no layout oficial v1.1 (Uf, PrecoLocacao, PrecoIptu, ExibirComplemento)
+- [x] Rota /feeds/dfimoveis.xml
+- [x] AreaTotal com fallback para AreaUtil (só neste feed)
+- [x] /feeds/zap.xml e /feeds/wimoveis.xml inalterados
+
 ## Etapa 2.5 — Ajustes de qualidade do feed ZAP
 - [x] Nunca emitir tag vazia no XML
 - [x] Logradouro obrigatório para exportação (8 itens no painel de prontidão)
