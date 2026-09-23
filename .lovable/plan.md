@@ -30,6 +30,8 @@ CodigoImovel (listing_code, até 10 caracteres), TipoImovel, SubTipoImovel, Crec
 
 Preço: `purpose = 'aluguel'` → PrecoLocacao = `price`; caso contrário PrecoVenda = `price` e, se `rent_price` > 0, também PrecoLocacao. Valores monetários e áreas saem inteiros, sem símbolo nem separador.
 
+AreaTotal é obrigatória neste layout: quando `area` for nula, emite o mesmo valor de AreaUtil (`useful_area`, ou `built_area` se útil for nula). Sem nenhuma área o imóvel não passa na elegibilidade. Esse fallback vale só para o DF Imóveis — ZAP e Wimóveis seguem omitindo AreaTotal quando nula.
+
 Fotos: um `<Foto>` por imagem, na mesma ordem exibida no site (capa primeiro), cada um com `<NomeArquivo>` (rótulo da categoria da imagem) e `<URLArquivo>` (URL pública).
 
 Não são emitidos: CategoriaImovel, TipoOferta, Principal, Numero, Latitude, Longitude, Videos, nem qualquer booleano de característica (ArCondicionado, Piscina, Varanda e afins) — o banco não tem esses dados e o layout aceita omissão.
