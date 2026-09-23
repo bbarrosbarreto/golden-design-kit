@@ -21,6 +21,7 @@ import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as ImoveisSlugRouteImport } from './routes/imoveis.$slug'
 import { Route as FeedsZapDotxmlRouteImport } from './routes/feeds.zap[.]xml'
 import { Route as FeedsWimoveisDotxmlRouteImport } from './routes/feeds.wimoveis[.]xml'
+import { Route as FeedsDfimoveisDotxmlRouteImport } from './routes/feeds.dfimoveis[.]xml'
 import { Route as EmpreendimentosSlugRouteImport } from './routes/empreendimentos.$slug'
 import { Route as AdminRedefinirSenhaRouteImport } from './routes/admin/redefinir-senha'
 import { Route as AdminParceirosRouteImport } from './routes/admin/parceiros'
@@ -90,6 +91,11 @@ const FeedsWimoveisDotxmlRoute = FeedsWimoveisDotxmlRouteImport.update({
   path: '/feeds/wimoveis.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FeedsDfimoveisDotxmlRoute = FeedsDfimoveisDotxmlRouteImport.update({
+  id: '/feeds/dfimoveis.xml',
+  path: '/feeds/dfimoveis.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EmpreendimentosSlugRoute = EmpreendimentosSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -145,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/admin/parceiros': typeof AdminParceirosRoute
   '/admin/redefinir-senha': typeof AdminRedefinirSenhaRoute
   '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
+  '/feeds/dfimoveis.xml': typeof FeedsDfimoveisDotxmlRoute
   '/feeds/wimoveis.xml': typeof FeedsWimoveisDotxmlRoute
   '/feeds/zap.xml': typeof FeedsZapDotxmlRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
@@ -165,6 +172,7 @@ export interface FileRoutesByTo {
   '/admin/parceiros': typeof AdminParceirosRoute
   '/admin/redefinir-senha': typeof AdminRedefinirSenhaRoute
   '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
+  '/feeds/dfimoveis.xml': typeof FeedsDfimoveisDotxmlRoute
   '/feeds/wimoveis.xml': typeof FeedsWimoveisDotxmlRoute
   '/feeds/zap.xml': typeof FeedsZapDotxmlRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
@@ -188,6 +196,7 @@ export interface FileRoutesById {
   '/admin/parceiros': typeof AdminParceirosRoute
   '/admin/redefinir-senha': typeof AdminRedefinirSenhaRoute
   '/empreendimentos/$slug': typeof EmpreendimentosSlugRoute
+  '/feeds/dfimoveis.xml': typeof FeedsDfimoveisDotxmlRoute
   '/feeds/wimoveis.xml': typeof FeedsWimoveisDotxmlRoute
   '/feeds/zap.xml': typeof FeedsZapDotxmlRoute
   '/imoveis/$slug': typeof ImoveisSlugRoute
@@ -212,6 +221,7 @@ export interface FileRouteTypes {
     | '/admin/parceiros'
     | '/admin/redefinir-senha'
     | '/empreendimentos/$slug'
+    | '/feeds/dfimoveis.xml'
     | '/feeds/wimoveis.xml'
     | '/feeds/zap.xml'
     | '/imoveis/$slug'
@@ -232,6 +242,7 @@ export interface FileRouteTypes {
     | '/admin/parceiros'
     | '/admin/redefinir-senha'
     | '/empreendimentos/$slug'
+    | '/feeds/dfimoveis.xml'
     | '/feeds/wimoveis.xml'
     | '/feeds/zap.xml'
     | '/imoveis/$slug'
@@ -254,6 +265,7 @@ export interface FileRouteTypes {
     | '/admin/parceiros'
     | '/admin/redefinir-senha'
     | '/empreendimentos/$slug'
+    | '/feeds/dfimoveis.xml'
     | '/feeds/wimoveis.xml'
     | '/feeds/zap.xml'
     | '/imoveis/$slug'
@@ -276,6 +288,7 @@ export interface RootRouteChildren {
   AdminLoginRoute: typeof AdminLoginRoute
   AdminParceirosRoute: typeof AdminParceirosRoute
   AdminRedefinirSenhaRoute: typeof AdminRedefinirSenhaRoute
+  FeedsDfimoveisDotxmlRoute: typeof FeedsDfimoveisDotxmlRoute
   FeedsWimoveisDotxmlRoute: typeof FeedsWimoveisDotxmlRoute
   FeedsZapDotxmlRoute: typeof FeedsZapDotxmlRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -366,6 +379,13 @@ declare module '@tanstack/react-router' {
       path: '/feeds/wimoveis.xml'
       fullPath: '/feeds/wimoveis.xml'
       preLoaderRoute: typeof FeedsWimoveisDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feeds/dfimoveis.xml': {
+      id: '/feeds/dfimoveis.xml'
+      path: '/feeds/dfimoveis.xml'
+      fullPath: '/feeds/dfimoveis.xml'
+      preLoaderRoute: typeof FeedsDfimoveisDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/empreendimentos/$slug': {
@@ -467,6 +487,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminLoginRoute: AdminLoginRoute,
   AdminParceirosRoute: AdminParceirosRoute,
   AdminRedefinirSenhaRoute: AdminRedefinirSenhaRoute,
+  FeedsDfimoveisDotxmlRoute: FeedsDfimoveisDotxmlRoute,
   FeedsWimoveisDotxmlRoute: FeedsWimoveisDotxmlRoute,
   FeedsZapDotxmlRoute: FeedsZapDotxmlRoute,
   AdminIndexRoute: AdminIndexRoute,
