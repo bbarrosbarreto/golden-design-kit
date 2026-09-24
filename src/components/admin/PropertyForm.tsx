@@ -352,6 +352,7 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
       reset(initialData ? toForm(initialData) : empty);
       setSlugDirty(!!initialData);
       setImagesValid(true);
+      setBlockedFields([]);
     }
   }, [open, initialData, reset]);
 
@@ -377,7 +378,6 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
   const street = watch("street");
   const city = watch("city");
   const state = watch("state");
-  const rentPrice = watch("rent_price");
   const category = watch("category");
   const exportEnabled = watch("export_enabled");
   const exportPortals = watch("export_portals");
