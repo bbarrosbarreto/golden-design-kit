@@ -337,8 +337,15 @@ export function ImageUploader({
         ) : (
           <Upload className="h-4 w-4" />
         )}
-        Adicionar imagens
+        {progress
+          ? `Convertendo ${Math.min(progress.done + 1, progress.total)} de ${progress.total}...`
+          : "Adicionar imagens"}
       </Button>
+      {uploading && hasHeic && (
+        <p className="text-sm text-muted-foreground" role="status">
+          Convertendo fotos do iPhone, isso pode levar alguns minutos
+        </p>
+      )}
 
       {images.length > 0 && (
         <Tabs value={tab} onValueChange={setTab}>
