@@ -283,7 +283,7 @@ function buildLocalizacao(prop: FeedProperty): string {
   lines.push(
     tagOptional(
       "localidade",
-      `${prop.neighborhood ?? ""},${prop.city ?? ""},${prop.state ?? ""},Brasil`,
+      `${prop.neighborhood ?? ""},${prop.city ?? ""},${stateFullName(prop.state)},Brasil`,
       "        ",
     ),
   );

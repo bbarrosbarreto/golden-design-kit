@@ -137,3 +137,9 @@ Plano Piloto e do Noroeste precisariam ser enviados sob Brasília (`V1-C-99998`)
 
 Se a Navent recusar anúncios por tipo, subtipo ou característica, refaça as consultas
 acima, substitua os JSON deste diretório e compare com as tabelas — os ids podem mudar.
+
+## Etapa 2F — ajustes pedidos pelo Grupo QuintoAndar
+
+- **CON1** (`MEDIDAS|UNIDAD_DE_MEDIDA`): tipo `Select`, valores admitidos `HA` (Hectáreas) e `M2` (Metro Cuadrado). Usa `<idValor>M2</idValor>`, não `<valor>`. Emitida em todo imóvel que tenha CFT100 ou CFT101.
+- Todas as características saem com `<id>`, `<nome>` (nome exato do catálogo) e `<valor>`/`<idValor>`.
+- `<localidade>` usa o estado por extenso (`Noroeste,Brasília,Distrito Federal,Brasil`). O banco guarda a sigla; a conversão (27 UFs) acontece só no feed OpenNavent. Sigla desconhecida sai como está.
