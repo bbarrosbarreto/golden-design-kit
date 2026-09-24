@@ -88,7 +88,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/hDMZqNlfVCTnpJfR1dLYHlq8TAh2/social-images/social-1779562685212-IMG_1318.webp" },
     ],
     links: [
-      { rel: "canonical", href: "https://brunobarretoimoveis.com.br" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {

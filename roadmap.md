@@ -45,3 +45,7 @@
 ## Etapa 3 — Integração e validação
 - [ ] Testar URLs de feed nos portais
 - [x] PropertyForm: resumo de erros clicável no topo, rolagem/foco no 1º campo, painel unificado com a validação de save (Preço > 0 obrigatório); sem tocar em evaluateReadiness/isReady
+
+## SEO — Canonical duplicado (concluída)
+- [x] Canonical genérico removido de `__root.tsx`; layouts `imoveis.tsx`/`empreendimentos.tsx` sem `head()` (só tinham canonical)
+- [x] Verificado no HTML servido: 1 canonical por página em /, /sobre, /contato, /imoveis, /empreendimentos e detalhe de imóvel; /admin sem canonical
