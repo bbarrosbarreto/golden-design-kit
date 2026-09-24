@@ -45,11 +45,10 @@ import {
   EXPORT_PORTALS,
   categoriesForType,
   digitsOnly,
-  evaluateReadiness,
+  evaluateFormReadiness,
   firstCategoryFor,
   formatPostalCode,
   isCategoryValidFor,
-  isReady,
 } from "@/lib/property-export";
 
 export type PropertyRow = {
@@ -353,6 +352,7 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
       reset(initialData ? toForm(initialData) : empty);
       setSlugDirty(!!initialData);
       setImagesValid(true);
+      setBlockedFields([]);
     }
   }, [open, initialData, reset]);
 
@@ -378,7 +378,6 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
   const street = watch("street");
   const city = watch("city");
   const state = watch("state");
-  const rentPrice = watch("rent_price");
   const category = watch("category");
   const exportEnabled = watch("export_enabled");
   const exportPortals = watch("export_portals");
@@ -389,18 +388,41 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
   const bedrooms = watch("bedrooms");
   const bathrooms = watch("bathrooms");
 
-  const readinessChecks = evaluateReadiness({
-    postal_code: postalCode,
-    neighborhood,
-    street,
-    description,
-    imageCount: images.length,
+  // Fonte única: o painel de prontidão e o bloqueio do save usam a mesma lista.
+  const readinessChecks = evaluateFormReadiness({
     title,
+    description,
+    street,
+    neighborhood,
+    postal_code: postalCode,
+    city,
+    state,
     price,
-    rent_price: isVenda ? rentPrice : "",
+    area,
+    useful_area: usefulArea,
+    built_area: builtArea,
+    green_area: greenArea,
+    bedrooms,
+    bathrooms,
+    imageCount: images.length,
+    type,
     export_portals: exportPortals,
   });
-  const ready = isReady(readinessChecks);
+  const ready = readinessChecks.every((c) => c.ok);
+
+  // Campos que bloquearam o último save — o resumo no topo é recalculado em
+  // tempo real a partir deles e some quando tudo é corrigido.
+  const [blockedFields, setBlockedFields] = useState<string[]>([]);
+  const blockedSummary = readinessChecks.filter(
+    (c) => blockedFields.includes(c.field) && !c.ok,
+  );
+
+  const scrollToField = (field: string) => {
+    const el = document.getElementById(field);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (el instanceof HTMLElement) el.focus({ preventScroll: true });
+  };
 
   // Anúncio que deixa de ser válido não pode continuar marcado para exportar.
   useEffect(() => {
@@ -426,6 +448,7 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
   // Quando a exportação é desligada, limpa os erros de campos obrigatórios dela.
   useEffect(() => {
     if (!exportEnabled) {
+      setBlockedFields([]);
       clearErrors([
         "title",
         "description",
@@ -506,81 +529,52 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
     return parts.join(" — ") || "Erro desconhecido do banco";
   };
 
-  function validateForExport(values: FormValues): Record<string, string> {
-    const errors: Record<string, string> = {};
-    const titleLen = values.title.trim().length;
-    if (titleLen < 10 || titleLen > 100) {
-      errors.title = "Título precisa ter entre 10 e 100 caracteres";
-    }
-    const descLen = values.description.trim().length;
-    if (descLen < 50 || descLen > 3000) {
-      errors.description = "Descrição precisa ter entre 50 e 3000 caracteres";
-    }
-    if (values.neighborhood.trim() === "") {
-      errors.neighborhood = "Informe o bairro";
-    }
-    if (digitsOnly(values.postal_code).length !== 8) {
-      errors.postal_code = "CEP precisa ter 8 dígitos";
-    }
-    if (values.street.trim() === "") {
-      errors.street = "Informe o logradouro";
-    }
-    if (values.city.trim() === "") {
-      errors.city = "Informe a cidade";
-    }
-    if (values.state.trim() === "") {
-      errors.state = "Informe o estado";
-    }
-    const hasArea =
-      numOrNull(values.area) != null ||
-      numOrNull(values.useful_area) != null ||
-      numOrNull(values.built_area) != null ||
-      numOrNull(values.green_area) != null;
-    if (!hasArea) {
-      errors.area = "Informe ao menos uma área";
-    }
-    if (numOrNull(values.price) == null) {
-      errors.price = "Informe um valor maior que zero";
-    }
-    if (values.images.length < 5) {
-      errors.images = "Adicione pelo menos 5 imagens";
-    }
-    const isResidential =
-      values.type === "apartamento" ||
-      values.type === "cobertura" ||
-      values.type === "casa" ||
-      values.type === "casa_condominio";
-    if (isResidential) {
-      if (numOrNull(values.bedrooms) == null) {
-        errors.bedrooms = "Informe a quantidade de quartos";
-      }
-      if (numOrNull(values.bathrooms) == null) {
-        errors.bathrooms = "Informe a quantidade de banheiros";
+  // Validação de exportação roda no submit (antes da mutação), para poder
+  // marcar os campos, montar o resumo e rolar até o primeiro erro.
+  const onSubmit = (values: FormValues) => {
+    if (values.export_enabled) {
+      const failing = evaluateFormReadiness({
+        title: values.title,
+        description: values.description,
+        street: values.street,
+        neighborhood: values.neighborhood,
+        postal_code: values.postal_code,
+        city: values.city,
+        state: values.state,
+        price: values.price,
+        area: values.area,
+        useful_area: values.useful_area,
+        built_area: values.built_area,
+        green_area: values.green_area,
+        bedrooms: values.bedrooms,
+        bathrooms: values.bathrooms,
+        imageCount: values.images.length,
+        type: values.type,
+        export_portals: values.export_portals,
+      }).filter((c) => !c.ok);
+      if (failing.length > 0) {
+        for (const c of failing) {
+          // O erro de área é sempre exibido sob a chave "area" no JSX,
+          // mesmo quando o campo visível é useful_area (apartamento).
+          const errorKey = c.label === "Área" ? "area" : c.field;
+          setError(errorKey as keyof FormValues, { type: "manual", message: c.reason });
+        }
+        setBlockedFields(failing.map((c) => c.field));
+        scrollToField(failing[0].field);
+        toast.error("Preencha os campos obrigatórios para exportação");
+        return;
       }
     }
-    return errors;
-  }
+    setBlockedFields([]);
+    mutation.mutate(values);
+  };
 
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
-      if (values.export_enabled && values.export_portals.length === 0) {
-        throw new Error(
-          "Selecione ao menos um portal para exportar, ou desligue a exportação.",
-        );
-      }
       if (!isCategoryValidFor(values.type, values.category)) {
         throw new Error(
           "A categoria selecionada não é válida para este tipo de imóvel.",
         );
-      }
-      if (values.export_enabled) {
-        const exportErrors = validateForExport(values);
-        if (Object.keys(exportErrors).length > 0) {
-          for (const [key, message] of Object.entries(exportErrors)) {
-            setError(key as keyof FormValues, { type: "manual", message });
-          }
-          throw new Error("Preencha os campos obrigatórios para exportação");
-        }
       }
       const payload = toPayload(values, ready);
       if (!payload.title) throw new Error("Título é obrigatório");
@@ -615,6 +609,9 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
 
   const onInvalid = (errors: unknown) => {
     console.warn("[PropertyForm] validation errors:", errors);
+    const fields = Object.keys(errors as Record<string, unknown>);
+    setBlockedFields(fields);
+    if (fields[0]) scrollToField(fields[0]);
     toast.error("Verifique os campos obrigatórios");
   };
 
@@ -643,13 +640,36 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
         </DialogHeader>
 
         <form
-          onSubmit={handleSubmit((v) => mutation.mutate(v), onInvalid)}
+          onSubmit={handleSubmit(onSubmit, onInvalid)}
           className="space-y-5 font-body"
         >
           {!imagesValid && (
             <Alert variant="destructive">
               <AlertDescription>
                 Corrija os números de ordem repetidos antes de salvar.
+              </AlertDescription>
+            </Alert>
+          )}
+          {blockedSummary.length > 0 && (
+            <Alert variant="destructive">
+              <AlertDescription>
+                <p className="font-medium">
+                  Não foi possível salvar. Faltam:
+                </p>
+                <ul className="mt-1 flex flex-wrap gap-x-1.5 gap-y-1">
+                  {blockedSummary.map((c, i) => (
+                    <li key={c.field}>
+                      <button
+                        type="button"
+                        className="underline underline-offset-2"
+                        onClick={() => scrollToField(c.field)}
+                      >
+                        {c.label}
+                      </button>
+                      {i < blockedSummary.length - 1 ? "," : "."}
+                    </li>
+                  ))}
+                </ul>
               </AlertDescription>
             </Alert>
           )}
@@ -942,7 +962,7 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
             </div>
           )}
 
-          <div className="space-y-2">
+          <div id="images" tabIndex={-1} className="space-y-2">
             <Label>
               Imagens{exportEnabled && " *"}
             </Label>
@@ -1069,7 +1089,7 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
               </ul>
             </div>
 
-            <div className="space-y-2">
+            <div id="export_portals" tabIndex={-1} className="space-y-2">
               <p className="text-sm font-medium">Portais</p>
               {EXPORT_PORTALS.map((p) => (
                 <div key={p.value} className="flex items-center gap-3">

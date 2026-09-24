@@ -41,3 +41,4 @@
 
 ## Etapa 3 — Integração e validação
 - [ ] Testar URLs de feed nos portais
+- [x] PropertyForm: resumo de erros clicável no topo, rolagem/foco no 1º campo, painel unificado com a validação de save (Preço > 0 obrigatório); sem tocar em evaluateReadiness/isReady
