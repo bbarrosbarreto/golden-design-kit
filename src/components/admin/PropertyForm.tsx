@@ -528,81 +528,49 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
     return parts.join(" — ") || "Erro desconhecido do banco";
   };
 
-  function validateForExport(values: FormValues): Record<string, string> {
-    const errors: Record<string, string> = {};
-    const titleLen = values.title.trim().length;
-    if (titleLen < 10 || titleLen > 100) {
-      errors.title = "Título precisa ter entre 10 e 100 caracteres";
-    }
-    const descLen = values.description.trim().length;
-    if (descLen < 50 || descLen > 3000) {
-      errors.description = "Descrição precisa ter entre 50 e 3000 caracteres";
-    }
-    if (values.neighborhood.trim() === "") {
-      errors.neighborhood = "Informe o bairro";
-    }
-    if (digitsOnly(values.postal_code).length !== 8) {
-      errors.postal_code = "CEP precisa ter 8 dígitos";
-    }
-    if (values.street.trim() === "") {
-      errors.street = "Informe o logradouro";
-    }
-    if (values.city.trim() === "") {
-      errors.city = "Informe a cidade";
-    }
-    if (values.state.trim() === "") {
-      errors.state = "Informe o estado";
-    }
-    const hasArea =
-      numOrNull(values.area) != null ||
-      numOrNull(values.useful_area) != null ||
-      numOrNull(values.built_area) != null ||
-      numOrNull(values.green_area) != null;
-    if (!hasArea) {
-      errors.area = "Informe ao menos uma área";
-    }
-    if (numOrNull(values.price) == null) {
-      errors.price = "Informe um valor maior que zero";
-    }
-    if (values.images.length < 5) {
-      errors.images = "Adicione pelo menos 5 imagens";
-    }
-    const isResidential =
-      values.type === "apartamento" ||
-      values.type === "cobertura" ||
-      values.type === "casa" ||
-      values.type === "casa_condominio";
-    if (isResidential) {
-      if (numOrNull(values.bedrooms) == null) {
-        errors.bedrooms = "Informe a quantidade de quartos";
-      }
-      if (numOrNull(values.bathrooms) == null) {
-        errors.bathrooms = "Informe a quantidade de banheiros";
+  // Validação de exportação roda no submit (antes da mutação), para poder
+  // marcar os campos, montar o resumo e rolar até o primeiro erro.
+  const onSubmit = (values: FormValues) => {
+    if (values.export_enabled) {
+      const failing = evaluateFormReadiness({
+        title: values.title,
+        description: values.description,
+        street: values.street,
+        neighborhood: values.neighborhood,
+        postal_code: values.postal_code,
+        city: values.city,
+        state: values.state,
+        price: values.price,
+        area: values.area,
+        useful_area: values.useful_area,
+        built_area: values.built_area,
+        green_area: values.green_area,
+        bedrooms: values.bedrooms,
+        bathrooms: values.bathrooms,
+        imageCount: values.images.length,
+        type: values.type,
+        export_portals: values.export_portals,
+      }).filter((c) => !c.ok);
+      if (failing.length > 0) {
+        for (const c of failing) {
+          setError(c.field as keyof FormValues, { type: "manual", message: c.reason });
+        }
+        setBlockedFields(failing.map((c) => c.field));
+        scrollToField(failing[0].field);
+        toast.error("Preencha os campos obrigatórios para exportação");
+        return;
       }
     }
-    return errors;
-  }
+    setBlockedFields([]);
+    mutation.mutate(values);
+  };
 
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
-      if (values.export_enabled && values.export_portals.length === 0) {
-        throw new Error(
-          "Selecione ao menos um portal para exportar, ou desligue a exportação.",
-        );
-      }
       if (!isCategoryValidFor(values.type, values.category)) {
         throw new Error(
           "A categoria selecionada não é válida para este tipo de imóvel.",
         );
-      }
-      if (values.export_enabled) {
-        const exportErrors = validateForExport(values);
-        if (Object.keys(exportErrors).length > 0) {
-          for (const [key, message] of Object.entries(exportErrors)) {
-            setError(key as keyof FormValues, { type: "manual", message });
-          }
-          throw new Error("Preencha os campos obrigatórios para exportação");
-        }
       }
       const payload = toPayload(values, ready);
       if (!payload.title) throw new Error("Título é obrigatório");
@@ -637,6 +605,9 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
 
   const onInvalid = (errors: unknown) => {
     console.warn("[PropertyForm] validation errors:", errors);
+    const fields = Object.keys(errors as Record<string, unknown>);
+    setBlockedFields(fields);
+    if (fields[0]) scrollToField(fields[0]);
     toast.error("Verifique os campos obrigatórios");
   };
 
