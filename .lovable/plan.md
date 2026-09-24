@@ -8,7 +8,7 @@ Cada página pública deve ter exatamente UMA tag canonical, com a URL da própr
 Remover a linha do canonical genérico (`{ rel: "canonical", href: "https://brunobarretoimoveis.com.br" }`, linha 91) do array `links`. A home já tem canonical própria em `index.tsx` com barra final — essa é a versão que fica.
 
 ### 2. `src/routes/imoveis.tsx` e `src/routes/empreendimentos.tsx`
-Remover o `head()` inteiro de cada layout intermediário (eles só renderizam `<Outlet />`). As rotas ficam apenas com `component`. Isso elimina a canonical da listagem que hoje contamina as páginas de detalhe ($slug).
+Remover APENAS a entrada de canonical do array `links` do `head()` de cada layout intermediário. Verificação prévia confirmou: em ambos os arquivos o `head()` contém somente o canonical (nenhum title, meta, Open Graph ou JSON-LD). Como o `head()` ficará vazio após a remoção, ele será removido por completo, restando apenas o `component` com `<Outlet />`. Se qualquer outra entrada fosse encontrada, o `head()` seria mantido com o restante intacto. Isso elimina a canonical da listagem que hoje contamina as páginas de detalhe ($slug).
 
 ### 3. Manter como estão as 7 rotas folha
 Nenhuma alteração em: `index.tsx`, `sobre.tsx`, `contato.tsx`, `imoveis.index.tsx`, `imoveis.$slug.tsx`, `empreendimentos.index.tsx`, `empreendimentos.$slug.tsx`. Elas já emitem a canonical correta da própria URL.
