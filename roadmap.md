@@ -35,5 +35,9 @@
 - [x] Campos obrigatórios no formulário quando exportação está ligada
 - [x] Número opcional (S/N se não houver) e omitido do feed quando vazio
 
+## Etapa 2F — Ajustes QuintoAndar (Wimóveis)
+- [x] Característica CON1 (M2) e <nome> em todas as características
+- [x] Estado por extenso em <localidade>
+
 ## Etapa 3 — Integração e validação
 - [ ] Testar URLs de feed nos portais
