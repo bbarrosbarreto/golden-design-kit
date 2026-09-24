@@ -22,5 +22,8 @@ Hoje o painel aceita "preço de venda **ou** valor de aluguel", mas o save exige
   - O resumo é recalculado a partir dos valores em tempo real, filtrado pelos campos que bloquearam o save.
   - O resumo usa os tokens `destructive` já existentes, sem cores fixas no código.
 
-## Não mexer
-Feeds XML (`feed-*.ts`, `evaluateReadiness`), banco de dados, upload de imagens.
+## Confirmações do usuário (aprovado com estas condições)
+- Regra de preço: a do save — **Preço > 0 obrigatório sempre**; o painel é corrigido para segui-la (price é sempre o valor principal lido pelos feeds).
+- `evaluateReadiness` e `isReady` **não são alteradas** (feed-common.ts depende delas).
+- Nenhum `feed-*.ts`, banco de dados ou upload de imagens é alterado.
+- O resumo de erro usa os tokens `destructive` existentes, sem cor fixa no código.
