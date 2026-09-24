@@ -53,7 +53,12 @@ const NAVENT_FEATURES = {
   areaUtil: { id: "CFT101", nome: "MEDIDAS|AREA_UTIL" },
   // Idade em anos, não o ano de construção.
   idadeImovel: { id: "CFT5", nome: "PRINCIPALES|IDADE_DO_IMOVEL" },
+  condominio: { id: "CFT6", nome: "PRINCIPALES|CONDOMINIO" },
+  iptu: { id: "CFT400", nome: "PRINCIPALES|IPTU" },
 } as const;
+
+// 2000199 é "Campo abierto" (texto) → usa <valor>.
+const NAVENT_COMPLEMENTO = { id: "2000199", nome: "GENERALES|COMPLEMENTO" };
 
 // CON1 é "Select" (valores HA ou M2) → usa <idValor>. Pedido do QuintoAndar.
 const NAVENT_UNIDADE_MEDIDA = { id: "CON1", nome: "MEDIDAS|UNIDAD_DE_MEDIDA", idValor: "M2" };
@@ -111,6 +116,9 @@ type FeedProperty = {
   image_category_order: unknown;
   video_url: string | null;
   export_portals: string[] | null;
+  condo_fee: number | null;
+  iptu: number | null;
+  complement: string | null;
 };
 
 const SELECT_COLUMNS = [
@@ -143,10 +151,21 @@ const SELECT_COLUMNS = [
   "image_category_order",
   "video_url",
   "export_portals",
+  "condo_fee",
+  "iptu",
+  "complement",
 ].join(",");
 
 function stripAccents(text: string): string {
   return text.normalize("NFD").replace(/[̀-ͯ]/g, "");
+}
+
+/** Remove emojis, símbolos pictográficos e caracteres de controle/invisíveis. */
+function sanitizeText(text: string): string {
+  return text
+    .replace(/[\p{Extended_Pictographic}\p{Cc}\p{Cf}\p{Co}\p{Cs}\uFE0F]/gu, "")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 /**
@@ -239,6 +258,26 @@ function buildCaracteristicas(prop: FeedProperty): string | null {
   }
 
   // living_rooms não é enviado: não há característica equivalente no catálogo.
+
+  // Condomínio e IPTU: só quando > 0.
+  const condo = intOrNull(prop.condo_fee);
+  if (condo !== null && condo > 0) add(NAVENT_FEATURES.condominio, condo);
+  const iptu = intOrNull(prop.iptu);
+  if (iptu !== null && iptu > 0) add(NAVENT_FEATURES.iptu, iptu);
+
+  // Complemento (campo aberto): sem emojis/caracteres invisíveis, em CDATA.
+  const complemento = sanitizeText(prop.complement ?? "");
+  if (complemento) {
+    itens.push(
+      [
+        "        <caracteristica>",
+        `          <id>${NAVENT_COMPLEMENTO.id}</id>`,
+        `          <nome>${NAVENT_COMPLEMENTO.nome}</nome>`,
+        `          <valor>${cdata(complemento)}</valor>`,
+        "        </caracteristica>",
+      ].join("\n"),
+    );
+  }
 
   if (itens.length === 0) return null;
   return ["      <caracteristicas>", ...itens, "      </caracteristicas>"].join("\n");
