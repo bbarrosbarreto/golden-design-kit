@@ -28,6 +28,9 @@
 - [x] AreaTotal com fallback para AreaUtil (só neste feed)
 - [x] /feeds/zap.xml e /feeds/wimoveis.xml inalterados
 
+## Etapa 2G — CodigoCliente no feed do DF Imóveis (concluída)
+- [x] Tag `<CodigoCliente>10974</CodigoCliente>` como primeira tag de cada `<Imovel>` (7 imóveis)
+
 ## Etapa 2.5 — Ajustes de qualidade do feed ZAP
 - [x] Nunca emitir tag vazia no XML
 - [x] Logradouro obrigatório para exportação (8 itens no painel de prontidão)

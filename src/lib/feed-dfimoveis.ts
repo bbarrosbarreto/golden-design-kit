@@ -33,6 +33,9 @@ import {
 
 const CRECI = "34060";
 
+// Código de cliente fornecido pelo DF Imóveis para esta conta
+const CODIGO_CLIENTE = "10974";
+
 type FeedProperty = {
   listing_code: string | null;
   type: string | null;
@@ -131,6 +134,7 @@ function buildImovel(prop: FeedProperty, images: PropImage[]): string {
   const { tipo, subtipo } = dfPropertyType(prop.type, prop.category);
   const lines: (string | null)[] = [];
 
+  lines.push(tag("CodigoCliente", CODIGO_CLIENTE));
   lines.push(tagOptional("CodigoImovel", (prop.listing_code ?? "").slice(0, 10)));
   lines.push(tag("TipoImovel", tipo));
   lines.push(tag("SubTipoImovel", subtipo));
