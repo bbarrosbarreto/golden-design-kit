@@ -448,6 +448,7 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
   // Quando a exportação é desligada, limpa os erros de campos obrigatórios dela.
   useEffect(() => {
     if (!exportEnabled) {
+      setBlockedFields([]);
       clearErrors([
         "title",
         "description",
@@ -636,13 +637,36 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
         </DialogHeader>
 
         <form
-          onSubmit={handleSubmit((v) => mutation.mutate(v), onInvalid)}
+          onSubmit={handleSubmit(onSubmit, onInvalid)}
           className="space-y-5 font-body"
         >
           {!imagesValid && (
             <Alert variant="destructive">
               <AlertDescription>
                 Corrija os números de ordem repetidos antes de salvar.
+              </AlertDescription>
+            </Alert>
+          )}
+          {blockedSummary.length > 0 && (
+            <Alert variant="destructive">
+              <AlertDescription>
+                <p className="font-medium">
+                  Não foi possível salvar. Faltam:
+                </p>
+                <ul className="mt-1 flex flex-wrap gap-x-1.5 gap-y-1">
+                  {blockedSummary.map((c, i) => (
+                    <li key={c.field}>
+                      <button
+                        type="button"
+                        className="underline underline-offset-2"
+                        onClick={() => scrollToField(c.field)}
+                      >
+                        {c.label}
+                      </button>
+                      {i < blockedSummary.length - 1 ? "," : "."}
+                    </li>
+                  ))}
+                </ul>
               </AlertDescription>
             </Alert>
           )}
