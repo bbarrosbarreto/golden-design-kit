@@ -43,16 +43,36 @@ const NAVENT_SUBTIPO_SOBRADO = "33"; // Casa / Sobrado
 const NAVENT_OPERATIONS = { venda: "VENTA", aluguel: "ALQUILER" } as const;
 
 // Características numéricas (todas "Campo numerico abierto" → usam <valor>).
-// Ver docs/navent/README.md para o nome oficial de cada id.
+// id + nome exatamente como no catálogo (docs/navent/caracteristicas-*.json).
 const NAVENT_FEATURES = {
-  quartos: "CFT2", // PRINCIPALES|QUARTO
-  banheiros: "CFT3", // PRINCIPALES|BANHEIRO
-  suites: "CFT4", // PRINCIPALES|SUITE
-  vagas: "CFT7", // PRINCIPALES|VAGA
-  areaTotal: "CFT100", // MEDIDAS|AREA_TOTAL
-  areaUtil: "CFT101", // MEDIDAS|AREA_UTIL
-  idadeImovel: "CFT5", // PRINCIPALES|IDADE_DO_IMOVEL (idade em anos, não o ano)
+  quartos: { id: "CFT2", nome: "PRINCIPALES|QUARTO" },
+  banheiros: { id: "CFT3", nome: "PRINCIPALES|BANHEIRO" },
+  suites: { id: "CFT4", nome: "PRINCIPALES|SUITE" },
+  vagas: { id: "CFT7", nome: "PRINCIPALES|VAGA" },
+  areaTotal: { id: "CFT100", nome: "MEDIDAS|AREA_TOTAL" },
+  areaUtil: { id: "CFT101", nome: "MEDIDAS|AREA_UTIL" },
+  // Idade em anos, não o ano de construção.
+  idadeImovel: { id: "CFT5", nome: "PRINCIPALES|IDADE_DO_IMOVEL" },
 } as const;
+
+// CON1 é "Select" (valores HA ou M2) → usa <idValor>. Pedido do QuintoAndar.
+const NAVENT_UNIDADE_MEDIDA = { id: "CON1", nome: "MEDIDAS|UNIDAD_DE_MEDIDA", idValor: "M2" };
+
+// Sigla → nome por extenso, usado só em <localidade> (o banco guarda a sigla).
+const UF_NAMES: Record<string, string> = {
+  AC: "Acre", AL: "Alagoas", AP: "Amapá", AM: "Amazonas", BA: "Bahia",
+  CE: "Ceará", DF: "Distrito Federal", ES: "Espírito Santo", GO: "Goiás",
+  MA: "Maranhão", MT: "Mato Grosso", MS: "Mato Grosso do Sul", MG: "Minas Gerais",
+  PA: "Pará", PB: "Paraíba", PR: "Paraná", PE: "Pernambuco", PI: "Piauí",
+  RJ: "Rio de Janeiro", RN: "Rio Grande do Norte", RS: "Rio Grande do Sul",
+  RO: "Rondônia", RR: "Roraima", SC: "Santa Catarina", SP: "São Paulo",
+  SE: "Sergipe", TO: "Tocantins",
+};
+
+function stateFullName(state: string | null): string {
+  const raw = (state ?? "").trim();
+  return UF_NAMES[raw.toUpperCase()] ?? raw;
+}
 
 // ATENÇÃO: o feed do Wimóveis NÃO deve ir ao ar antes de trocar o valor
 // abaixo pelo email real — é o endereço para onde o portal envia os leads.
@@ -177,24 +197,39 @@ function naventType(
  */
 function buildCaracteristicas(prop: FeedProperty): string | null {
   const itens: string[] = [];
-  const add = (id: string, value: number | null) => {
-    if (value === null || !Number.isFinite(value) || value < 0) return;
+  let temArea = false;
+  const add = (f: { id: string; nome: string }, value: number | null): boolean => {
+    if (value === null || !Number.isFinite(value) || value < 0) return false;
     itens.push(
       [
         "        <caracteristica>",
-        `          <id>${id}</id>`,
+        `          <id>${f.id}</id>`,
+        `          <nome>${f.nome}</nome>`,
         `          <valor>${value}</valor>`,
         "        </caracteristica>",
       ].join("\n"),
     );
+    return true;
   };
 
   add(NAVENT_FEATURES.quartos, intOrNull(prop.bedrooms));
   add(NAVENT_FEATURES.banheiros, intOrNull(prop.bathrooms));
   add(NAVENT_FEATURES.suites, intOrNull(prop.suites));
   add(NAVENT_FEATURES.vagas, intOrNull(prop.parking_spots));
-  add(NAVENT_FEATURES.areaTotal, intOrNull(prop.area));
-  add(NAVENT_FEATURES.areaUtil, intOrNull(prop.useful_area ?? prop.built_area));
+  if (add(NAVENT_FEATURES.areaTotal, intOrNull(prop.area))) temArea = true;
+  if (add(NAVENT_FEATURES.areaUtil, intOrNull(prop.useful_area ?? prop.built_area))) temArea = true;
+
+  if (temArea) {
+    itens.push(
+      [
+        "        <caracteristica>",
+        `          <id>${NAVENT_UNIDADE_MEDIDA.id}</id>`,
+        `          <nome>${NAVENT_UNIDADE_MEDIDA.nome}</nome>`,
+        `          <idValor>${NAVENT_UNIDADE_MEDIDA.idValor}</idValor>`,
+        "        </caracteristica>",
+      ].join("\n"),
+    );
+  }
 
   // CFT5 é IDADE_DO_IMOVEL (anos), não o ano de construção.
   const ano = intOrNull(prop.year_built);
