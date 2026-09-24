@@ -45,11 +45,10 @@ import {
   EXPORT_PORTALS,
   categoriesForType,
   digitsOnly,
-  evaluateReadiness,
+  evaluateFormReadiness,
   firstCategoryFor,
   formatPostalCode,
   isCategoryValidFor,
-  isReady,
 } from "@/lib/property-export";
 
 export type PropertyRow = {
@@ -389,18 +388,41 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
   const bedrooms = watch("bedrooms");
   const bathrooms = watch("bathrooms");
 
-  const readinessChecks = evaluateReadiness({
-    postal_code: postalCode,
-    neighborhood,
-    street,
-    description,
-    imageCount: images.length,
+  // Fonte única: o painel de prontidão e o bloqueio do save usam a mesma lista.
+  const readinessChecks = evaluateFormReadiness({
     title,
+    description,
+    street,
+    neighborhood,
+    postal_code: postalCode,
+    city,
+    state,
     price,
-    rent_price: isVenda ? rentPrice : "",
+    area,
+    useful_area: usefulArea,
+    built_area: builtArea,
+    green_area: greenArea,
+    bedrooms,
+    bathrooms,
+    imageCount: images.length,
+    type,
     export_portals: exportPortals,
   });
-  const ready = isReady(readinessChecks);
+  const ready = readinessChecks.every((c) => c.ok);
+
+  // Campos que bloquearam o último save — o resumo no topo é recalculado em
+  // tempo real a partir deles e some quando tudo é corrigido.
+  const [blockedFields, setBlockedFields] = useState<string[]>([]);
+  const blockedSummary = readinessChecks.filter(
+    (c) => blockedFields.includes(c.field) && !c.ok,
+  );
+
+  const scrollToField = (field: string) => {
+    const el = document.getElementById(field);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (el instanceof HTMLElement) el.focus({ preventScroll: true });
+  };
 
   // Anúncio que deixa de ser válido não pode continuar marcado para exportar.
   useEffect(() => {
