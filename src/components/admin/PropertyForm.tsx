@@ -959,7 +959,7 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
             </div>
           )}
 
-          <div className="space-y-2">
+          <div id="images" tabIndex={-1} className="space-y-2">
             <Label>
               Imagens{exportEnabled && " *"}
             </Label>
@@ -1086,7 +1086,7 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
               </ul>
             </div>
 
-            <div className="space-y-2">
+            <div id="export_portals" tabIndex={-1} className="space-y-2">
               <p className="text-sm font-medium">Portais</p>
               {EXPORT_PORTALS.map((p) => (
                 <div key={p.value} className="flex items-center gap-3">
