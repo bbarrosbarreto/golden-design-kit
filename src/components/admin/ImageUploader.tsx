@@ -17,6 +17,72 @@ import { findDuplicateOrders, nextOrderFor, type PropImage } from "@/lib/propert
 
 type UploaderImage = PropImage;
 
+const HEIC_TYPES = ["image/heic", "image/heif", "image/heic-sequence", "image/heif-sequence"];
+
+function isHeic(file: File): boolean {
+  return /\.(heic|heif)$/i.test(file.name) || HEIC_TYPES.includes(file.type.toLowerCase());
+}
+
+async function decode(src: Blob): Promise<ImageBitmap | HTMLImageElement> {
+  try {
+    return await createImageBitmap(src, { imageOrientation: "from-image" });
+  } catch {
+    const url = URL.createObjectURL(src);
+    try {
+      return await new Promise<HTMLImageElement>((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error("image decode failed"));
+        img.src = url;
+      });
+    } finally {
+      // revoked after draw below via closure is unnecessary; image is loaded already
+      setTimeout(() => URL.revokeObjectURL(url), 0);
+    }
+  }
+}
+
+async function canvasToJpeg(src: Blob): Promise<Blob> {
+  const img = await decode(src);
+  try {
+    const width = "naturalWidth" in img ? img.naturalWidth : img.width;
+    const height = "naturalHeight" in img ? img.naturalHeight : img.height;
+    if (!width || !height) throw new Error("empty image");
+    const max = 1920;
+    const scale = Math.min(1, max / Math.max(width, height));
+    const w = Math.round(width * scale);
+    const h = Math.round(height * scale);
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("canvas context unavailable");
+    ctx.drawImage(img, 0, 0, w, h);
+    return await new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob(
+        (blob) => (blob ? resolve(blob) : reject(new Error("JPEG conversion failed"))),
+        "image/jpeg",
+        0.85,
+      );
+    });
+  } finally {
+    if ("close" in img) img.close();
+  }
+}
+
+async function toJpeg(file: File): Promise<Blob> {
+  try {
+    return await canvasToJpeg(file);
+  } catch (err) {
+    if (!isHeic(file)) throw err;
+    const { default: heic2any } = await import("heic2any");
+    const out = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.92 });
+    const first = Array.isArray(out) ? out[0] : out;
+    if (!first) throw new Error("HEIC decode returned nothing");
+    return await canvasToJpeg(first);
+  }
+}
+
 interface Props {
   value: UploaderImage[] | unknown;
   onChange: (images: UploaderImage[]) => void;
@@ -34,6 +100,8 @@ export function ImageUploader({
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
+  const [hasHeic, setHasHeic] = useState(false);
   const [tab, setTab] = useState<string>("todas");
 
   const cats = categories ?? IMAGE_CATEGORIES;
@@ -87,41 +155,6 @@ export function ImageUploader({
     onValidityChange?.(dupKey === "");
   }, [dupKey, onValidityChange]);
 
-  async function toJpeg(file: File): Promise<Blob> {
-    const bitmap = await createImageBitmap(file);
-    try {
-      const max = 1920;
-      const { width, height } = bitmap;
-      let w = width;
-      let h = height;
-      if (width > height && width > max) {
-        w = max;
-        h = Math.round((height * max) / width);
-      } else if (height > max) {
-        h = max;
-        w = Math.round((width * max) / height);
-      }
-      const canvas = document.createElement("canvas");
-      canvas.width = w;
-      canvas.height = h;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) throw new Error("canvas context unavailable");
-      ctx.drawImage(bitmap, 0, 0, w, h);
-      return await new Promise<Blob>((resolve, reject) => {
-        canvas.toBlob(
-          (blob) => {
-            if (!blob) reject(new Error("JPEG conversion failed"));
-            else resolve(blob);
-          },
-          "image/jpeg",
-          0.85,
-        );
-      });
-    } finally {
-      bitmap.close();
-    }
-  }
-
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
@@ -131,40 +164,70 @@ export function ImageUploader({
       return;
     }
 
+    const list = Array.from(files);
+    setHasHeic(list.some(isHeic));
+    setProgress({ done: 0, total: list.length });
     setUploading(true);
+    const results: (string | null)[] = new Array(list.length).fill(null);
+    let failed = 0;
+    let done = 0;
+    let cursor = 0;
+
+    const processOne = async (file: File, idx: number) => {
+      let blob: Blob;
+      try {
+        blob = await toJpeg(file);
+      } catch (err) {
+        console.error("[ImageUploader] JPEG conversion failed", file.name, err);
+        toast.error(`Não foi possível converter ${file.name}`);
+        failed += 1;
+        return;
+      }
+      const baseName = file.name.replace(/\.[^.]+$/, "");
+      const path = `${crypto.randomUUID()}-${baseName}.jpg`;
+      const { data, error } = await supabase.storage
+        .from(bucket)
+        .upload(path, blob, { contentType: "image/jpeg", cacheControl: "3600", upsert: true });
+      if (error || !data) {
+        console.error("[ImageUploader] upload failed", error);
+        toast.error(`Falha ao enviar ${file.name}: ${error?.message ?? "erro desconhecido"}`);
+        failed += 1;
+        return;
+      }
+      results[idx] = supabase.storage.from(bucket).getPublicUrl(data.path).data.publicUrl;
+    };
+
+    const worker = async () => {
+      while (cursor < list.length) {
+        const idx = cursor++;
+        await processOne(list[idx], idx);
+        done += 1;
+        setProgress({ done, total: list.length });
+        await new Promise((r) => setTimeout(r, 0));
+      }
+    };
+
     try {
-      const uploaded: UploaderImage[] = [];
+      await Promise.all(Array.from({ length: Math.min(2, list.length) }, worker));
       let next = nextOrderFor(images, "outros");
-      for (const file of Array.from(files)) {
-        let blob: Blob;
-        let baseName: string;
-        try {
-          blob = await toJpeg(file);
-          baseName = file.name.replace(/\.[^.]+$/, "");
-        } catch (err) {
-          console.error("[ImageUploader] JPEG conversion failed", err);
-          toast.error(`Não foi possível converter ${file.name}. Envie em JPG ou PNG.`);
-          continue;
-        }
-        const path = `${crypto.randomUUID()}-${baseName}.jpg`;
-        const { data, error } = await supabase.storage
-          .from(bucket)
-          .upload(path, blob, { contentType: "image/jpeg", cacheControl: "3600", upsert: true });
-        if (error || !data) {
-          console.error("[ImageUploader] upload failed", error);
-          toast.error(`Falha ao enviar ${file.name}: ${error?.message ?? "erro desconhecido"}`);
-          continue;
-        }
-        const { data: pub } = supabase.storage.from(bucket).getPublicUrl(data.path);
-        uploaded.push({ url: pub.publicUrl, category: "outros", order: next });
+      const uploaded: UploaderImage[] = [];
+      for (const url of results) {
+        if (!url) continue;
+        uploaded.push({ url, category: "outros", order: next });
         next += 1;
       }
-      if (uploaded.length) {
-        onChange([...images, ...uploaded]);
+      if (uploaded.length) onChange([...images, ...uploaded]);
+      if (failed > 0) {
+        toast.warning(
+          `${uploaded.length} convertida(s) e enviada(s), ${failed} não convertida(s)`,
+        );
+      } else if (uploaded.length) {
         toast.success(`${uploaded.length} imagem(ns) enviada(s)`);
       }
     } finally {
       setUploading(false);
+      setProgress(null);
+      setHasHeic(false);
       if (inputRef.current) inputRef.current.value = "";
     }
   };
@@ -274,8 +337,15 @@ export function ImageUploader({
         ) : (
           <Upload className="h-4 w-4" />
         )}
-        Adicionar imagens
+        {progress
+          ? `Convertendo ${Math.min(progress.done + 1, progress.total)} de ${progress.total}...`
+          : "Adicionar imagens"}
       </Button>
+      {uploading && hasHeic && (
+        <p className="text-sm text-muted-foreground" role="status">
+          Convertendo fotos do iPhone, isso pode levar alguns minutos
+        </p>
+      )}
 
       {images.length > 0 && (
         <Tabs value={tab} onValueChange={setTab}>
