@@ -554,7 +554,10 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
       }).filter((c) => !c.ok);
       if (failing.length > 0) {
         for (const c of failing) {
-          setError(c.field as keyof FormValues, { type: "manual", message: c.reason });
+          // O erro de área é sempre exibido sob a chave "area" no JSX,
+          // mesmo quando o campo visível é useful_area (apartamento).
+          const errorKey = c.label === "Área" ? "area" : c.field;
+          setError(errorKey as keyof FormValues, { type: "manual", message: c.reason });
         }
         setBlockedFields(failing.map((c) => c.field));
         scrollToField(failing[0].field);
