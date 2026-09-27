@@ -6,8 +6,8 @@
 - A página pública do imóvel não mostra características na tela. O único uso é nos dados estruturados para o Google (JSON-LD, em `property-schema.ts`), que hoje publicam o texto cru de cada item.
 
 ## 1. Novo `src/lib/property-features.ts`
-- Constante `PROPERTY_FEATURES` com os 43 itens exatamente como no pedido (`key`, `label`, `group` "comuns" | "privativa", `df`, `navent` como número ou null).
-- 17 itens "comuns" e 26 "privativa", na ordem da lista.
+- Constante `PROPERTY_FEATURES` com exatamente 35 itens, só os da lista enviada, com as mesmas keys e na mesma ordem (`key`, `label`, `group` "comuns" | "privativa", `df`, `navent` como número ou null).
+- 17 itens em "comuns" e 18 em "privativa". Nenhum item fora da lista.
 - `featureLabel(key)` retorna o rótulo; para chave desconhecida, retorna a própria chave.
 
 ## 2. `PropertyForm.tsx`
@@ -19,7 +19,7 @@
 
 ## 3. Site público
 - A tela não mostra características, então nada novo é criado.
-- Ponto para você decidir: os dados para o Google passariam a publicar keys como "piscina_condominio". Proponho usar `featureLabel` também ali, para publicar "Piscina (condomínio)". É uma linha em `property-schema.ts`. Se preferir não mexer, esse item sai do plano.
+- Aprovado: nos dados para o Google (`property-schema.ts`), cada item passa por `featureLabel`, para publicar "Piscina (condomínio)" e não "piscina_condominio".
 
 ## Não tocar
 Feeds (`feed-*.ts`, `routes/feeds.*`), banco, `evaluateFormReadiness` e as demais seções do formulário.
