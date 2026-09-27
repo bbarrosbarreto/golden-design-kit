@@ -13,6 +13,7 @@ import {
   tag,
   tagOptional,
 } from "./feed-common";
+import { selectedFeatures } from "./property-features-feed";
 
 // ============================================================================
 // IDS OFICIAIS DO CATÁLOGO DA NAVENT — ponto único de troca.
@@ -119,7 +120,20 @@ type FeedProperty = {
   condo_fee: number | null;
   iptu: number | null;
   complement: string | null;
+  features: unknown;
 };
+
+// Nomes oficiais por tipo (idTipo → id → nombre), lidos dos catálogos salvos.
+const catalogFiles = import.meta.glob("../../docs/navent/caracteristicas-*.json", {
+  eager: true,
+  import: "default",
+}) as Record<string, Array<{ id: string; nombre: string }>>;
+const NAVENT_CATALOG_NAMES: Record<string, Map<string, string>> = {};
+for (const [path, items] of Object.entries(catalogFiles)) {
+  const idTipo = path.match(/caracteristicas-(\d+)\.json$/)?.[1];
+  if (idTipo) NAVENT_CATALOG_NAMES[idTipo] = new Map(items.map((i) => [String(i.id), i.nombre]));
+}
+const warnedMissing = new Set<string>();
 
 const SELECT_COLUMNS = [
   "listing_code",
@@ -154,6 +168,7 @@ const SELECT_COLUMNS = [
   "condo_fee",
   "iptu",
   "complement",
+  "features",
 ].join(",");
 
 function stripAccents(text: string): string {
@@ -214,7 +229,7 @@ function naventType(
  * Bloco <caracteristicas> com os ids oficiais do catálogo (docs/navent/).
  * Cada valor nulo é omitido; nenhum id fora do catálogo é emitido.
  */
-function buildCaracteristicas(prop: FeedProperty): string | null {
+function buildCaracteristicas(prop: FeedProperty, idTipo: string): string | null {
   const itens: string[] = [];
   let temArea = false;
   const add = (f: { id: string; nome: string }, value: number | null): boolean => {
@@ -274,6 +289,32 @@ function buildCaracteristicas(prop: FeedProperty): string | null {
         `          <id>${NAVENT_COMPLEMENTO.id}</id>`,
         `          <nome>${NAVENT_COMPLEMENTO.nome}</nome>`,
         `          <valor>${cdata(complemento)}</valor>`,
+        "        </caracteristica>",
+      ].join("\n"),
+    );
+  }
+
+  // Características marcadas no formulário (Checkbox → idValor "1"), no fim do bloco.
+  const catalogo = NAVENT_CATALOG_NAMES[idTipo];
+  for (const feat of selectedFeatures(prop.features)) {
+    if (feat.navent === null) continue;
+    const nome = catalogo?.get(String(feat.navent));
+    if (!nome) {
+      const aviso = `${feat.navent}@${idTipo}`;
+      if (!warnedMissing.has(aviso)) {
+        warnedMissing.add(aviso);
+        console.warn(
+          `[feed-opennavent] característica ${feat.navent} (${feat.key}) ausente no catálogo do tipo ${idTipo}; não enviada.`,
+        );
+      }
+      continue;
+    }
+    itens.push(
+      [
+        "        <caracteristica>",
+        `          <id>${feat.navent}</id>`,
+        `          <nome>${cdata(nome)}</nome>`,
+        "          <idValor>1</idValor>",
         "        </caracteristica>",
       ].join("\n"),
     );
@@ -396,7 +437,7 @@ function buildImovel(prop: FeedProperty, images: { url: string; category: string
     ].join("\n"),
   );
   lines.push(buildPrecos(prop));
-  lines.push(buildCaracteristicas(prop));
+  lines.push(buildCaracteristicas(prop, idTipo));
   lines.push(buildLocalizacao(prop));
   lines.push(buildMultimidia(prop, images));
   lines.push(

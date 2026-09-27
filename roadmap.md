@@ -49,3 +49,6 @@
 ## SEO — Canonical duplicado (concluída)
 - [x] Canonical genérico removido de `__root.tsx`; layouts `imoveis.tsx`/`empreendimentos.tsx` sem `head()` (só tinham canonical)
 - [x] Verificado no HTML servido: 1 canonical por página em /, /sobre, /contato, /imoveis, /empreendimentos e detalhe de imóvel; /admin sem canonical
+
+## Etapa 2I-B (concluída)
+- [x] Características nos feeds Wimóveis (nome do catálogo do tipo, idValor 1) e DF Imóveis (Tag=1, sem repetição)
