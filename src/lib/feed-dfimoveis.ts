@@ -30,6 +30,7 @@ import {
   tag,
   tagOptional,
 } from "./feed-common";
+import { selectedFeatures } from "./property-features-feed";
 
 const CRECI = "34060";
 
@@ -65,6 +66,7 @@ type FeedProperty = {
   images: unknown;
   image_category_order: unknown;
   export_portals: string[] | null;
+  features: unknown;
 };
 
 const SELECT_COLUMNS = [
@@ -96,6 +98,7 @@ const SELECT_COLUMNS = [
   "images",
   "image_category_order",
   "export_portals",
+  "features",
 ].join(",");
 
 /** Tabela oficial do anexo 01 da documentação do DF Imóveis. */
@@ -186,6 +189,14 @@ function buildImovel(prop: FeedProperty, images: PropImage[]): string {
     lines.push(`      <Observacao>${cdata(prop.description.slice(0, 5000))}</Observacao>`);
   }
   lines.push(tag("AceitaFinanciamento", 1));
+
+  // Características marcadas: <Tag>1</Tag>, sem repetir (Piscina/Churrasqueira).
+  const emitidas = new Set<string>();
+  for (const feat of selectedFeatures(prop.features)) {
+    if (feat.df === null || emitidas.has(feat.df)) continue;
+    emitidas.add(feat.df);
+    lines.push(tag(feat.df, 1));
+  }
 
   const fotos = images
     .map((img) =>
