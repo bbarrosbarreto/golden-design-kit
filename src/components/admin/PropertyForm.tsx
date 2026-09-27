@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { PROPERTY_FEATURES } from "@/lib/property-features";
 import {
   Select,
   SelectContent,
@@ -52,6 +53,7 @@ import {
 } from "@/lib/property-export";
 
 export type PropertyRow = {
+  features?: unknown;
   id: string;
   title: string;
   slug: string;
@@ -144,6 +146,7 @@ interface FormValues {
   category: string;
   export_enabled: boolean;
   export_portals: string[];
+  features: string[];
 }
 
 const empty: FormValues = {
@@ -189,6 +192,7 @@ const empty: FormValues = {
   category: "padrao",
   export_enabled: false,
   export_portals: [],
+  features: [],
 };
 
 function toForm(p: PropertyRow): FormValues {
@@ -238,6 +242,9 @@ function toForm(p: PropertyRow): FormValues {
     export_enabled: p.export_enabled ?? false,
     export_portals: Array.isArray(p.export_portals)
       ? p.export_portals.filter((c): c is string => typeof c === "string")
+      : [],
+    features: Array.isArray(p.features)
+      ? p.features.filter((c): c is string => typeof c === "string")
       : [],
   };
 }
@@ -328,6 +335,7 @@ function toPayload(v: FormValues, ready: boolean) {
     // Anúncio incompleto nunca é exportado, independentemente da tela.
     export_enabled: ready ? v.export_enabled : false,
     export_portals: ready && v.export_enabled ? v.export_portals : [],
+    features: v.features,
   };
 }
 
@@ -381,6 +389,7 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
   const category = watch("category");
   const exportEnabled = watch("export_enabled");
   const exportPortals = watch("export_portals");
+  const features = watch("features") ?? [];
   const usefulArea = watch("useful_area");
   const builtArea = watch("built_area");
   const greenArea = watch("green_area");
@@ -1057,6 +1066,42 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
               <Label htmlFor="virtual_tour_url">URL do tour virtual</Label>
               <Input id="virtual_tour_url" {...register("virtual_tour_url")} />
             </div>
+          </div>
+
+          <div className="space-y-4 rounded-lg border border-border bg-surface p-4">
+            <h3 className="font-heading text-lg">Características</h3>
+            {(
+              [
+                ["comuns", "Áreas comuns do condomínio"],
+                ["privativa", "Área privativa da unidade"],
+              ] as const
+            ).map(([group, title]) => (
+              <div key={group} className="space-y-2">
+                <p className="text-sm font-medium text-foreground">{title}</p>
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                  {PROPERTY_FEATURES.filter((it) => it.group === group).map((it) => (
+                    <label
+                      key={it.key}
+                      className="flex cursor-pointer items-center gap-2 text-sm"
+                    >
+                      <Checkbox
+                        checked={features.includes(it.key)}
+                        onCheckedChange={(c) =>
+                          setValue(
+                            "features",
+                            c
+                              ? [...features, it.key]
+                              : features.filter((k) => k !== it.key),
+                            { shouldDirty: true },
+                          )
+                        }
+                      />
+                      {it.label}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
 
           <div className="space-y-4 rounded-lg border border-border bg-surface p-4">

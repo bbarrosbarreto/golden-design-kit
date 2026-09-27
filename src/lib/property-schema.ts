@@ -1,3 +1,4 @@
+import { featureLabel } from "@/lib/property-features";
 import {
   groupImagesByCategory,
   normalizePropImages,
@@ -97,7 +98,7 @@ function amenityFeatures(prop: SchemaProperty) {
     if (typeof f === "string" && f.trim()) {
       list.push({
         "@type": "LocationFeatureSpecification",
-        name: f.trim(),
+        name: featureLabel(f.trim()),
         value: true,
       });
     }
