@@ -1,3 +1,4 @@
+import { featureLabel } from "@/lib/property-features";
 import {
   groupImagesByCategory,
   normalizePropImages,
