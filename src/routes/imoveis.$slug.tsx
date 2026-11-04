@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useRouter, type ErrorComponentProps } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
@@ -121,7 +121,7 @@ function buildPropertyDescription(prop: PropertyDetail): string {
 }
 
 export const Route = createFileRoute("/imoveis/$slug")({
-  loader: async ({ params }) => {
+  loader: async ({ params }): Promise<PropertyDetail> => {
     const { data, error } = await supabase
       .from("properties")
       .select("*, regions(name), developments(id, title, slug)")
@@ -250,13 +250,14 @@ function PropertyDetailNotFound() {
   );
 }
 
-function PropertyDetailError({ error, reset }: { error: Error; reset: () => void }) {
+function PropertyDetailError({ error, reset }: ErrorComponentProps) {
   const router = useRouter();
+  const message = error instanceof Error ? error.message : "Erro inesperado ao carregar o imóvel.";
   return (
     <Layout>
       <div className="mx-auto max-w-2xl px-6 py-24 text-center">
         <h1 className="font-heading text-3xl font-bold text-foreground">Erro ao carregar o imóvel</h1>
-        <p className="mt-4 text-muted-foreground">{error.message}</p>
+        <p className="mt-4 text-muted-foreground">{message}</p>
         <button
           type="button"
           onClick={() => {
