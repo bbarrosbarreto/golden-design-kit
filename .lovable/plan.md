@@ -55,8 +55,18 @@ Sobre o "documento de origem": os arquivos do Wimóveis em docs/navent/ só list
 
 Todos os outros aparecem nos feeds dos portais marcados: Wimóveis tem 12 de 12 e DF Imóveis tem 3 de 3 (BB1006, BB1012 e BB1013). O BB1012 (terreno) já está nos dois. Não vou religar nem mudar nada sozinho. A ligação do ZAP com "grupozap" fica para você decidir depois, porque mexe nos feeds.
 
+## Filtro dos feeds (conferido)
+Os três feeds buscam os anúncios pela mesma função, `fetchEligible` em `src/lib/feed-common.ts` (linhas 53–78). Ela já exige ao mesmo tempo `active = true`, `status = disponivel`, `export_enabled = true` (linha 61) e o portal marcado (linha 62). Quem chama essa função: `feed-dfimoveis.ts` na linha 221, `feed-opennavent.ts` (Wimóveis) na linha 465 e `feed-zap.ts` na linha 169. Nenhum feed filtra só pelo portal, então os feeds não mudam. Desligar a exportação tira o anúncio de todos os feeds, mesmo com os portais ainda marcados.
+
+## BB1001: o que falta para exportar
+Título, logradouro, bairro, CEP, cidade, estado, descrição (2.412 caracteres), preço, áreas, quartos (3), banheiros (2) e imagens (36) estão completos. **Só falta marcar ao menos um portal**, porque a regra 2 apagou os portais dele. Não vou religar nada.
+
+## Fora do escopo
+Ligar o zap.xml à marcação "grupozap" (fica para a etapa do feed do Grupo OLX).
+
 ## Não muda
 Feeds, rotas e formato dos XMLs; banco; layout do formulário; regras de validação.
+
 
 ## Como confirmo
 - Abrir o BB1012 e salvar sem alterar nada: a chave e os portais continuam iguais, e os três feeds trazem os mesmos códigos de antes.
