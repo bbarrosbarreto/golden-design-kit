@@ -332,9 +332,10 @@ function toPayload(v: FormValues, ready: boolean) {
     category: isCategoryValidFor(v.type, v.category)
       ? v.category
       : firstCategoryFor(v.type),
-    // Anúncio incompleto nunca é exportado, independentemente da tela.
-    export_enabled: ready ? v.export_enabled : false,
-    export_portals: ready && v.export_enabled ? v.export_portals : [],
+    // Gravados exatamente como estão na tela; os feeds exigem export_enabled
+    // e o portal marcado ao mesmo tempo.
+    export_enabled: v.export_enabled,
+    export_portals: v.export_portals,
     features: v.features,
   };
 }
@@ -433,10 +434,9 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
     if (el instanceof HTMLElement) el.focus({ preventScroll: true });
   };
 
-  // Anúncio que deixa de ser válido não pode continuar marcado para exportar.
-  useEffect(() => {
-    if (!ready && exportEnabled) setValue("export_enabled", false);
-  }, [ready, exportEnabled, setValue]);
+  // A chave de exportação e os portais só mudam por ação do usuário;
+  // anúncio incompleto com exportação ligada é bloqueado no onSubmit.
+
 
   // Categoria precisa ser válida para o tipo — os portais recusam combinações
   // como apartamento + Sobrado/Duplex.
