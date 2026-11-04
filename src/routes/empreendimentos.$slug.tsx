@@ -1,4 +1,4 @@
-import { createFileRoute, notFound, useRouter, Link } from "@tanstack/react-router";
+import { createFileRoute, notFound, useRouter, Link, type ErrorComponentProps } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -28,7 +28,7 @@ function titleFromSlug(slug: string) {
 }
 
 export const Route = createFileRoute("/empreendimentos/$slug")({
-  loader: async ({ params }) => {
+  loader: async ({ params }): Promise<DevDetail> => {
     const { data, error } = await supabase
       .from("developments")
       .select("*, regions(name)")
@@ -263,7 +263,7 @@ function DevelopmentDetailNotFound() {
   );
 }
 
-function DevelopmentDetailError({ error, reset }: { error: Error; reset: () => void }) {
+function DevelopmentDetailError({ error, reset }: ErrorComponentProps) {
   const router = useRouter();
   return (
     <Layout>
