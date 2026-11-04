@@ -1153,7 +1153,8 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
             <div className="flex items-center gap-3">
               <Switch
                 checked={exportEnabled}
-                disabled={!ready}
+                // Ligar exige anúncio completo; desligar é sempre permitido.
+                disabled={!ready && !exportEnabled}
                 onCheckedChange={(v) => setValue("export_enabled", v)}
               />
               <Label className="cursor-pointer">Exportar para portais</Label>
