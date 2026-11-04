@@ -9,46 +9,31 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SobreRouteImport } from './routes/sobre'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as ImoveisRouteImport } from './routes/imoveis'
-import { Route as EmpreendimentosRouteImport } from './routes/empreendimentos'
-import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ImoveisIndexRouteImport } from './routes/imoveis.index'
-import { Route as EmpreendimentosIndexRouteImport } from './routes/empreendimentos.index'
+import { Route as ContatoRouteImport } from './routes/contato'
+import { Route as EmpreendimentosRouteImport } from './routes/empreendimentos'
+import { Route as ImoveisRouteImport } from './routes/imoveis'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SobreRouteImport } from './routes/sobre'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
-import { Route as ImoveisSlugRouteImport } from './routes/imoveis.$slug'
-import { Route as FeedsZapDotxmlRouteImport } from './routes/feeds.zap[.]xml'
-import { Route as FeedsWimoveisDotxmlRouteImport } from './routes/feeds.wimoveis[.]xml'
-import { Route as FeedsDfimoveisDotxmlRouteImport } from './routes/feeds.dfimoveis[.]xml'
-import { Route as EmpreendimentosSlugRouteImport } from './routes/empreendimentos.$slug'
-import { Route as AdminRedefinirSenhaRouteImport } from './routes/admin/redefinir-senha'
-import { Route as AdminParceirosRouteImport } from './routes/admin/parceiros'
-import { Route as AdminLoginRouteImport } from './routes/admin/login'
-import { Route as AdminLeadsRouteImport } from './routes/admin/leads'
-import { Route as AdminImoveisRouteImport } from './routes/admin/imoveis'
 import { Route as AdminEmpreendimentosRouteImport } from './routes/admin/empreendimentos'
+import { Route as AdminImoveisRouteImport } from './routes/admin/imoveis'
+import { Route as AdminLeadsRouteImport } from './routes/admin/leads'
+import { Route as AdminLoginRouteImport } from './routes/admin/login'
+import { Route as AdminParceirosRouteImport } from './routes/admin/parceiros'
+import { Route as AdminRedefinirSenhaRouteImport } from './routes/admin/redefinir-senha'
+import { Route as EmpreendimentosIndexRouteImport } from './routes/empreendimentos.index'
+import { Route as EmpreendimentosSlugRouteImport } from './routes/empreendimentos.$slug'
+import { Route as FeedsDfimoveisDotxmlRouteImport } from './routes/feeds.dfimoveis[.]xml'
+import { Route as FeedsWimoveisDotxmlRouteImport } from './routes/feeds.wimoveis[.]xml'
+import { Route as FeedsZapDotxmlRouteImport } from './routes/feeds.zap[.]xml'
+import { Route as ImoveisIndexRouteImport } from './routes/imoveis.index'
+import { Route as ImoveisSlugRouteImport } from './routes/imoveis.$slug'
 import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
 
-const SobreRoute = SobreRouteImport.update({
-  id: '/sobre',
-  path: '/sobre',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ImoveisRoute = ImoveisRouteImport.update({
-  id: '/imoveis',
-  path: '/imoveis',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EmpreendimentosRoute = EmpreendimentosRouteImport.update({
-  id: '/empreendimentos',
-  path: '/empreendimentos',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContatoRoute = ContatoRouteImport.update({
@@ -56,69 +41,34 @@ const ContatoRoute = ContatoRouteImport.update({
   path: '/contato',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const EmpreendimentosRoute = EmpreendimentosRouteImport.update({
+  id: '/empreendimentos',
+  path: '/empreendimentos',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ImoveisIndexRoute = ImoveisIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => ImoveisRoute,
+const ImoveisRoute = ImoveisRouteImport.update({
+  id: '/imoveis',
+  path: '/imoveis',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const EmpreendimentosIndexRoute = EmpreendimentosIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => EmpreendimentosRoute,
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SobreRoute = SobreRouteImport.update({
+  id: '/sobre',
+  path: '/sobre',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ImoveisSlugRoute = ImoveisSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => ImoveisRoute,
-} as any)
-const FeedsZapDotxmlRoute = FeedsZapDotxmlRouteImport.update({
-  id: '/feeds/zap.xml',
-  path: '/feeds/zap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FeedsWimoveisDotxmlRoute = FeedsWimoveisDotxmlRouteImport.update({
-  id: '/feeds/wimoveis.xml',
-  path: '/feeds/wimoveis.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FeedsDfimoveisDotxmlRoute = FeedsDfimoveisDotxmlRouteImport.update({
-  id: '/feeds/dfimoveis.xml',
-  path: '/feeds/dfimoveis.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EmpreendimentosSlugRoute = EmpreendimentosSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => EmpreendimentosRoute,
-} as any)
-const AdminRedefinirSenhaRoute = AdminRedefinirSenhaRouteImport.update({
-  id: '/admin/redefinir-senha',
-  path: '/admin/redefinir-senha',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminParceirosRoute = AdminParceirosRouteImport.update({
-  id: '/admin/parceiros',
-  path: '/admin/parceiros',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminLoginRoute = AdminLoginRouteImport.update({
-  id: '/admin/login',
-  path: '/admin/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminLeadsRoute = AdminLeadsRouteImport.update({
-  id: '/admin/leads',
-  path: '/admin/leads',
+const AdminEmpreendimentosRoute = AdminEmpreendimentosRouteImport.update({
+  id: '/admin/empreendimentos',
+  path: '/admin/empreendimentos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminImoveisRoute = AdminImoveisRouteImport.update({
@@ -126,10 +76,60 @@ const AdminImoveisRoute = AdminImoveisRouteImport.update({
   path: '/admin/imoveis',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminEmpreendimentosRoute = AdminEmpreendimentosRouteImport.update({
-  id: '/admin/empreendimentos',
-  path: '/admin/empreendimentos',
+const AdminLeadsRoute = AdminLeadsRouteImport.update({
+  id: '/admin/leads',
+  path: '/admin/leads',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminParceirosRoute = AdminParceirosRouteImport.update({
+  id: '/admin/parceiros',
+  path: '/admin/parceiros',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRedefinirSenhaRoute = AdminRedefinirSenhaRouteImport.update({
+  id: '/admin/redefinir-senha',
+  path: '/admin/redefinir-senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmpreendimentosIndexRoute = EmpreendimentosIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => EmpreendimentosRoute,
+} as any)
+const EmpreendimentosSlugRoute = EmpreendimentosSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => EmpreendimentosRoute,
+} as any)
+const FeedsDfimoveisDotxmlRoute = FeedsDfimoveisDotxmlRouteImport.update({
+  id: '/feeds/dfimoveis.xml',
+  path: '/feeds/dfimoveis.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeedsWimoveisDotxmlRoute = FeedsWimoveisDotxmlRouteImport.update({
+  id: '/feeds/wimoveis.xml',
+  path: '/feeds/wimoveis.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeedsZapDotxmlRoute = FeedsZapDotxmlRouteImport.update({
+  id: '/feeds/zap.xml',
+  path: '/feeds/zap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImoveisIndexRoute = ImoveisIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ImoveisRoute,
+} as any)
+const ImoveisSlugRoute = ImoveisSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => ImoveisRoute,
 } as any)
 const ApiPublicHealthRoute = ApiPublicHealthRouteImport.update({
   id: '/api/public/health',
@@ -297,32 +297,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/sobre': {
-      id: '/sobre'
-      path: '/sobre'
-      fullPath: '/sobre'
-      preLoaderRoute: typeof SobreRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/imoveis': {
-      id: '/imoveis'
-      path: '/imoveis'
-      fullPath: '/imoveis'
-      preLoaderRoute: typeof ImoveisRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/empreendimentos': {
-      id: '/empreendimentos'
-      path: '/empreendimentos'
-      fullPath: '/empreendimentos'
-      preLoaderRoute: typeof EmpreendimentosRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contato': {
@@ -332,26 +311,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContatoRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/empreendimentos': {
+      id: '/empreendimentos'
+      path: '/empreendimentos'
+      fullPath: '/empreendimentos'
+      preLoaderRoute: typeof EmpreendimentosRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/imoveis/': {
-      id: '/imoveis/'
-      path: '/'
-      fullPath: '/imoveis/'
-      preLoaderRoute: typeof ImoveisIndexRouteImport
-      parentRoute: typeof ImoveisRoute
+    '/imoveis': {
+      id: '/imoveis'
+      path: '/imoveis'
+      fullPath: '/imoveis'
+      preLoaderRoute: typeof ImoveisRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/empreendimentos/': {
-      id: '/empreendimentos/'
-      path: '/'
-      fullPath: '/empreendimentos/'
-      preLoaderRoute: typeof EmpreendimentosIndexRouteImport
-      parentRoute: typeof EmpreendimentosRoute
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sobre': {
+      id: '/sobre'
+      path: '/sobre'
+      fullPath: '/sobre'
+      preLoaderRoute: typeof SobreRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/admin/': {
       id: '/admin/'
@@ -360,67 +346,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/imoveis/$slug': {
-      id: '/imoveis/$slug'
-      path: '/$slug'
-      fullPath: '/imoveis/$slug'
-      preLoaderRoute: typeof ImoveisSlugRouteImport
-      parentRoute: typeof ImoveisRoute
-    }
-    '/feeds/zap.xml': {
-      id: '/feeds/zap.xml'
-      path: '/feeds/zap.xml'
-      fullPath: '/feeds/zap.xml'
-      preLoaderRoute: typeof FeedsZapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/feeds/wimoveis.xml': {
-      id: '/feeds/wimoveis.xml'
-      path: '/feeds/wimoveis.xml'
-      fullPath: '/feeds/wimoveis.xml'
-      preLoaderRoute: typeof FeedsWimoveisDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/feeds/dfimoveis.xml': {
-      id: '/feeds/dfimoveis.xml'
-      path: '/feeds/dfimoveis.xml'
-      fullPath: '/feeds/dfimoveis.xml'
-      preLoaderRoute: typeof FeedsDfimoveisDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/empreendimentos/$slug': {
-      id: '/empreendimentos/$slug'
-      path: '/$slug'
-      fullPath: '/empreendimentos/$slug'
-      preLoaderRoute: typeof EmpreendimentosSlugRouteImport
-      parentRoute: typeof EmpreendimentosRoute
-    }
-    '/admin/redefinir-senha': {
-      id: '/admin/redefinir-senha'
-      path: '/admin/redefinir-senha'
-      fullPath: '/admin/redefinir-senha'
-      preLoaderRoute: typeof AdminRedefinirSenhaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/parceiros': {
-      id: '/admin/parceiros'
-      path: '/admin/parceiros'
-      fullPath: '/admin/parceiros'
-      preLoaderRoute: typeof AdminParceirosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/login': {
-      id: '/admin/login'
-      path: '/admin/login'
-      fullPath: '/admin/login'
-      preLoaderRoute: typeof AdminLoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/leads': {
-      id: '/admin/leads'
-      path: '/admin/leads'
-      fullPath: '/admin/leads'
-      preLoaderRoute: typeof AdminLeadsRouteImport
+    '/admin/empreendimentos': {
+      id: '/admin/empreendimentos'
+      path: '/admin/empreendimentos'
+      fullPath: '/admin/empreendimentos'
+      preLoaderRoute: typeof AdminEmpreendimentosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/imoveis': {
@@ -430,12 +360,82 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminImoveisRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/empreendimentos': {
-      id: '/admin/empreendimentos'
-      path: '/admin/empreendimentos'
-      fullPath: '/admin/empreendimentos'
-      preLoaderRoute: typeof AdminEmpreendimentosRouteImport
+    '/admin/leads': {
+      id: '/admin/leads'
+      path: '/admin/leads'
+      fullPath: '/admin/leads'
+      preLoaderRoute: typeof AdminLeadsRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/parceiros': {
+      id: '/admin/parceiros'
+      path: '/admin/parceiros'
+      fullPath: '/admin/parceiros'
+      preLoaderRoute: typeof AdminParceirosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/redefinir-senha': {
+      id: '/admin/redefinir-senha'
+      path: '/admin/redefinir-senha'
+      fullPath: '/admin/redefinir-senha'
+      preLoaderRoute: typeof AdminRedefinirSenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/empreendimentos/': {
+      id: '/empreendimentos/'
+      path: '/'
+      fullPath: '/empreendimentos/'
+      preLoaderRoute: typeof EmpreendimentosIndexRouteImport
+      parentRoute: typeof EmpreendimentosRoute
+    }
+    '/empreendimentos/$slug': {
+      id: '/empreendimentos/$slug'
+      path: '/$slug'
+      fullPath: '/empreendimentos/$slug'
+      preLoaderRoute: typeof EmpreendimentosSlugRouteImport
+      parentRoute: typeof EmpreendimentosRoute
+    }
+    '/feeds/dfimoveis.xml': {
+      id: '/feeds/dfimoveis.xml'
+      path: '/feeds/dfimoveis.xml'
+      fullPath: '/feeds/dfimoveis.xml'
+      preLoaderRoute: typeof FeedsDfimoveisDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feeds/wimoveis.xml': {
+      id: '/feeds/wimoveis.xml'
+      path: '/feeds/wimoveis.xml'
+      fullPath: '/feeds/wimoveis.xml'
+      preLoaderRoute: typeof FeedsWimoveisDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feeds/zap.xml': {
+      id: '/feeds/zap.xml'
+      path: '/feeds/zap.xml'
+      fullPath: '/feeds/zap.xml'
+      preLoaderRoute: typeof FeedsZapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/imoveis/': {
+      id: '/imoveis/'
+      path: '/'
+      fullPath: '/imoveis/'
+      preLoaderRoute: typeof ImoveisIndexRouteImport
+      parentRoute: typeof ImoveisRoute
+    }
+    '/imoveis/$slug': {
+      id: '/imoveis/$slug'
+      path: '/$slug'
+      fullPath: '/imoveis/$slug'
+      preLoaderRoute: typeof ImoveisSlugRouteImport
+      parentRoute: typeof ImoveisRoute
     }
     '/api/public/health': {
       id: '/api/public/health'
