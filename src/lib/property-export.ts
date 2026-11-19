@@ -14,6 +14,25 @@ export const EXPORT_PORTALS = [
   { value: "grupozap", label: "ZAP / VivaReal / OLX" },
 ] as const;
 
+/** Limite de destaques por portal; null = limite não confirmado com o portal. */
+export const DESTAQUE_LIMITS: Record<string, number | null> = {
+  dfimoveis: 3,
+  wimoveis: null,
+  grupozap: null,
+};
+
+/** Portais cujo feed já envia destaque. Ligar um portal = trocar false por true aqui. */
+export const HIGHLIGHT_SUPPORTED: Record<string, boolean> = {
+  dfimoveis: true,
+  wimoveis: false,
+  grupozap: false,
+};
+
+/** Mantém só portais marcados para exportação e com destaque suportado. */
+export function sanitizeHighlightPortals(highlight: string[], portals: string[]): string[] {
+  return highlight.filter((p) => portals.includes(p) && HIGHLIGHT_SUPPORTED[p] === true);
+}
+
 /** Espelha exatamente o check constraint de `properties.category` (7 valores). */
 export const LISTING_CATEGORIES = [
   { value: "padrao", label: "Padrão" },

@@ -1,23 +1,22 @@
 /**
- * Gerador do feed XML do DF Imóveis (Integração via XML, Layout do Arquivo v1.1).
+ * Gerador do feed XML do DF Imóveis (Integração via XML, Layout do Arquivo v1.6, 04/06/2025).
  *
- * ATENÇÃO: este NÃO é o padrão ZAP. O DF Imóveis tem layout próprio, com
- * nomes de tags diferentes (Uf, PrecoLocacao, PrecoIptu, ExibirComplemento)
- * e sem CategoriaImovel, TipoOferta, Numero, coordenadas ou vídeos.
- * O gerador do padrão ZAP (feed-zap.ts) continua servindo outros portais.
+ * ATENÇÃO: este NÃO é o padrão ZAP. O DF Imóveis tem layout próprio.
  *
- * Subtipos disponíveis na documentação, para uso futuro:
- *   Apartamento: Padrao, Cobertura, Duplex, Triplex, Mobiliado, Loft
- *   Casa: Térrea, Sobrado, Condomínio, Barracão
- *   Sala: Sala, Andar, Clínica, Consultório
- *   Loja: Loja, Sobreloja
- *   Hotel-Flat: Hotel-Flat
+ * Pares tipo/subtipo válidos na v1.6 (somente estes):
+ *   Apartamento: Padrão, Cobertura, Duplex, Triplex, Mobiliado, Loft
+ *   Casa: Padrão, Sobrado, Barracão
+ *   Casa Condomínio: Padrão, Sobrado
+ *   Sala: Padrão, Andar, Clínica, Consultório
+ *   Loja: Padrão, Sobreloja
  *   Rural: Chácara-Sítio, Fazenda
  *   Kitnet: Kitnet-Studio, Mobiliado
- *   Ponto Comercial: Pousada, Padaria, Farmácia, Posto de Gasolina, Hotel,
- *                    Galpão, Ponto Comercial, Prédio
- *   Garagem: Garagem
- *   Lote: Lote Residencial, Lote Comercial, Lote Industrial
+ *   Hotel-Flat: Padrão
+ *   Ponto Comercial: Pousada, Padaria, Farmácia, Posto de Gasolina, Hotel, Galpão, Padrão, Prédio
+ *   Garagem: Padrão
+ *   Lote / Loteamento: Residencial, Comercial, Industrial
+ *   Predio: Misto, Comercial, Residencial
+ *   Galpao: Padrão
  */
 import { categoryLabel, type PropImage } from "./property-images";
 import {
@@ -67,6 +66,7 @@ type FeedProperty = {
   image_category_order: unknown;
   export_portals: string[] | null;
   features: unknown;
+  export_highlight_portals: string[] | null;
 };
 
 const SELECT_COLUMNS = [
@@ -99,42 +99,66 @@ const SELECT_COLUMNS = [
   "image_category_order",
   "export_portals",
   "features",
+  "export_highlight_portals",
 ].join(",");
 
 /** Tabela oficial do anexo 01 da documentação do DF Imóveis. */
-function dfPropertyType(
+export function dfPropertyType(
   type: string | null,
   category: string | null,
-): { tipo: string; subtipo: string } {
-  const cat = category ?? "";
+): { tipo: string; subtipo: string } | null {
+  const cat = (category ?? "").toLowerCase();
+  const sobrado = cat.startsWith("sobrado") ? "Sobrado" : "Padrão";
   switch (type) {
-    case "apartamento":
-      return {
-        tipo: "Apartamento",
-        subtipo: cat.startsWith("cobertura") ? "Cobertura" : "Padrao",
+    case "apartamento": {
+      const sub: Record<string, string> = {
+        cobertura: "Cobertura",
+        duplex: "Duplex",
+        triplex: "Triplex",
+        mobiliado: "Mobiliado",
+        loft: "Loft",
       };
+      const key = Object.keys(sub).find((k) => cat.startsWith(k));
+      return { tipo: "Apartamento", subtipo: key ? sub[key] : "Padrão" };
+    }
     case "cobertura":
       return { tipo: "Apartamento", subtipo: "Cobertura" };
     case "casa":
-      return {
-        tipo: "Casa",
-        subtipo: cat.startsWith("sobrado") ? "Sobrado" : "Térrea",
-      };
+      return { tipo: "Casa", subtipo: sobrado };
     case "casa_condominio":
-      return { tipo: "Casa", subtipo: "Condomínio" };
+      return { tipo: "Casa Condomínio", subtipo: sobrado };
     case "terreno":
-      return { tipo: "Lote", subtipo: "Lote Residencial" };
+      return { tipo: "Lote", subtipo: "Residencial" };
     case "comercial":
-      return { tipo: "Sala", subtipo: "Sala" };
+      return { tipo: "Sala", subtipo: "Padrão" };
     case "rural":
       return { tipo: "Rural", subtipo: "Chácara-Sítio" };
     default:
-      return { tipo: "Apartamento", subtipo: "Padrao" };
+      return null;
   }
 }
 
+const TYPES_WITH_LAND = new Set(["casa", "casa_condominio", "terreno", "rural"]);
+
+/** Áreas obrigatórias na v1.6. Inteiros; null quando não há valor (nunca 0). */
+export function dfAreas(prop: {
+  type: string | null;
+  area: number | null;
+  useful_area: number | null;
+  built_area: number | null;
+}): { util: number | null; total: number | null; terreno: number | null } {
+  const pos = (v: number | null) => {
+    const n = intOrNull(v);
+    return n !== null && n > 0 ? n : null;
+  };
+  const util = pos(prop.useful_area) ?? pos(prop.built_area) ?? pos(prop.area);
+  const total = pos(prop.area) ?? util;
+  const terreno = prop.type && TYPES_WITH_LAND.has(prop.type) ? pos(prop.area) : null;
+  return { util, total, terreno };
+}
+
 function buildImovel(prop: FeedProperty, images: PropImage[]): string {
-  const { tipo, subtipo } = dfPropertyType(prop.type, prop.category);
+  const { tipo, subtipo } = dfPropertyType(prop.type, prop.category)!;
   const lines: (string | null)[] = [];
 
   lines.push(tag("CodigoCliente", CODIGO_CLIENTE));
@@ -166,15 +190,20 @@ function buildImovel(prop: FeedProperty, images: PropImage[]): string {
   lines.push(tagOptional("PrecoCondominio", intOrNull(prop.condo_fee)));
   lines.push(tagOptional("PrecoIptu", intOrNull(prop.iptu)));
 
-  const areaUtil = intOrNull(prop.useful_area ?? prop.built_area);
-  // AreaTotal é obrigatória no layout do DF Imóveis: sem `area`, cai na útil.
-  const areaTotal = intOrNull(prop.area) ?? areaUtil;
-  lines.push(tagOptional("AreaUtil", areaUtil));
-  lines.push(tagOptional("AreaTotal", areaTotal));
-  if (prop.type === "terreno" || prop.type === "rural") {
-    lines.push(tagOptional("AreaDoTerreno", intOrNull(prop.area)));
-  }
+  const areas = dfAreas(prop);
+  lines.push(tagOptional("AreaUtil", areas.util));
+  lines.push(tagOptional("AreaTotal", areas.total));
+  lines.push(tagOptional("AreaDoTerreno", areas.terreno));
   lines.push(tag("UnidadeMetrica", "M2"));
+
+  // Destaque: só "1", nunca "0" (omitido quando não é destaque). Posição é
+  // escolha nossa: a tabela da v1.6 lista Destaque entre Longitude e
+  // QtdDormitorios; como não enviamos Longitude, a tag fica colada antes de
+  // QtdDormitorios. Nossa ordem já difere da tabela em outros pontos e o
+  // portal aceita. UltraDestaque é exclusivo do 62imoveis: não enviar.
+  if ((prop.export_highlight_portals ?? []).includes("dfimoveis")) {
+    lines.push(tag("Destaque", 1));
+  }
 
   lines.push(tagOptional("QtdDormitorios", prop.bedrooms));
   lines.push(tagOptional("QtdSuites", prop.suites));
@@ -224,6 +253,10 @@ export async function generateDfImoveisFeed(portal: string): Promise<string> {
       const images = orderedImages(prop);
       const hasArea = prop.area != null || prop.useful_area != null || prop.built_area != null;
       if (!hasArea) continue;
+      if (!dfPropertyType(prop.type, prop.category)) {
+        console.warn(`[feed-dfimoveis] tipo sem correspondência na v1.6, omitido: ${prop.listing_code} (${prop.type})`);
+        continue;
+      }
       if (!passesReadiness(prop, images.length)) continue;
       imoveis.push(buildImovel(prop, images));
     }

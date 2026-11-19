@@ -441,6 +441,8 @@ function buildImovel(prop: FeedProperty, images: { url: string; category: string
   lines.push(buildLocalizacao(prop));
   lines.push(buildMultimidia(prop, images));
   lines.push(
+    // TODO: derivar tipoPublicacao de export_highlight_portals (contém "wimoveis")
+    // quando os valores válidos do catálogo Navent forem confirmados com o portal.
     "      <publicacao>\n        <tipoPublicacao>SIMPLE</tipoPublicacao>\n      </publicacao>",
   );
   lines.push(

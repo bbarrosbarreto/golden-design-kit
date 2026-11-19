@@ -42,8 +42,10 @@ import {
   resolveCategoryOrder,
 } from "@/lib/property-images";
 import { suggestPropertyFaq } from "@/lib/property-faq";
+import { PortalExportBlock } from "@/components/admin/PortalExportBlock";
 import {
   EXPORT_PORTALS,
+  sanitizeHighlightPortals,
   categoriesForType,
   digitsOnly,
   evaluateFormReadiness,
@@ -100,6 +102,7 @@ export type PropertyRow = {
   category?: string | null;
   export_enabled?: boolean | null;
   export_portals?: string[] | null;
+  export_highlight_portals?: string[] | null;
   listing_code?: string | null;
 };
 
@@ -146,6 +149,7 @@ interface FormValues {
   category: string;
   export_enabled: boolean;
   export_portals: string[];
+  export_highlight_portals: string[];
   features: string[];
 }
 
@@ -192,6 +196,7 @@ const empty: FormValues = {
   category: "padrao",
   export_enabled: false,
   export_portals: [],
+  export_highlight_portals: [],
   features: [],
 };
 
@@ -242,6 +247,9 @@ function toForm(p: PropertyRow): FormValues {
     export_enabled: p.export_enabled ?? false,
     export_portals: Array.isArray(p.export_portals)
       ? p.export_portals.filter((c): c is string => typeof c === "string")
+      : [],
+    export_highlight_portals: Array.isArray(p.export_highlight_portals)
+      ? p.export_highlight_portals.filter((c): c is string => typeof c === "string")
       : [],
     features: Array.isArray(p.features)
       ? p.features.filter((c): c is string => typeof c === "string")
@@ -336,6 +344,10 @@ function toPayload(v: FormValues, ready: boolean) {
     // e o portal marcado ao mesmo tempo.
     export_enabled: v.export_enabled,
     export_portals: v.export_portals,
+    export_highlight_portals: sanitizeHighlightPortals(
+      v.export_highlight_portals,
+      v.export_portals,
+    ),
     features: v.features,
   };
 }
@@ -390,6 +402,7 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
   const category = watch("category");
   const exportEnabled = watch("export_enabled");
   const exportPortals = watch("export_portals");
+  const highlightPortals = watch("export_highlight_portals");
   const features = watch("features") ?? [];
   const usefulArea = watch("useful_area");
   const builtArea = watch("built_area");
@@ -419,6 +432,11 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
     export_portals: exportPortals,
   });
   const ready = readinessChecks.every((c) => c.ok);
+  // A lista de portais só aparece com a chave ligada; por isso ligar a chave
+  // não pode depender do item "portal marcado".
+  const readyExceptPortals = readinessChecks.every(
+    (c) => c.ok || c.field === "export_portals",
+  );
 
   // Campos que bloquearam o último save — o resumo no topo é recalculado em
   // tempo real a partir deles e some quando tudo é corrigido.
@@ -452,6 +470,20 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
       ? [...exportPortals.filter((p) => p !== value), value]
       : exportPortals.filter((p) => p !== value);
     setValue("export_portals", next);
+    if (!checked) {
+      setValue(
+        "export_highlight_portals",
+        (highlightPortals ?? []).filter((p) => p !== value),
+      );
+    }
+  };
+
+  const toggleHighlight = (value: string, checked: boolean) => {
+    const cur = highlightPortals ?? [];
+    setValue(
+      "export_highlight_portals",
+      checked ? [...cur.filter((p) => p !== value), value] : cur.filter((p) => p !== value),
+    );
   };
 
   // Quando a exportação é desligada, limpa os erros de campos obrigatórios dela.
@@ -1134,31 +1166,51 @@ export function PropertyForm({ open, onOpenChange, initialData }: Props) {
               </ul>
             </div>
 
-            <div id="export_portals" tabIndex={-1} className="space-y-2">
-              <p className="text-sm font-medium">Portais</p>
-              {EXPORT_PORTALS.map((p) => (
-                <div key={p.value} className="flex items-center gap-3">
-                  <Checkbox
-                    id={`portal-${p.value}`}
-                    checked={exportPortals.includes(p.value)}
-                    onCheckedChange={(v) => togglePortal(p.value, v === true)}
-                  />
-                  <Label htmlFor={`portal-${p.value}`} className="cursor-pointer">
-                    {p.label}
-                  </Label>
-                </div>
-              ))}
-            </div>
-
             <div className="flex items-center gap-3">
               <Switch
+                id="export_enabled"
                 checked={exportEnabled}
                 // Ligar exige anúncio completo; desligar é sempre permitido.
-                disabled={!ready && !exportEnabled}
+                disabled={!readyExceptPortals && !exportEnabled}
                 onCheckedChange={(v) => setValue("export_enabled", v)}
               />
-              <Label className="cursor-pointer">Exportar para portais</Label>
+              <Label htmlFor="export_enabled" className="cursor-pointer">
+                Exportar este imóvel para portais
+              </Label>
             </div>
+
+            {exportEnabled && (
+              <>
+                <div id="export_portals" tabIndex={-1} className="space-y-2">
+                  <p className="text-sm font-medium">Portais</p>
+                  <div className="flex flex-wrap gap-x-6 gap-y-2">
+                    {EXPORT_PORTALS.map((p) => (
+                      <div key={p.value} className="flex items-center gap-3">
+                        <Checkbox
+                          id={`portal-${p.value}`}
+                          checked={exportPortals.includes(p.value)}
+                          onCheckedChange={(v) => togglePortal(p.value, v === true)}
+                        />
+                        <Label htmlFor={`portal-${p.value}`} className="cursor-pointer">
+                          {p.label}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {EXPORT_PORTALS.filter((p) => exportPortals.includes(p.value)).map((p) => (
+                  <PortalExportBlock
+                    key={p.value}
+                    portal={p.value}
+                    label={p.label}
+                    propertyId={initialData?.id ?? null}
+                    highlighted={(highlightPortals ?? []).includes(p.value)}
+                    onHighlightChange={(v) => toggleHighlight(p.value, v)}
+                  />
+                ))}
+              </>
+            )}
             {!ready && (
               <p className="text-sm text-muted-foreground">
                 Complete os itens acima para exportar
